@@ -59,4 +59,6 @@
   define('FILENAME_SSL_CHECK', 'ssl_check.php');
   define('FILENAME_TELL_A_FRIEND', 'tell_a_friend.php');
   define('FILENAME_UPCOMING_PRODUCTS', 'upcoming_products.php');
+  /*Yubico - Adding custom files*/
+  define('FILENAME_ACCOUNT_AUTHENTICATION', 'account_authentications.php');
 ?>

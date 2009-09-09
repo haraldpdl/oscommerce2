@@ -11,6 +11,7 @@
 */
 
   require('includes/application_top.php');
+  require('includes/classes/Yubico.php');
 
   $action = (isset($HTTP_GET_VARS['action']) ? $HTTP_GET_VARS['action'] : '');
 
@@ -21,11 +22,34 @@
 
         $username = tep_db_prepare_input($HTTP_POST_VARS['username']);
         $password = tep_db_prepare_input($HTTP_POST_VARS['password']);
+        $fname = tep_db_prepare_input($HTTP_POST_VARS['admin_fname']);
+        $lname = tep_db_prepare_input($HTTP_POST_VARS['admin_lname']);
+        $conform_password = tep_db_prepare_input($HTTP_POST_VARS['conform_password']);
+        $error = false;
+        
+        if (!tep_not_null($username)) {
+          $messageStack->add_session(ERROR_YUBIKEY_ID_INVALID, 'error');
+          $error = true;
+        }
 
+        if (!tep_not_null($fname)) {
+          $messageStack->add_session(ERROR_FNAME, 'error');
+          $error = true;
+        }
+        
+        if ($error) {
+          tep_redirect(tep_href_link(FILENAME_ADMINISTRATORS));
+          break;
+        }
+        
+        $otp = $username;
+        $username = substr($otp, 0, 12);
+        
         $check_query = tep_db_query("select id from " . TABLE_ADMINISTRATORS . " where user_name = '" . tep_db_input($username) . "' limit 1");
 
         if (tep_db_num_rows($check_query) < 1) {
-          tep_db_query("insert into " . TABLE_ADMINISTRATORS . " (user_name, user_password) values ('" . tep_db_input($username) . "', '" . tep_db_input(tep_encrypt_password($password)) . "')");
+          tep_db_query("insert into " . TABLE_ADMINISTRATORS . " (user_name, user_password, admin_firstname, admin_lastname) values ('" . tep_db_input($username) . "', '" . tep_db_input(tep_encrypt_password($password)) . "','" . tep_db_input($fname) . "','" . tep_db_input($lname) . "')");
+          $messageStack->add_session(TEXT_INFO_INSERT_OK, 'success');
         } else {
           $messageStack->add_session(ERROR_ADMINISTRATOR_EXISTS, 'error');
         }
@@ -37,20 +61,64 @@
 
         $username = tep_db_prepare_input($HTTP_POST_VARS['username']);
         $password = tep_db_prepare_input($HTTP_POST_VARS['password']);
+        $fname = tep_db_prepare_input($HTTP_POST_VARS['admin_fname']);
+        $lname = tep_db_prepare_input($HTTP_POST_VARS['admin_lname']);
+        $conform_password = tep_db_prepare_input($HTTP_POST_VARS['conform_password']);
+        $admin_id = tep_db_prepare_input($HTTP_GET_VARS['aID']);
+        $error = false;
+        
+        if (!tep_not_null($username)) {
+          $messageStack->add_session(ERROR_YUBIKEY_ID_INVALID, 'error');
+          $error = true;
+        }
+
+        if (!tep_not_null($fname)) {
+          $messageStack->add_session(ERROR_FNAME, 'error');
+          $error = true;
+        }
+        
+        if ($error) {
+          tep_redirect(tep_href_link(FILENAME_ADMINISTRATORS));
+          break;
+        }
+        
+        $otp = $username;
+        $username = substr($otp, 0, 12);
 
         $check_query = tep_db_query("select id from " . TABLE_ADMINISTRATORS . " where user_name = '" . tep_db_input($admin['username']) . "'");
         $check = tep_db_fetch_array($check_query);
 
-        if ($admin['id'] == $check['id']) {
+        if ($admin['id'] == $admin_id) {
           $admin['username'] = $username;
         }
-
+        
+        //  check for duplication
+        $check_query_name = tep_db_query("select id from " . TABLE_ADMINISTRATORS . " where user_name = '" . tep_db_input($username) . "' limit 1");
+        // 
+        if (tep_db_num_rows($check_query_name) > 0) {
+          /// check for same name ....
+          $check_admin = tep_db_fetch_array($check_query_name);
+          if ($check_admin['id'] != $admin_id) {
+            $messageStack->add_session(ERROR_ADMINISTRATOR_EXISTS, 'error');
+            tep_redirect(tep_href_link(FILENAME_ADMINISTRATORS));
+            break;
+          }
+        }
+        
         tep_db_query("update " . TABLE_ADMINISTRATORS . " set user_name = '" . tep_db_input($username) . "' where id = '" . (int)$HTTP_GET_VARS['aID'] . "'");
 
         if (tep_not_null($password)) {
           tep_db_query("update " . TABLE_ADMINISTRATORS . " set user_password = '" . tep_db_input(tep_encrypt_password($password)) . "' where id = '" . (int)$HTTP_GET_VARS['aID'] . "'");
         }
-
+        
+        if (tep_not_null($fname)) {
+          tep_db_query("update " . TABLE_ADMINISTRATORS . " set admin_firstname = '" . tep_db_input($fname) . "' where id = '" . (int)$HTTP_GET_VARS['aID'] . "'");
+        }
+        
+        if (tep_not_null($lname)) {
+          tep_db_query("update " . TABLE_ADMINISTRATORS . " set admin_lastname = '" . tep_db_input($lname) . "' where id = '" . (int)$HTTP_GET_VARS['aID'] . "'");
+        }
+        $messageStack->add_session(TEXT_INFO_UPDATE_OK, 'success');
         tep_redirect(tep_href_link(FILENAME_ADMINISTRATORS, 'aID=' . (int)$HTTP_GET_VARS['aID']));
         break;
       case 'deleteconfirm':
@@ -106,11 +174,13 @@
           <tr>
             <td valign="top"><table border="0" width="100%" cellspacing="0" cellpadding="2">
               <tr class="dataTableHeadingRow">
-                <td class="dataTableHeadingContent"><?php echo TABLE_HEADING_ADMINISTRATORS; ?></td>
+                <td class="dataTableHeadingContent"><?php echo TABLE_HEADING_LAST_NAME; ?></td>
+                <td class="dataTableHeadingContent"><?php echo TABLE_HEADING_FIRST_NAME; ?></td>
+                <td class="dataTableHeadingContent"><?php echo TABLE_HEADING_YUBIKEY_ID; ?></td>
                 <td class="dataTableHeadingContent" align="right"><?php echo TABLE_HEADING_ACTION; ?>&nbsp;</td>
               </tr>
 <?php
-  $admins_query = tep_db_query("select id, user_name from " . TABLE_ADMINISTRATORS . " order by user_name");
+  $admins_query = tep_db_query("select id, user_name, admin_firstname, admin_lastname from " . TABLE_ADMINISTRATORS . " order by user_name");
   while ($admins = tep_db_fetch_array($admins_query)) {
     if ((!isset($HTTP_GET_VARS['aID']) || (isset($HTTP_GET_VARS['aID']) && ($HTTP_GET_VARS['aID'] == $admins['id']))) && !isset($aInfo) && (substr($action, 0, 3) != 'new')) {
       $aInfo = new objectInfo($admins);
@@ -122,6 +192,8 @@
       echo '                  <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" onclick="document.location.href=\'' . tep_href_link(FILENAME_ADMINISTRATORS, 'aID=' . $admins['id']) . '\'">' . "\n";
     }
 ?>
+                <td class="dataTableContent"><?php echo $admins['admin_lastname']; ?></td>
+                <td class="dataTableContent"><?php echo $admins['admin_firstname']; ?></td>
                 <td class="dataTableContent"><?php echo $admins['user_name']; ?></td>
                 <td class="dataTableContent" align="right"><?php if ( (isset($aInfo) && is_object($aInfo)) && ($admins['id'] == $aInfo->id) ) { echo tep_image(DIR_WS_IMAGES . 'icon_arrow_right.gif', ''); } else { echo '<a href="' . tep_href_link(FILENAME_ADMINISTRATORS, 'aID=' . $admins['id']) . '">' . tep_image(DIR_WS_IMAGES . 'icon_info.gif', IMAGE_ICON_INFO) . '</a>'; } ?>&nbsp;</td>
               </tr>
@@ -129,7 +201,7 @@
   }
 ?>
               <tr>
-                <td colspan="2" align="right"><?php echo '<a href="' . tep_href_link(FILENAME_ADMINISTRATORS, 'action=new') . '">' . tep_image_button('button_insert.gif', IMAGE_INSERT) . '</a>'; ?></td>
+                <td colspan="4" align="right"><?php echo '<a href="' . tep_href_link(FILENAME_ADMINISTRATORS, 'action=new') . '">' . tep_image_button('button_insert.gif', IMAGE_INSERT) . '</a>'; ?></td>
               </tr>
             </table></td>
 <?php
@@ -142,30 +214,35 @@
 
       $contents = array('form' => tep_draw_form('administrator', FILENAME_ADMINISTRATORS, 'action=insert'));
       $contents[] = array('text' => TEXT_INFO_INSERT_INTRO);
-      $contents[] = array('text' => '<br>' . TEXT_INFO_USERNAME . '<br>' . tep_draw_input_field('username'));
+      $contents[] = array('text' => '<br>'.TEXT_INFO_FIRST_NAME.'<br>' . tep_draw_input_field('admin_fname'));
+      $contents[] = array('text' => '<br>'.TEXT_INFO_LAST_NAME.'<br>' . tep_draw_input_field('admin_lname'));
+      $contents[] = array('text' => '<br>'.TEXT_INFO_YUBIKEY_ID.'<br>' . tep_draw_input_field('username','','class="yubiKeyInput" onKeyPress="javascript:stopEnter(event);"'));
       $contents[] = array('text' => '<br>' . TEXT_INFO_PASSWORD . '<br>' . tep_draw_password_field('password'));
-      $contents[] = array('align' => 'center', 'text' => '<br>' . tep_image_submit('button_save.gif', IMAGE_SAVE) . '&nbsp;<a href="' . tep_href_link(FILENAME_ADMINISTRATORS) . '">' . tep_image_button('button_cancel.gif', IMAGE_CANCEL) . '</a>');
+      $contents[] = array('text' => '<br>' . TEXT_INFO_CONFORM_PASSWORD . '<br>' . tep_draw_password_field('conform_password'));
+      $contents[] = array('align' => 'center', 'text' => '<br>' . tep_image_submit('button_save.gif', IMAGE_SAVE, 'onClick="return check_password();"') . '&nbsp;<a href="' . tep_href_link(FILENAME_ADMINISTRATORS) . '">' . tep_image_button('button_cancel.gif', IMAGE_CANCEL) . '</a>');
       break;
     case 'edit':
-      $heading[] = array('text' => '<b>' . $aInfo->user_name . '</b>');
+      $heading[] = array('text' => '<b>' . $aInfo->admin_firstname . '</b>');
 
       $contents = array('form' => tep_draw_form('administrator', FILENAME_ADMINISTRATORS, 'aID=' . $aInfo->id . '&action=save'));
       $contents[] = array('text' => TEXT_INFO_EDIT_INTRO);
-      $contents[] = array('text' => '<br>' . TEXT_INFO_USERNAME . '<br>' . tep_draw_input_field('username', $aInfo->user_name));
+      $contents[] = array('text' => '<br>'.TEXT_INFO_FIRST_NAME.'<br>' . tep_draw_input_field('admin_fname',$aInfo->admin_firstname));
+      $contents[] = array('text' => '<br>'.TEXT_INFO_LAST_NAME.'<br>' . tep_draw_input_field('admin_lname',$aInfo->admin_lastname));
+      $contents[] = array('text' => '<br>'.TEXT_INFO_YUBIKEY_ID.'<br>' . tep_draw_input_field('username', '','class="yubiKeyInput" onKeyPress="javascript:stopEnter(event);"'));
       $contents[] = array('text' => '<br>' . TEXT_INFO_NEW_PASSWORD . '<br>' . tep_draw_password_field('password'));
-      $contents[] = array('align' => 'center', 'text' => '<br>' . tep_image_submit('button_update.gif', IMAGE_UPDATE) . '&nbsp;<a href="' . tep_href_link(FILENAME_ADMINISTRATORS, 'aID=' . $aInfo->id) . '">' . tep_image_button('button_cancel.gif', IMAGE_CANCEL) . '</a>');
+      $contents[] = array('text' => '<br>' . TEXT_INFO_CONFORM_PASSWORD . '<br>' . tep_draw_password_field('conform_password'));
+      $contents[] = array('align' => 'center', 'text' => '<br>' . tep_image_submit('button_update.gif', IMAGE_UPDATE, 'onClick="return check_password();"') . '&nbsp;<a href="' . tep_href_link(FILENAME_ADMINISTRATORS, 'aID=' . $aInfo->id) . '">' . tep_image_button('button_cancel.gif', IMAGE_CANCEL) . '</a>');
       break;
     case 'delete':
-      $heading[] = array('text' => '<b>' . $aInfo->user_name . '</b>');
+      $heading[] = array('text' => '<b>' . $aInfo->admin_firstname . '</b>');
 
       $contents = array('form' => tep_draw_form('administrator', FILENAME_ADMINISTRATORS, 'aID=' . $aInfo->id . '&action=deleteconfirm'));
-      $contents[] = array('text' => TEXT_INFO_DELETE_INTRO);
-      $contents[] = array('text' => '<br><b>' . $aInfo->user_name . '</b>');
+      $contents[] = array('text' => TEXT_INFO_DELETE_INTRO.'<br><b>'. $aInfo->admin_firstname . ' ' . $aInfo->admin_lastname . '</b>, having YubiKey ID <b>' . $aInfo->user_name . '</b>?');
       $contents[] = array('align' => 'center', 'text' => '<br>' . tep_image_submit('button_delete.gif', IMAGE_UPDATE) . '&nbsp;<a href="' . tep_href_link(FILENAME_ADMINISTRATORS, 'aID=' . $aInfo->id) . '">' . tep_image_button('button_cancel.gif', IMAGE_CANCEL) . '</a>');
       break;
     default:
       if (isset($aInfo) && is_object($aInfo)) {
-        $heading[] = array('text' => '<b>' . $aInfo->user_name . '</b>');
+        $heading[] = array('text' => '<b>'.$aInfo->admin_firstname. '</b>');
 
         $contents[] = array('align' => 'center', 'text' => '<a href="' . tep_href_link(FILENAME_ADMINISTRATORS, 'aID=' . $aInfo->id . '&action=edit') . '">' . tep_image_button('button_edit.gif', IMAGE_EDIT) . '</a> <a href="' . tep_href_link(FILENAME_ADMINISTRATORS, 'aID=' . $aInfo->id . '&action=delete') . '">' . tep_image_button('button_delete.gif', IMAGE_DELETE) . '</a>');
       }

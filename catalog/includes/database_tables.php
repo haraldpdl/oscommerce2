@@ -57,4 +57,6 @@
   define('TABLE_ZONES_TO_GEO_ZONES', 'zones_to_geo_zones');
   define('TABLE_WHOS_ONLINE', 'whos_online');
   define('TABLE_ZONES', 'zones');
+  //Yubico
+  define('TABLE_CUSTOMERS_AUTHENTICATION_TYPE', 'customers_yubikey_mapping');
 ?>

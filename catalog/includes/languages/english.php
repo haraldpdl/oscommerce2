@@ -315,4 +315,14 @@ define('TEXT_CCVAL_ERROR_INVALID_NUMBER', 'The credit card number entered is inv
 define('TEXT_CCVAL_ERROR_UNKNOWN_CARD', 'The first four digits of the number entered are: %s. If that number is correct, we do not accept that type of credit card. If it is wrong, please try again.');
 
 define('FOOTER_TEXT_BODY', 'Copyright &copy; ' . date('Y') . ' <a href="' . tep_href_link(FILENAME_DEFAULT) . '">' . STORE_NAME . '</a><br>Powered by <a href="http://www.oscommerce.com" target="_blank">osCommerce</a>');
+/* Yubico - YubiKey Authentication scheme */
+define('ENTRY_YUBIKEY_TOKENID_ERROR', 'Invalid Yubikey token ID.');
+define('ENTRY_YUBIKEY_TOKENID_ASSIGN_ERROR', 'The YubiKey is already assigned.');
+//Yubico - Adding ENTRY_CUSTOMER_AUTH_N_TEXT
+define('ENTRY_CUSTOMER_AUTH_1_TEXT', 'Use E-Mail Address and Password (select this if you do not already have a YubiKey)');
+define('ENTRY_CUSTOMER_AUTH_2_TEXT', 'Use YubiKey OTP and Password');
+//define('ENTRY_CUSTOMER_AUTH_3_TEXT', 'Use Email-Address and YubiKey OTP');
+define('CATEGORY_AUTHENTICATION','Your Authentication Preferences');
+define('YUBICO_TOKEN_ID','YubiKey OTP:');
+/* End -YubiKey Authentication */
 ?>

@@ -153,6 +153,11 @@ function rowOutEffect(object) {
                   <tr>
                     <td class="main"><?php echo tep_image(DIR_WS_IMAGES . 'arrow_green.gif') . ' <a href="' . tep_href_link(FILENAME_ACCOUNT_PASSWORD, '', 'SSL') . '">' . MY_ACCOUNT_PASSWORD . '</a>'; ?></td>
                   </tr>
+<?php /* Yubico - YubiKey Authentication scheme */?>                  
+                  <tr>
+                    <td class="main"><?php echo tep_image(DIR_WS_IMAGES . 'arrow_green.gif') . ' <a href="' . tep_href_link(FILENAME_ACCOUNT_AUTHENTICATION, '', 'SSL') . '">' . MY_ACCOUNT_AUTHENTICATION . '</a>'; ?></td>
+                  </tr>
+<?/* End -YubiKey Authentication */?>                  
                 </table></td>
                 <td width="10" align="right"><?php echo tep_draw_separator('pixel_trans.gif', '10', '1'); ?></td>
               </tr>

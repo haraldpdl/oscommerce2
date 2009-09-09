@@ -14,6 +14,8 @@ define('HEADING_TITLE', 'Administrator Login');
 
 define('TEXT_USERNAME', 'Username:');
 define('TEXT_PASSWORD', 'Password:');
+define('TEXT_INFO_FIRST_NAME', 'First Name:');
+define('TEXT_INFO_LAST_NAME', 'Last Name:');
 
 define('TEXT_CREATE_FIRST_ADMINISTRATOR', 'No administrators exist in the database table. Please fill in the following information to create the first administrator. (A manual login is still required after this step)');
 

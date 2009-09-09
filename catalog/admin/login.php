@@ -12,6 +12,7 @@
 
   require('includes/application_top.php');
   require('includes/functions/password_funcs.php');
+  require('includes/classes/Yubico.php');
 
   $action = (isset($HTTP_GET_VARS['action']) ? $HTTP_GET_VARS['action'] : '');
 
@@ -23,15 +24,34 @@
   if (tep_not_null($action)) {
     switch ($action) {
       case 'process':
-        if (tep_session_is_registered('redirect_origin') && isset($redirect_origin['auth_user'])) {
-          $username = tep_db_prepare_input($redirect_origin['auth_user']);
-          $password = tep_db_prepare_input($redirect_origin['auth_pw']);
-        } else {
-          $username = tep_db_prepare_input($HTTP_POST_VARS['username']);
-          $password = tep_db_prepare_input($HTTP_POST_VARS['password']);
-        }
+        $username = tep_db_prepare_input($HTTP_POST_VARS['username']);
+        $password = tep_db_prepare_input($HTTP_POST_VARS['password']);
 
-        $check_query = tep_db_query("select id, user_name, user_password from " . TABLE_ADMINISTRATORS . " where user_name = '" . tep_db_input($username) . "'");
+        $otp = $username;
+        $otp_error = false;
+
+        // validate yubikey otp          
+        $yubi = &new Auth_Yubico(1, '');
+	    try {
+	      $auth = $yubi->verify($otp);
+	      if (PEAR::isError($auth)) {
+	        $messageStack->add_session('YubiKey OTP Authentication error', 'error');
+	        $otp_error = true;
+          } 
+	    } catch (Exception $e) {
+	      $messageStack->add_session('YubiKey OTP Authentication failure', 'error');
+	      $otp_error = true;
+	    }
+        
+        if ($otp_error){
+          tep_redirect(tep_href_link(FILENAME_DEFAULT));
+          break;
+        }
+          
+        // user YubiKey Token ID will act as the user name 
+        $username = substr($otp, 0, 12);
+        
+        $check_query = tep_db_query("select id, user_name, user_password, admin_firstname from " . TABLE_ADMINISTRATORS . " where user_name = '" . tep_db_input($username) . "'");
 
         if (tep_db_num_rows($check_query) == 1) {
           $check = tep_db_fetch_array($check_query);
@@ -40,19 +60,38 @@
             tep_session_register('admin');
 
             $admin = array('id' => $check['id'],
-                           'username' => $check['user_name']);
+                           'username' => $check['user_name'],
+                           'admin_firstname' => $check['admin_firstname']);
 
             if (tep_session_is_registered('redirect_origin')) {
+  /* Yubico - Bug fix
+   * Bug Description:
+   *   When a session expires, the last request details are saved i.e. request url and GET parameters.
+   *   And when administrator logs in, he/she is redirected to the last request
+   *   However, while saving or retrieving last request details, POST parameters are not considered and
+   *   this causes a problem if the last request was a POST request.
+   *   Also, a redirect is a GET request and not a POST request.
+   * Bug Date: 08/07/2009
+   * Solution: 
+   *   If the last request was POST request, simply redirect user to the base page and not to 
+   *   the last request
+   */
               $page = $redirect_origin['page'];
               $get_string = '';
+              $post_string = '';
 
               if (function_exists('http_build_query')) {
                 $get_string = http_build_query($redirect_origin['get']);
+                $post_string = http_build_query($redirect_origin['post']);
               }
 
               tep_session_unregister('redirect_origin');
 
-              tep_redirect(tep_href_link($page, $get_string));
+              if(isset($post_string) && tep_not_null($post_string)) {
+              	tep_redirect(tep_href_link($page));
+              } else {
+              	tep_redirect(tep_href_link($page, $get_string));
+              }
             } else {
               tep_redirect(tep_href_link(FILENAME_DEFAULT));
             }
@@ -82,8 +121,35 @@
         if (tep_db_num_rows($check_query) == 0) {
           $username = tep_db_prepare_input($HTTP_POST_VARS['username']);
           $password = tep_db_prepare_input($HTTP_POST_VARS['password']);
+          $fname = tep_db_prepare_input($HTTP_POST_VARS['admin_fname']);
+          $lname = tep_db_prepare_input($HTTP_POST_VARS['admin_lname']);
+          
 
-          tep_db_query('insert into ' . TABLE_ADMINISTRATORS . ' (user_name, user_password) values ("' . $username . '", "' . tep_encrypt_password($password) . '")');
+          $otp = $username;
+          $otp_error = false;
+
+          // validate yubikey otp          
+          $yubi = &new Auth_Yubico(1, '');
+	      try {
+	        $auth = $yubi->verify($otp);
+	        if (PEAR::isError($auth)) {
+	          $messageStack->add_session('YubiKey OTP Authentication error', 'error');
+	          $otp_error = true;
+            } 
+	      } catch (Exception $e) {
+	        $messageStack->add_session('YubiKey OTP Authentication failure', 'error');
+	        $otp_error = true;
+	      }
+        
+          if ($otp_error){
+            tep_redirect(tep_href_link(FILENAME_DEFAULT));
+            break;
+          }
+          
+          // user YubiKey Token ID will act as the user name 
+          $username = substr($otp, 0, 12);
+        
+          tep_db_query('insert into ' . TABLE_ADMINISTRATORS . ' (user_name, user_password, admin_firstname, admin_lastname) values ("' . $username . '", "' . tep_encrypt_password($password) . '", "' . tep_db_input($fname) . '", "' . tep_db_input($lname) . '" )');
         }
 
         tep_redirect(tep_href_link(FILENAME_LOGIN));
@@ -142,16 +208,18 @@
   if (tep_db_num_rows($admins_check_query) > 0) {
     $heading[] = array('text' => '<b>' . HEADING_TITLE . '</b>');
 
-    $contents = array('form' => tep_draw_form('login', FILENAME_LOGIN, 'action=process'));
-    $contents[] = array('text' => TEXT_USERNAME . '<br>' . tep_draw_input_field('username'));
+    $contents = array('form' => tep_draw_form('login', FILENAME_LOGIN, 'action=process', 'post', 'onsubmit="return performPrePostChecks();"'));
+    $contents[] = array('text' => 'YubiKey OTP:<br>' . tep_draw_input_field('username','','class="yubiKeyInput" onKeyPress="javascript:stopEnter(event);"'));
     $contents[] = array('text' => '<br>' . TEXT_PASSWORD . '<br>' . tep_draw_password_field('password'));
     $contents[] = array('align' => 'center', 'text' => '<br><input type="submit" value="' . BUTTON_LOGIN . '" />');
   } else {
     $heading[] = array('text' => '<b>' . HEADING_TITLE . '</b>');
 
-    $contents = array('form' => tep_draw_form('login', FILENAME_LOGIN, 'action=create'));
+    $contents = array('form' => tep_draw_form('login', FILENAME_LOGIN, 'action=create', 'post', '"onsubmit="return performPrePostChecks();"'));
     $contents[] = array('text' => TEXT_CREATE_FIRST_ADMINISTRATOR);
-    $contents[] = array('text' => '<br>' . TEXT_USERNAME . '<br>' . tep_draw_input_field('username'));
+    $contents[] = array('text' => '<br>'.TEXT_INFO_FIRST_NAME.'<br>' . tep_draw_input_field('admin_fname',$aInfo->admin_firstname));
+    $contents[] = array('text' => '<br>'.TEXT_INFO_LAST_NAME.'<br>' . tep_draw_input_field('admin_lname',$aInfo->admin_lastname));
+    $contents[] = array('text' => '<br>YubiKey OTP:<br>' . tep_draw_input_field('username','','class="yubiKeyInput" onKeyPress="javascript:stopEnter(event);"'));
     $contents[] = array('text' => '<br>' . TEXT_PASSWORD . '<br>' . tep_draw_password_field('password'));
     $contents[] = array('align' => 'center', 'text' => '<br><input type="submit" value="' . BUTTON_CREATE_ADMINISTRATOR . '" />');
   }

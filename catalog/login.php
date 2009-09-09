@@ -11,6 +11,7 @@
 */
 
   require('includes/application_top.php');
+  require('includes/classes/Yubico.php');
 
 // redirect the customer to a friendly cookie-must-be-enabled page if cookies are disabled (or the session has not started)
   if ($session_started == false) {
@@ -24,16 +25,56 @@
     $email_address = tep_db_prepare_input($HTTP_POST_VARS['email_address']);
     $password = tep_db_prepare_input($HTTP_POST_VARS['password']);
 
-// Check if email exists
-    $check_customer_query = tep_db_query("select customers_id, customers_firstname, customers_password, customers_email_address, customers_default_address_id from " . TABLE_CUSTOMERS . " where customers_email_address = '" . tep_db_input($email_address) . "'");
-    if (!tep_db_num_rows($check_customer_query)) {
+// validate email adress/yubikey otp
+    $check_customer_query = '';
+    $otp_auth_mode = false; 
+    
+// check that email address is good
+    if (!tep_validate_email($email_address)) {
+      // validate yubikey otp
+      $otp = $email_address;
+      $otp_error = false;
+      $otp_auth_mode = true;
+          
+      $yubi = &new Auth_Yubico(1, '');
+	  try {
+	    $auth = $yubi->verify($otp);
+	    if (PEAR::isError($auth)) {
+	      $error = true;
+        } 
+	  } catch (Exception $e) {
+	    $error = true;
+	  }
+	  
+      // user YubiKey Token ID will act as the user name
+      $email_address = substr($otp, 0, 12);
+      
+      $check_customer_query = tep_db_query("select cu.customers_id, customers_firstname, customers_password, customers_email_address, customers_default_address_id,  customers_authentication_type from customers cu, customers_yubikey_mapping cym where (cu.customers_id = cym.customers_id) and (cym.customers_yubikey_tokenId = '". tep_db_input($email_address) . "')");
+    } else {
+      $check_customer_query = tep_db_query("select customers_id, customers_firstname, customers_password, customers_email_address, customers_default_address_id,  customers_authentication_type from " . TABLE_CUSTOMERS . " where customers_email_address = '" . tep_db_input($email_address) . "'");
+    }
+    
+    if ($error || (!tep_db_num_rows($check_customer_query))) {
       $error = true;
     } else {
       $check_customer = tep_db_fetch_array($check_customer_query);
-// Check that password is good
+
+
+// check the authentication Type
+      if(($check_customer['customers_authentication_type'] > 1) && (!$otp_auth_mode)) {
+      	$error = true;
+      }
+      
+      if(($check_customer['customers_authentication_type'] == 1) && ($otp_auth_mode)) {
+      	$error = true;
+      }
+      
+// check that password is good      
       if (!tep_validate_password($password, $check_customer['customers_password'])) {
         $error = true;
-      } else {
+      }
+           
+      if (!$error) {
         if (SESSION_RECREATE == 'True') {
           tep_session_recreate();
         }
@@ -85,6 +126,33 @@
 <base href="<?php echo (($request_type == 'SSL') ? HTTPS_SERVER : HTTP_SERVER) . DIR_WS_CATALOG; ?>">
 <link rel="stylesheet" type="text/css" href="stylesheet.css">
 <script language="javascript"><!--
+function stop_enter(event) {
+  var evt;
+  var charCode;
+  evt = event ? event : window.event;
+  charCode = evt.which ? evt.which : evt.keyCode;
+  if (13 == charCode) {
+    //alert(charCode);
+    if(evt.which){
+      evt.preventDefault();
+    } else {
+      evt.keyCode = 9;
+    }
+    document.getElementById("password").focus();
+  }
+}
+
+function perform_pre_post_checks() {
+  if(document.getElementById("email_address").value == "") {
+    document.getElementById("email_address").focus();
+    return false;
+  } else if(document.getElementById("password").value == "") {
+    document.getElementById("password").focus();
+    return false;
+  }
+  return true;
+}
+
 function session_win() {
   window.open("<?php echo tep_href_link(FILENAME_INFO_SHOPPING_CART); ?>","info_shopping_cart","height=460,width=430,toolbar=no,statusbar=no,scrollbars=yes").focus();
 }
@@ -104,7 +172,7 @@ function session_win() {
 <!-- left_navigation_eof //-->
     </table></td>
 <!-- body_text //-->
-    <td width="100%" valign="top"><?php echo tep_draw_form('login', tep_href_link(FILENAME_LOGIN, 'action=process', 'SSL'), 'post', '', true); ?><table border="0" width="100%" cellspacing="0" cellpadding="0">
+    <td width="100%" valign="top"><?php echo tep_draw_form('login', tep_href_link(FILENAME_LOGIN, 'action=process', 'SSL'), 'post', 'onsubmit="return perform_pre_post_checks();"', true); ?><table border="0" width="100%" cellspacing="0" cellpadding="0">
       <tr>
         <td><table border="0" width="100%" cellspacing="0" cellpadding="0">
           <tr>
@@ -183,8 +251,8 @@ function session_win() {
                     <td colspan="2"><?php echo tep_draw_separator('pixel_trans.gif', '100%', '10'); ?></td>
                   </tr>
                   <tr>
-                    <td class="main"><b><?php echo ENTRY_EMAIL_ADDRESS; ?></b></td>
-                    <td class="main"><?php echo tep_draw_input_field('email_address'); ?></td>
+                    <td class="main"><b><?php echo 'YubiKey OTP / '.ENTRY_EMAIL_ADDRESS; ?></b></td>
+                    <td class="main"><?php echo tep_draw_input_field('email_address','','class="yubiKeyInput" onKeyPress="javascript:stop_enter(event);"'); ?></td>
                   </tr>
                   <tr>
                     <td class="main"><b><?php echo ENTRY_PASSWORD; ?></b></td>

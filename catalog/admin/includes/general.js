@@ -49,3 +49,70 @@ function toggleDivBlock(id) {
     }
   }
 }
+
+function stopEnter(event) {
+  var evt;
+  var charCode;
+  evt = event ? event : window.event;
+  charCode = evt.which ? evt.which : evt.keyCode;
+  if (13 == charCode) {
+    //alert(charCode);
+    if(evt.which){
+      evt.preventDefault();
+    } else {
+      evt.keyCode = 9;
+    }
+    document.getElementById("password").focus();
+  }
+}	
+
+function performPrePostChecks() {
+  if(document.getElementById("username").value == "") {
+    document.getElementById("username").focus();
+    return false;
+  } else if(document.getElementById("password").value == "") {
+    document.getElementById("password").focus();
+    return false;
+  }
+  return true;
+}
+
+function check_password() {
+  var error = false;
+  var error_message = "Errors have occured during the process of your form!\nPlease make the following corrections:\n\n";
+  
+  var password = document.getElementById("password").value;
+  var confirmation = document.getElementById("conform_password").value;
+  var fname = document.getElementById("admin_fname").value;
+  var lname = document.getElementById("admin_lname").value;
+  var otp = document.getElementById("username").value;
+
+  if (fname.length < 2) {
+    error_message = error_message + "* First Name must contain a minimum of 2 characters.\n";
+    error = true;
+  }
+
+  if (lname.length < 2) {
+    error_message = error_message + "* Last Name must contain a minimum of 2 characters.\n";
+    error = true;
+  }
+
+  if (otp.length < 12) {
+    error_message = error_message + "* Please provide a valid YubiKey OTP.\n";
+    error = true;
+  }
+
+  if (password.length < 5) {
+    error_message = error_message + "* Password must contain a minimum of 5 characters.\n";
+    error = true;
+  } else if (password != confirmation) {
+    error_message = error_message + "* The Password Confirmation must match your Password.\n";
+    error = true;
+  }
+
+  if (error) {
+    alert(error_message);
+    return false;
+  }
+  return true;
+}
