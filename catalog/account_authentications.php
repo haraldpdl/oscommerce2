@@ -21,7 +21,7 @@
 // needs to be included earlier to set the success message in the messageStack
   require(DIR_WS_LANGUAGES . $language . '/' . FILENAME_ACCOUNT_AUTHENTICATION);
 
-  if (isset($HTTP_POST_VARS['action']) && ($HTTP_POST_VARS['action'] == 'process')) {
+  if (isset($HTTP_GET_VARS['action']) && ($HTTP_GET_VARS['action'] == 'process') && isset($HTTP_POST_VARS['formid']) && ($HTTP_POST_VARS['formid'] == $sessiontoken)) {
     $authentication_type = tep_db_prepare_input($HTTP_POST_VARS['authentication_type']);
     $yubico_tokenId = tep_db_prepare_input($HTTP_POST_VARS['tokenId']);
 
@@ -71,6 +71,9 @@
       if(!$error) {
         tep_db_query("UPDATE " . TABLE_CUSTOMERS . " SET customers_authentication_type = ".$authentication_type." WHERE customers_id = ".(int)$customer_id );
         $messageStack->add_session('account_authentications', SUCCESS_ACCOUNT_AUTH_UPDATED, 'success');
+
+// reset session token
+        $sessiontoken = md5(tep_rand() . tep_rand() . tep_rand() . tep_rand());
       }
       
       tep_redirect(tep_href_link(FILENAME_ACCOUNT_AUTHENTICATION, '', 'SSL'));
@@ -106,6 +109,9 @@
           
           tep_db_query("UPDATE " . TABLE_CUSTOMERS . " SET customers_authentication_type = ". $authentication_type. " WHERE customers_id = " .(int)$customer_id );
           $messageStack->add_session('account_authentications', SUCCESS_ACCOUNT_AUTH_UPDATED, 'success');
+
+// reset session token
+          $sessiontoken = md5(tep_rand() . tep_rand() . tep_rand() . tep_rand());
         }
       }
       
@@ -147,7 +153,7 @@
 <!-- left_navigation_eof //-->
     </table></td>
 <!-- body_text //-->
-    <td width="100%" valign="top"><?php echo tep_draw_form('account_authentications', tep_href_link(FILENAME_ACCOUNT_AUTHENTICATION, '', 'SSL'), 'post', 'onSubmit="return check_form(account_authentications);"') . tep_draw_hidden_field('action', 'process'); ?><table border="0" width="100%" cellspacing="0" cellpadding="0">
+    <td width="100%" valign="top"><?php echo tep_draw_form('account_authentications', tep_href_link(FILENAME_ACCOUNT_AUTHENTICATION, 'action=process', 'SSL'), 'post', 'onSubmit="return check_form(account_authentications);"', true); ?><table border="0" width="100%" cellspacing="0" cellpadding="0">
       <tr>
         <td><table border="0" width="100%" cellspacing="0" cellpadding="0">
           <tr>
