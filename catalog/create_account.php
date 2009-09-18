@@ -5,13 +5,13 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2008 osCommerce
+  Copyright (c) 2009 osCommerce
 
   Released under the GNU General Public License
 */
 
   require('includes/application_top.php');
-  require('includes/classes/Yubico.php');
+  require('includes/classes/yubico.php');
 
 // needs to be included earlier to set the success message in the messageStack
   require(DIR_WS_LANGUAGES . $language . '/' . FILENAME_CREATE_ACCOUNT);
@@ -47,10 +47,11 @@
     $country = tep_db_prepare_input($HTTP_POST_VARS['country']);
     $telephone = tep_db_prepare_input($HTTP_POST_VARS['telephone']);
     $fax = tep_db_prepare_input($HTTP_POST_VARS['fax']);
-  /* Yubico - Accepting YubiKey Authentication scheme */
+
+/* Yubico - Accepting YubiKey Authentication scheme */
     $authentication_type = tep_db_prepare_input($HTTP_POST_VARS['authentication_type']);
     $yubico_otp = tep_db_prepare_input($HTTP_POST_VARS['tokenId']);
-        
+
     if (isset($HTTP_POST_VARS['newsletter'])) {
       $newsletter = tep_db_prepare_input($HTTP_POST_VARS['newsletter']);
     } else {
@@ -131,46 +132,35 @@
       $messageStack->add('create_account', ENTRY_COUNTRY_ERROR);
     }
 
-   
-  /* Yubico - YubiKey Authentication scheme 
-   * 
-   * begins here 
-   */
-    if ($authentication_type > 1) {
-      if (strlen($yubico_otp) < 12) {
-        $error = true;
-        $messageStack->add('create_account', ENTRY_YUBIKEY_TOKENID_ERROR);
-      } else {
-      	// validate yubikey otp
-        $yubi = &new Auth_Yubico(1, '');
-	    try {
-	      $auth = $yubi->verify($yubico_otp);
-	      if (PEAR::isError($auth)) {
-	        $messageStack->add('create_account','YubiKey OTP Authentication error', 'error');
-	        $error = true;
-          } 
-	    } catch (Exception $e) {
-	      $messageStack->add('create_account','YubiKey OTP Authentication failure');
-	      $error = true;
-	    }
-	    
-        // user YubiKey Token ID will act as the user name
-        $yubico_token_id = substr($yubico_otp,0,12);
-        
-        $token_check_query = tep_db_query("select count(*) as total from " . TABLE_CUSTOMERS_AUTHENTICATION_TYPE . " where customers_yubikey_tokenId = '" . $yubico_token_id . "'");
-        $token_check = tep_db_fetch_array($token_check_query);
-        $assigned = ($token_check['total'] > 0);
-        if ($assigned == true) {
+/* Yubico - YubiKey Authentication scheme
+ *
+ * begins here
+ */
+    if (!in_array($authentication_type, array('1', '2'))) {
+      $authentication_type = '1';
+    }
+
+    if ($authentication_type == '2') {
+// validate yubikey otp
+      $yubi = new Auth_Yubico();
+
+      if ($yubi->verify($yubico_otp)) {
+// user YubiKey Token ID will act as the user name
+        $yubico_token_id = substr($yubico_otp, 0, 12);
+
+        $assigned_token_check_query = tep_db_query("select customers_yubikey_tokenId from " . TABLE_CUSTOMERS_AUTHENTICATION_TYPE . " where customers_yubikey_tokenId = '" . tep_db_input($yubico_token_id) . "' limit 1");
+        if (tep_db_num_rows($assigned_token_check_query) > 0) {
           $error = true;
-          $messageStack->add('create_account', ENTRY_YUBIKEY_TOKENID_ASSIGN_ERROR);
+
+          $messageStack->add('create_account', ENTRY_YUBIKEY_TOKENID_ASSIGN_ERROR, 'error');
         }
+      } else {
+        $error = true;
+
+        $messageStack->add('create_account', INFO_YUBIKEY_TOKENID_INVALID_ERROR, 'error');
       }
     }
-  /* Yubico - YubiKey Authentication scheme 
-   * 
-   * ends here 
-   */
-   
+
     if (ACCOUNT_STATE == 'true') {
       $zone_id = 0;
       $check_query = tep_db_query("select count(*) as total from " . TABLE_ZONES . " where zone_country_id = '" . (int)$country . "'");
@@ -258,8 +248,10 @@
 
       tep_db_query("insert into " . TABLE_CUSTOMERS_INFO . " (customers_info_id, customers_info_number_of_logons, customers_info_date_account_created) values ('" . (int)$customer_id . "', '0', now())");
 
-  /* Yubico - YubiKey Authentication scheme */
-      tep_db_query("INSERT INTO " . TABLE_CUSTOMERS_AUTHENTICATION_TYPE . "(customers_id, customers_yubikey_tokenId) VALUES (". $customer_id .",'" . $yubico_token_id . "')");
+/* Yubico - YubiKey Authentication scheme */
+      if ($authentication_type == '2') {
+        tep_db_query("insert into " . TABLE_CUSTOMERS_AUTHENTICATION_TYPE . " (customers_id, customers_yubikey_tokenId) values ('" . (int)$customer_id . "', '" . tep_db_input($yubico_token_id) . "')");
+      }
 
       if (SESSION_RECREATE == 'True') {
         tep_session_recreate();
@@ -324,7 +316,6 @@ function stop_enter(event) {
     } else {
       evt.keyCode = 9;
     }
-    //document.getElementById("password").focus();
   }
 }
 //--></script>
@@ -343,7 +334,7 @@ function stop_enter(event) {
 <!-- left_navigation_eof //-->
     </table></td>
 <!-- body_text //-->
-    <td width="100%" valign="top"><?php echo tep_draw_form('create_account', tep_href_link(FILENAME_CREATE_ACCOUNT, '', 'SSL'), 'post', 'onSubmit="return check_form(create_account);"', true) . tep_draw_hidden_field('action', 'process'); ?><table border="0" width="100%" cellspacing="0" cellpadding="0">
+    <td width="100%" valign="top"><?php echo tep_draw_form('create_account', tep_href_link(FILENAME_CREATE_ACCOUNT, '', 'SSL'), 'post', 'onsubmit="return check_form(create_account);"', true) . tep_draw_hidden_field('action', 'process'); ?><table border="0" width="100%" cellspacing="0" cellpadding="0">
       <tr>
         <td><table border="0" width="100%" cellspacing="0" cellpadding="0">
           <tr>
@@ -590,21 +581,15 @@ function stop_enter(event) {
       </tr>
       <tr>
         <td><table border="0" width="100%" cellspacing="1" cellpadding="2" class="infoBox">
-            <tr class="infoBoxContents">
-            <td><table border="0" width="100%" cellspacing="2" cellpadding="2">
-              <tr>
-                <td class="main"><?php echo tep_draw_radio_field('authentication_type','1',false) . '&nbsp;'; ?>&nbsp;<?php echo ENTRY_CUSTOMER_AUTH_1_TEXT; ?></td>
-              </tr>
-              <tr>
-                <td class="main"><?php echo tep_draw_radio_field('authentication_type','2',true) . '&nbsp;'; ?>&nbsp;<?php echo ENTRY_CUSTOMER_AUTH_2_TEXT; ?></td>
-              </tr>
-            </table></td>
-          </tr>
           <tr class="infoBoxContents">
             <td><table border="0" width="100%" cellspacing="2" cellpadding="2">
               <tr>
-                <td class="main" width="30%"><?php echo '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.YUBICO_TOKEN_ID; ?></td>
-                <td class="main" width="70%"><?php echo tep_draw_input_field('tokenId','','class="yubiKeyInput" onKeyPress="javascript:stop_enter(event);"'). '&nbsp;' . '<span class="inputRequirement">*</span>';;?></td>
+                <td class="main" valign="top"><?php echo tep_draw_radio_field('authentication_type', '1', true); ?></td>
+                <td class="main" valign="top"><?php echo ENTRY_CUSTOMER_AUTH_1_TEXT; ?></td>
+              </tr>
+              <tr>
+                <td class="main" valign="top"><?php echo tep_draw_radio_field('authentication_type', '2', false); ?></td>
+                <td class="main" valign="top"><?php echo ENTRY_CUSTOMER_AUTH_2_TEXT . '<br /><br />' . YUBICO_TOKEN_ID . '&nbsp;' . tep_draw_input_field('tokenId', '', 'class="yubiKeyInput" onkeypress="stop_enter(event);"') . '&nbsp;<span class="inputRequirement">*</span>'; ?></td>
               </tr>
             </table></td>
           </tr>

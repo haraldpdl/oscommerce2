@@ -5,7 +5,7 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2003 osCommerce
+  Copyright (c) 2009 osCommerce
 
   Released under the GNU General Public License
 */
@@ -20,9 +20,9 @@ define('TEXT_NEW_CUSTOMER_INTRODUCTION', 'By creating an account at ' . STORE_NA
 define('HEADING_RETURNING_CUSTOMER', 'Returning Customer');
 define('TEXT_RETURNING_CUSTOMER', 'I am a returning customer.');
 
-define('TEXT_PASSWORD_FORGOTTEN', 'Password forgotten/lost YubiKey ? Click here.');
+define('TEXT_YUBIKEY_EMAIL_ADDRESS', 'YubiKey OTP / E-Mail Address:');
+define('TEXT_PASSWORD_FORGOTTEN', 'Password forgotten or YubiKey lost? Click here.');
 
-//define('TEXT_LOGIN_ERROR', 'Error: No match for YubiKey Token ID / E-Mail Address and/or Password.');
-define('TEXT_LOGIN_ERROR', 'Error: Authentication failed!');
+define('TEXT_LOGIN_ERROR', 'Error: Authentication failed. Please try again.');
 define('TEXT_VISITORS_CART', '<font color="#ff0000"><b>Note:</b></font> Your &quot;Visitors Cart&quot; contents will be merged with your &quot;Members Cart&quot; contents once you have logged on. <a href="javascript:session_win();">[More Info]</a>');
 ?>

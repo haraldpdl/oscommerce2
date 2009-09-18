@@ -41,7 +41,7 @@
    */
 
 //require_once 'PEAR.php';
-require('PEAR.php');
+//require('PEAR.php');
 
 /**
  * Class for verifying Yubico One-Time-Passcodes
@@ -113,7 +113,7 @@ class Auth_Yubico
 	 * @param    boolean Flag whether to use https (optional)
 	 * @access public
 	 */
-	function Auth_Yubico($id, $key = '', $https = 0)
+	function Auth_Yubico($id = 1, $key = '', $https = 0)
 	{
 		$this->_id =  $id;
 		$this->_key = base64_decode($key);
@@ -175,7 +175,7 @@ class Auth_Yubico
 	 * Verify Yubico OTP
 	 *
 	 * @param string $token     Yubico OTP
-	 * @return mixed            PEAR error on error, true otherwise
+	 * @return mixed            false on error, true otherwise
 	 * @access public
 	 */
 	function verify($token)
@@ -199,14 +199,14 @@ class Auth_Yubico
 		$this->_query .= $parameters;
 
 		$ch = curl_init($this->_query);
-		curl_setopt($ch, CURLOPT_USERAGENT, "PEAR Auth_Yubico");
+		curl_setopt($ch, CURLOPT_USERAGENT, "osCommerce Auth_Yubico");
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 		$this->_response = curl_exec($ch);
 		curl_close($ch);
 		
 		if(!preg_match("/status=([a-zA-Z0-9_]+)/", $this->_response, $out)) {
-			return PEAR::raiseError('Could not parse response');
+			return false; //PEAR::raiseError('Could not parse response');
 		}
 
 		$status = $out[1];
@@ -224,12 +224,12 @@ class Auth_Yubico
 			$check = 'status=' . $response[status] . '&t='. $response[t];
 			$checksignature = base64_encode(hash_hmac('sha1', $check, $this->_key, true));
 			if($response[h] != $checksignature) {
-				return PEAR::raiseError('Checked Signature failed');
+				return false; //PEAR::raiseError('Checked Signature failed');
 			}
 		}
 		
 		if ($status != 'OK') {
-			return PEAR::raiseError($status);
+			return false; //PEAR::raiseError($status);
 		}
 
 		return true;

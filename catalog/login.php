@@ -5,13 +5,13 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2008 osCommerce
+  Copyright (c) 2009 osCommerce
 
   Released under the GNU General Public License
 */
 
   require('includes/application_top.php');
-  require('includes/classes/Yubico.php');
+  require('includes/classes/yubico.php');
 
 // redirect the customer to a friendly cookie-must-be-enabled page if cookies are disabled (or the session has not started)
   if ($session_started == false) {
@@ -26,87 +26,86 @@
     $password = tep_db_prepare_input($HTTP_POST_VARS['password']);
 
 // validate email adress/yubikey otp
-    $check_customer_query = '';
-    $otp_auth_mode = false; 
-    
+    $otp_auth_mode = false;
+
 // check that email address is good
-    if (!tep_validate_email($email_address)) {
-      // validate yubikey otp
-      $otp = $email_address;
-      $otp_error = false;
-      $otp_auth_mode = true;
-          
-      $yubi = &new Auth_Yubico(1, '');
-	  try {
-	    $auth = $yubi->verify($otp);
-	    if (PEAR::isError($auth)) {
-	      $error = true;
-        } 
-	  } catch (Exception $e) {
-	    $error = true;
-	  }
-	  
-      // user YubiKey Token ID will act as the user name
-      $email_address = substr($otp, 0, 12);
-      
-      $check_customer_query = tep_db_query("select cu.customers_id, customers_firstname, customers_password, customers_email_address, customers_default_address_id,  customers_authentication_type from customers cu, customers_yubikey_mapping cym where (cu.customers_id = cym.customers_id) and (cym.customers_yubikey_tokenId = '". tep_db_input($email_address) . "')");
-    } else {
+    if (tep_validate_email($email_address)) {
       $check_customer_query = tep_db_query("select customers_id, customers_firstname, customers_password, customers_email_address, customers_default_address_id,  customers_authentication_type from " . TABLE_CUSTOMERS . " where customers_email_address = '" . tep_db_input($email_address) . "'");
-    }
-    
-    if ($error || (!tep_db_num_rows($check_customer_query))) {
-      $error = true;
     } else {
-      $check_customer = tep_db_fetch_array($check_customer_query);
+// validate yubikey otp
+      $otp_auth_mode = true;
+      $otp = $email_address;
 
+      $yubi = new Auth_Yubico();
 
-// check the authentication Type
-      if(($check_customer['customers_authentication_type'] > 1) && (!$otp_auth_mode)) {
-      	$error = true;
-      }
-      
-      if(($check_customer['customers_authentication_type'] == 1) && ($otp_auth_mode)) {
-      	$error = true;
-      }
-      
-// check that password is good      
-      if (!tep_validate_password($password, $check_customer['customers_password'])) {
+      if ($yubi->verify($otp) == true) {
+// user YubiKey Token ID will act as the user name
+        $otp_token_id = substr($otp, 0, 12);
+
+        $check_customer_query = tep_db_query("select cu.customers_id, customers_firstname, customers_password, customers_email_address, customers_default_address_id,  customers_authentication_type from customers cu, customers_yubikey_mapping cym where cu.customers_id = cym.customers_id and cym.customers_yubikey_tokenId = '". tep_db_input($otp_token_id) . "'");
+      } else {
         $error = true;
       }
-           
-      if (!$error) {
-        if (SESSION_RECREATE == 'True') {
-          tep_session_recreate();
+    }
+
+    if ($error != true) {
+      if (!tep_db_num_rows($check_customer_query)) {
+        $error = true;
+      } else {
+        $check_customer = tep_db_fetch_array($check_customer_query);
+
+// check the authentication Type
+        if (($check_customer['customers_authentication_type'] == 1) && $otp_auth_mode) {
+          $error = true;
         }
 
-        $check_country_query = tep_db_query("select entry_country_id, entry_zone_id from " . TABLE_ADDRESS_BOOK . " where customers_id = '" . (int)$check_customer['customers_id'] . "' and address_book_id = '" . (int)$check_customer['customers_default_address_id'] . "'");
-        $check_country = tep_db_fetch_array($check_country_query);
+        if (($check_customer['customers_authentication_type'] == 2) && !$otp_auth_mode) {
+          $error = true;
+        }
 
-        $customer_id = $check_customer['customers_id'];
-        $customer_default_address_id = $check_customer['customers_default_address_id'];
-        $customer_first_name = $check_customer['customers_firstname'];
-        $customer_country_id = $check_country['entry_country_id'];
-        $customer_zone_id = $check_country['entry_zone_id'];
-        tep_session_register('customer_id');
-        tep_session_register('customer_default_address_id');
-        tep_session_register('customer_first_name');
-        tep_session_register('customer_country_id');
-        tep_session_register('customer_zone_id');
+        if (($check_customer['customers_authentication_type'] == 3) && tep_validate_email($email_address)) {
+          $error = true;
+        }
 
-        tep_db_query("update " . TABLE_CUSTOMERS_INFO . " set customers_info_date_of_last_logon = now(), customers_info_number_of_logons = customers_info_number_of_logons+1 where customers_info_id = '" . (int)$customer_id . "'");
+// check that password is good
+        if (($check_customer['customers_authentication_type'] != '3') && !tep_validate_password($password, $check_customer['customers_password'])) {
+          $error = true;
+        }
+
+        if ($error != true) {
+          if (SESSION_RECREATE == 'True') {
+            tep_session_recreate();
+          }
+
+          $check_country_query = tep_db_query("select entry_country_id, entry_zone_id from " . TABLE_ADDRESS_BOOK . " where customers_id = '" . (int)$check_customer['customers_id'] . "' and address_book_id = '" . (int)$check_customer['customers_default_address_id'] . "'");
+          $check_country = tep_db_fetch_array($check_country_query);
+
+          $customer_id = $check_customer['customers_id'];
+          $customer_default_address_id = $check_customer['customers_default_address_id'];
+          $customer_first_name = $check_customer['customers_firstname'];
+          $customer_country_id = $check_country['entry_country_id'];
+          $customer_zone_id = $check_country['entry_zone_id'];
+          tep_session_register('customer_id');
+          tep_session_register('customer_default_address_id');
+          tep_session_register('customer_first_name');
+          tep_session_register('customer_country_id');
+          tep_session_register('customer_zone_id');
+
+          tep_db_query("update " . TABLE_CUSTOMERS_INFO . " set customers_info_date_of_last_logon = now(), customers_info_number_of_logons = customers_info_number_of_logons+1 where customers_info_id = '" . (int)$customer_id . "'");
 
 // reset session token
-        $sessiontoken = md5(tep_rand() . tep_rand() . tep_rand() . tep_rand());
+          $sessiontoken = md5(tep_rand() . tep_rand() . tep_rand() . tep_rand());
 
 // restore cart contents
-        $cart->restore_contents();
+          $cart->restore_contents();
 
-        if (sizeof($navigation->snapshot) > 0) {
-          $origin_href = tep_href_link($navigation->snapshot['page'], tep_array_to_string($navigation->snapshot['get'], array(tep_session_name())), $navigation->snapshot['mode']);
-          $navigation->clear_snapshot();
-          tep_redirect($origin_href);
-        } else {
-          tep_redirect(tep_href_link(FILENAME_DEFAULT));
+          if (sizeof($navigation->snapshot) > 0) {
+            $origin_href = tep_href_link($navigation->snapshot['page'], tep_array_to_string($navigation->snapshot['get'], array(tep_session_name())), $navigation->snapshot['mode']);
+            $navigation->clear_snapshot();
+            tep_redirect($origin_href);
+          } else {
+            tep_redirect(tep_href_link(FILENAME_DEFAULT));
+          }
         }
       }
     }
@@ -145,9 +144,6 @@ function stop_enter(event) {
 function perform_pre_post_checks() {
   if(document.getElementById("email_address").value == "") {
     document.getElementById("email_address").focus();
-    return false;
-  } else if(document.getElementById("password").value == "") {
-    document.getElementById("password").focus();
     return false;
   }
   return true;
@@ -251,12 +247,12 @@ function session_win() {
                     <td colspan="2"><?php echo tep_draw_separator('pixel_trans.gif', '100%', '10'); ?></td>
                   </tr>
                   <tr>
-                    <td class="main"><b><?php echo 'YubiKey OTP / '.ENTRY_EMAIL_ADDRESS; ?></b></td>
-                    <td class="main"><?php echo tep_draw_input_field('email_address','','class="yubiKeyInput" onKeyPress="javascript:stop_enter(event);"'); ?></td>
+                    <td class="main"><b><?php echo TEXT_YUBIKEY_EMAIL_ADDRESS; ?></b></td>
+                    <td class="main"><?php echo tep_draw_input_field('email_address', '', 'id="email_address" class="yubiKeyInput" onkeypress="stop_enter(event);"'); ?></td>
                   </tr>
                   <tr>
                     <td class="main"><b><?php echo ENTRY_PASSWORD; ?></b></td>
-                    <td class="main"><?php echo tep_draw_password_field('password'); ?></td>
+                    <td class="main"><?php echo tep_draw_password_field('password', '', 'id="password" maxlength="40"'); ?></td>
                   </tr>
                   <tr>
                     <td colspan="2"><?php echo tep_draw_separator('pixel_trans.gif', '100%', '10'); ?></td>

@@ -288,5 +288,6 @@ SPAN.errorText {
 /* input requirement */
 
 .inputRequirement { font-family: Verdana, Arial, sans-serif; font-size: 10px; color: #ff0000; }
+
 /* Yubico Mice header*/
-.yubiKeyInput { background: white url("./images/yubiright_16x16.gif") no-repeat 2px 2px; padding-left: 20px; height: 22px; width: 135px; }
+.yubiKeyInput { background: url('images/yubiright_16x16.gif') no-repeat 1px 1px; padding-left: 18px; height: 22px; width: 149px; }
