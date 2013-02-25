@@ -94,6 +94,8 @@
 
     register_shutdown_function('session_write_close');
 
+    register_shutdown_function('session_write_close');
+
     return session_start();
   }
 ?>
