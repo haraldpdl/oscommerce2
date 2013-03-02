@@ -109,7 +109,7 @@
     }
 
     if (osc_not_null($width) && osc_not_null($height)) {
-      $image .= ' width="' . osc_output_string($width) . '" height="' . osc_output_string($height) . '"';
+      $image .= ' style ="' . 'width:' . osc_output_string($width) . 'px; height:' . osc_output_string($height) . 'px;"';
     }
 
     if (osc_not_null($parameters)) $image .= ' ' . $parameters;
@@ -371,7 +371,7 @@
       $button .= '</button>';
     }
 
-    $button .= '</span><script type="text/javascript">$("#tdb' . $button_counter . '").button(';
+    $button .= '</span><script>$("#tdb' . $button_counter . '").button(';
 
     $args = array();
 

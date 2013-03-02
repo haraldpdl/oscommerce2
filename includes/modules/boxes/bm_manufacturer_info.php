@@ -38,10 +38,11 @@
         if (osc_db_num_rows($manufacturer_query)) {
           $manufacturer = osc_db_fetch_array($manufacturer_query);
 
-          $manufacturer_info_string = '';
-          if (osc_not_null($manufacturer['manufacturers_image'])) $manufacturer_info_string .= '<li style="text-align:center;">' . osc_image(DIR_WS_IMAGES . $manufacturer['manufacturers_image'], $manufacturer['manufacturers_name']) . '</li>';
-          if (osc_not_null($manufacturer['manufacturers_url'])) $manufacturer_info_string .= '<li><a href="' . osc_href_link(null, 'redirect&manufacturer=' . $manufacturer['manufacturers_id']) . '" target="_blank">' . sprintf(MODULE_BOXES_MANUFACTURER_INFO_BOX_HOMEPAGE, $manufacturer['manufacturers_name']) . '</a></li>';
-          $manufacturer_info_string .= '<li><a href="' . osc_href_link(null, 'manufacturers_id=' . $manufacturer['manufacturers_id']) . '">' . MODULE_BOXES_MANUFACTURER_INFO_BOX_OTHER_PRODUCTS . '</a></li>';
+          $manufacturer_info_string = '<div class="ui-widget-content infoBoxContents">';
+          if (osc_not_null($manufacturer['manufacturers_image'])) $manufacturer_info_string .= '<div class="row-fluid"><div class="pagination-centered">' . osc_image(DIR_WS_IMAGES . $manufacturer['manufacturers_image'], $manufacturer['manufacturers_name']) . '</div></div>';
+          if (osc_not_null($manufacturer['manufacturers_url'])) $manufacturer_info_string .= '<div>-&nbsp;<a href="' . osc_href_link('index', 'redirect&manufacturer=' . $manufacturer['manufacturers_id']) . '" target="_blank">' . sprintf(MODULE_BOXES_MANUFACTURER_INFO_BOX_HOMEPAGE, $manufacturer['manufacturers_name']) . '</a></div>';
+          $manufacturer_info_string .= '<div>-&nbsp;<a href="' . osc_href_link(null, 'manufacturers_id=' . $manufacturer['manufacturers_id']) . '">' . MODULE_BOXES_MANUFACTURER_INFO_BOX_OTHER_PRODUCTS . '</a></div>' .
+                                       '</div>';
 
           $data = '<li class="nav-header">' . MODULE_BOXES_MANUFACTURER_INFO_BOX_TITLE . '</li>' . $manufacturer_info_string;
 
