@@ -80,7 +80,7 @@ function check_form_optional(form_name) {
       <div class="ui-widget-header infoBoxHeading"><?php echo TITLE_PAYMENT_ADDRESS; ?></div>
 
       <div class="ui-widget-content infoBoxContents">
-        <?php echo osc_address_label($OSCOM_Customer->getID(), $_SESSION['billto'], true, ' ', '<br />'); ?>
+        <?php echo osc_address_label($OSCOM_Customer->getID(), $OSCOM_Order->getBillingAddress(), true, ' ', '<br />'); ?>
       </div>
     </div>
 
@@ -113,7 +113,7 @@ function check_form_optional(form_name) {
         while ($addresses = osc_db_fetch_array($addresses_query)) {
           $format_id = osc_get_address_format_id($addresses['country_id']);
 
-         if ($addresses['address_book_id'] == $_SESSION['billto']) {
+         if ($addresses['address_book_id'] == $OSCOM_Order->getBillingAddress('id')) {
             echo '      <tr id="defaultSelected" class="moduleRowSelected" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" onclick="selectRowEffect(this, ' . $radio_buttons . ')">' . "\n";
           } else {
             echo '      <tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" onclick="selectRowEffect(this, ' . $radio_buttons . ')">' . "\n";
@@ -121,7 +121,7 @@ function check_form_optional(form_name) {
 ?>
 
         <td><strong><?php echo $addresses['firstname'] . ' ' . $addresses['lastname']; ?></strong></td>
-        <td align="right"><?php echo osc_draw_radio_field('address', $addresses['address_book_id'], ($addresses['address_book_id'] == $_SESSION['billto'])); ?></td>
+        <td align="right"><?php echo osc_draw_radio_field('address', $addresses['address_book_id'], ($addresses['address_book_id'] == $OSCOM_Order->getBillingAddress('id'))); ?></td>
       </tr>
       <tr>
         <td colspan="2" style="padding-left: 15px;"><?php echo osc_address_format($format_id, $addresses, true, ' ', ', '); ?></td>

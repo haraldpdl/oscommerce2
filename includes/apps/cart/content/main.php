@@ -5,6 +5,8 @@
  * @copyright Copyright (c) 2013 osCommerce; http://www.oscommerce.com
  * @license GNU General Public License; http://www.oscommerce.com/gpllicense.txt
  */
+
+  $any_out_of_stock = 0;
 ?>
 
 <h1><?php echo HEADING_TITLE; ?></h1>
@@ -15,49 +17,19 @@
   <h2><?php echo TABLE_HEADING_PRODUCTS; ?></h2>
 
   <div class="contentText">
-
-<?php
-  $any_out_of_stock = 0;
-  $products = $_SESSION['cart']->get_products();
-  for ($i=0, $n=sizeof($products); $i<$n; $i++) {
-// Push all attributes information in an array
-    if (isset($products[$i]['attributes']) && is_array($products[$i]['attributes'])) {
-      while (list($option, $value) = each($products[$i]['attributes'])) {
-        echo osc_draw_hidden_field('id[' . $products[$i]['id'] . '][' . $option . ']', $value);
-        $attributes = osc_db_query("select popt.products_options_name, poval.products_options_values_name, pa.options_values_price, pa.price_prefix
-                                    from " . TABLE_PRODUCTS_OPTIONS . " popt, " . TABLE_PRODUCTS_OPTIONS_VALUES . " poval, " . TABLE_PRODUCTS_ATTRIBUTES . " pa
-                                    where pa.products_id = '" . (int)$products[$i]['id'] . "'
-                                    and pa.options_id = '" . (int)$option . "'
-                                    and pa.options_id = popt.products_options_id
-                                    and pa.options_values_id = '" . (int)$value . "'
-                                    and pa.options_values_id = poval.products_options_values_id
-                                    and popt.language_id = '" . (int)$_SESSION['languages_id'] . "'
-                                    and poval.language_id = '" . (int)$_SESSION['languages_id'] . "'");
-        $attributes_values = osc_db_fetch_array($attributes);
-
-        $products[$i][$option]['products_options_name'] = $attributes_values['products_options_name'];
-        $products[$i][$option]['options_values_id'] = $value;
-        $products[$i][$option]['products_options_values_name'] = $attributes_values['products_options_values_name'];
-        $products[$i][$option]['options_values_price'] = $attributes_values['options_values_price'];
-        $products[$i][$option]['price_prefix'] = $attributes_values['price_prefix'];
-      }
-    }
-  }
-?>
-
     <table border="0" width="100%" cellspacing="0" cellpadding="0">
 
 <?php
-  for ($i=0, $n=sizeof($products); $i<$n; $i++) {
+  foreach ( $_SESSION['cart']->get_products() as $p ) {
     echo '      <tr>';
 
     $products_name = '<table border="0" cellspacing="2" cellpadding="2">' .
                      '  <tr>' .
-                     '    <td align="center"><a href="' . osc_href_link('products', 'id=' . $products[$i]['id']) . '">' . osc_image(DIR_WS_IMAGES . $products[$i]['image'], $products[$i]['name'], SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT) . '</a></td>' .
-                     '    <td valign="top"><a href="' . osc_href_link('products', 'id=' . $products[$i]['id']) . '"><strong>' . $products[$i]['name'] . '</strong></a>';
+                     '    <td align="center"><a href="' . osc_href_link('products', 'id=' . $p['id']) . '">' . osc_image(DIR_WS_IMAGES . $p['image'], $p['name'], SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT) . '</a></td>' .
+                     '    <td valign="top"><a href="' . osc_href_link('products', 'id=' . $p['id']) . '"><strong>' . $p['name'] . '</strong></a>';
 
     if (STOCK_CHECK == 'true') {
-      $stock_check = osc_check_stock($products[$i]['id'], $products[$i]['quantity']);
+      $stock_check = osc_check_stock($p['id'], $p['quantity']);
       if (osc_not_null($stock_check)) {
         $any_out_of_stock = 1;
 
@@ -65,21 +37,21 @@
       }
     }
 
-    if (isset($products[$i]['attributes']) && is_array($products[$i]['attributes'])) {
-      reset($products[$i]['attributes']);
-      while (list($option, $value) = each($products[$i]['attributes'])) {
-        $products_name .= '<br /><small><i> - ' . $products[$i][$option]['products_options_name'] . ' ' . $products[$i][$option]['products_options_values_name'] . '</i></small>';
+    if (isset($p['attributes']) && is_array($p['attributes'])) {
+      foreach ( $p['attributes'] as $pa ) {
+        $products_name .= '<br /><small><i> - ' . $pa['option'] . ' ' . $pa['value'] . '</i></small>' .
+                          osc_draw_hidden_field('id[' . $p['id'] . '][' . $pa['option_id'] . ']', $pa['value_id']);
       }
     }
 
-    $products_name .= '<br /><br />' . osc_draw_input_field('cart_quantity[]', $products[$i]['quantity'], 'size="4"') . osc_draw_hidden_field('products_id[]', $products[$i]['id']) . osc_draw_button(IMAGE_BUTTON_UPDATE, 'refresh') . '&nbsp;&nbsp;&nbsp;' . TEXT_OR . '<a href="' . osc_href_link('cart', 'remove&id=' . $products[$i]['id'] . '&formid=' . md5($_SESSION['sessiontoken'])) . '">' . TEXT_REMOVE . '</a>';
+    $products_name .= '<br /><br />' . osc_draw_input_field('cart_quantity[]', $p['quantity'], 'size="4"') . osc_draw_hidden_field('products_id[]', $p['id']) . osc_draw_button(IMAGE_BUTTON_UPDATE, 'refresh') . '&nbsp;&nbsp;&nbsp;' . TEXT_OR . '<a href="' . osc_href_link('cart', 'remove&id=' . $p['id'] . '&formid=' . md5($_SESSION['sessiontoken'])) . '">' . TEXT_REMOVE . '</a>';
 
     $products_name .= '    </td>' .
                       '  </tr>' .
                       '</table>';
 
     echo '        <td valign="top">' . $products_name . '</td>' .
-         '        <td align="right" valign="top"><strong>' . $currencies->display_price($products[$i]['final_price'], osc_get_tax_rate($products[$i]['tax_class_id']), $products[$i]['quantity']) . '</strong></td>' .
+         '        <td align="right" valign="top"><strong>' . $currencies->display_price($p['final_price'], osc_get_tax_rate($p['tax_class_id']), $p['quantity']) . '</strong></td>' .
          '      </tr>';
   }
 ?>
@@ -113,7 +85,7 @@
   </div>
 
 <?php
-  $initialize_checkout_methods = $payment_modules->checkout_initialization_method();
+  $initialize_checkout_methods = $OSCOM_Payment->checkout_initialization_method();
 
   if (!empty($initialize_checkout_methods)) {
 ?>

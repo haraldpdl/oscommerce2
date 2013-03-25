@@ -8,7 +8,7 @@
 
   class app_checkout_action_payment_address_process {
     public static function execute(app $app) {
-      global $OSCOM_Customer, $OSCOM_MessageStack, $OSCOM_PDO, $process, $gender, $entry_state_has_zones, $country;
+      global $OSCOM_Customer, $OSCOM_MessageStack, $OSCOM_Order, $OSCOM_PDO, $process, $gender, $entry_state_has_zones, $country;
 
       $error = false;
       $process = false;
@@ -136,51 +136,31 @@
 
             $OSCOM_PDO->perform('address_book', $sql_data_array);
 
-            $_SESSION['billto'] = $OSCOM_PDO->lastInsertId();
+            $address_id = $OSCOM_PDO->lastInsertId();
 
             if ( !$OSCOM_Customer->hasDefaultAddress() ) {
               $OSCOM_Customer->setCountryID($country);
               $OSCOM_Customer->setZoneID(($zone_id > 0) ? (int)$zone_id : '0');
-              $OSCOM_Customer->setDefaultAddressID($_SESSION['billto']);
+              $OSCOM_Customer->setDefaultAddressID($address_id);
             }
 
-            if ( isset($_SESSION['payment']) ) {
-              unset($_SESSION['payment']);
-            }
+            $OSCOM_Order->setBillingAddress($address_id);
 
             osc_redirect(osc_href_link('checkout', 'payment', 'SSL'));
           }
 // process the selected shipping destination
-        } elseif ( isset($_POST['address']) ) {
-          $reset_payment = false;
-
-          if ( isset($_SESSION['billto']) ) {
-            if ( $_SESSION['billto'] != $_POST['address'] ) {
-              if ( isset($_SESSION['payment']) ) {
-                $reset_payment = true;
-              }
-            }
-          }
-
-          $_SESSION['billto'] = $_POST['address'];
-
+        } elseif ( isset($_POST['address']) && is_numeric($_POST['address']) ) {
           $Qcheck = $OSCOM_PDO->prepare('select address_book_id from :table_address_book where address_book_id = :address_book_id and customers_id = :customers_id');
-          $Qcheck->bindInt(':address_book_id', $_SESSION['billto']);
+          $Qcheck->bindInt(':address_book_id', $_POST['address']);
           $Qcheck->bindInt(':customers_id', $OSCOM_Customer->getID());
           $Qcheck->execute();
 
           if ( $Qcheck->fetch() !== false ) {
-            if ( $reset_payment == true ) {
-              unset($_SESSION['payment']);
-            }
+            $OSCOM_Order->setBillingAddress($_POST['address']);
 
             osc_redirect(osc_href_link('checkout', 'payment', 'SSL'));
-          } else {
-            unset($_SESSION['billto']);
           }
         } else {
-          $_SESSION['billto'] = $OSCOM_Customer->getDefaultAddressID();
-
           osc_redirect(osc_href_link('checkout', 'payment', 'SSL'));
         }
       }

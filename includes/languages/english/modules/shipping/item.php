@@ -1,16 +1,13 @@
 <?php
-/*
-  $Id$
+/**
+ * osCommerce Online Merchant
+ * 
+ * @copyright Copyright (c) 2013 osCommerce; http://www.oscommerce.com
+ * @license GNU General Public License; http://www.oscommerce.com/gpllicense.txt
+ */
 
-  osCommerce, Open Source E-Commerce Solutions
-  http://www.oscommerce.com
-
-  Copyright (c) 2002 osCommerce
-
-  Released under the GNU General Public License
-*/
-
-define('MODULE_SHIPPING_ITEM_TEXT_TITLE', 'Per Item');
-define('MODULE_SHIPPING_ITEM_TEXT_DESCRIPTION', 'Per Item');
-define('MODULE_SHIPPING_ITEM_TEXT_WAY', 'Best Way');
+define('MODULE_SHIPPING_ITEM_TITLE', 'Per Item');
+define('MODULE_SHIPPING_ITEM_PUBLIC_TITLE', 'Shipping');
+define('MODULE_SHIPPING_ITEM_DESCRIPTION', 'Per Item');
+define('MODULE_SHIPPING_ITEM_SHIPPING_METHOD', '');
 ?>

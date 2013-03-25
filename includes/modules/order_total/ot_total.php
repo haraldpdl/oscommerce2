@@ -13,22 +13,24 @@
   class ot_total {
     var $title, $output;
 
-    function ot_total() {
+    function ot_total(order $OSCOM_Order) {
       $this->code = 'ot_total';
       $this->title = MODULE_ORDER_TOTAL_TOTAL_TITLE;
       $this->description = MODULE_ORDER_TOTAL_TOTAL_DESCRIPTION;
       $this->enabled = ((MODULE_ORDER_TOTAL_TOTAL_STATUS == 'true') ? true : false);
       $this->sort_order = MODULE_ORDER_TOTAL_TOTAL_SORT_ORDER;
 
+      $this->_order = $OSCOM_Order;
+
       $this->output = array();
     }
 
     function process() {
-      global $order, $currencies;
+      global $currencies;
 
       $this->output[] = array('title' => $this->title . ':',
-                              'text' => '<strong>' . $currencies->format($order->info['total'], true, $order->info['currency'], $order->info['currency_value']) . '</strong>',
-                              'value' => $order->info['total']);
+                              'text' => '<strong>' . $currencies->format($this->_order->getInfo('total')) . '</strong>',
+                              'value' => $this->_order->getInfo('total'));
     }
 
     function check() {

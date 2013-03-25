@@ -13,24 +13,55 @@
   class ot_tax {
     var $title, $output;
 
-    function ot_tax() {
+    function ot_tax(order $OSCOM_Order) {
       $this->code = 'ot_tax';
       $this->title = MODULE_ORDER_TOTAL_TAX_TITLE;
       $this->description = MODULE_ORDER_TOTAL_TAX_DESCRIPTION;
       $this->enabled = ((MODULE_ORDER_TOTAL_TAX_STATUS == 'true') ? true : false);
       $this->sort_order = MODULE_ORDER_TOTAL_TAX_SORT_ORDER;
 
+      $this->_order = $OSCOM_Order;
+
       $this->output = array();
     }
 
     function process() {
-      global $order, $currencies;
+      global $currencies;
 
-      reset($order->info['tax_groups']);
-      while (list($key, $value) = each($order->info['tax_groups'])) {
-        if ($value > 0) {
+      $tax_groups = array();
+
+      foreach ( $_SESSION['cart']->get_products() as $p ) {
+        $tax_rate = osc_get_tax_rate($p['tax_class_id'], $this->_order->getTaxAddress('country_id'), $this->_order->getTaxAddress('zone_id'));
+
+        if ( $tax_rate > 0 ) {
+          $tax_description = osc_get_tax_description($p['tax_class_id'], $this->_order->getTaxAddress('country_id'), $this->_order->getTaxAddress('zone_id'));
+
+          $shown_price = $currencies->calculate_price($p['final_price'], $tax_rate, $p['quantity']);
+
+          if ( DISPLAY_PRICE_WITH_TAX == 'true' ) {
+            $tax = $shown_price - ($shown_price / (($tax_rate < 10) ? '1.0' . str_replace('.', '', $tax_rate) : '1.' . str_replace('.', '', $tax_rate)));
+
+            if ( isset($tax_groups[$tax_description]) ) {
+              $tax_groups[$tax_description] += $tax;
+            } else {
+              $tax_groups[$tax_description] = $tax;
+            }
+          } else {
+            $tax = ($tax_rate / 100) * $shown_price;
+
+            if ( isset($tax_groups[$tax_description]) ) {
+              $tax_groups[$tax_description] += $tax;
+            } else {
+              $tax_groups[$tax_description] = $tax;
+            }
+          }
+        }
+      }
+
+      foreach ( $tax_groups as $key => $value ) {
+        if ( $value > 0 ) {
           $this->output[] = array('title' => $key . ':',
-                                  'text' => $currencies->format($value, true, $order->info['currency'], $order->info['currency_value']),
+                                  'text' => $currencies->format($value),
                                   'value' => $value);
         }
       }

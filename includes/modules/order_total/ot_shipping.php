@@ -13,55 +13,50 @@
   class ot_shipping {
     var $title, $output;
 
-    function ot_shipping() {
+    function ot_shipping(order $OSCOM_Order) {
       $this->code = 'ot_shipping';
       $this->title = MODULE_ORDER_TOTAL_SHIPPING_TITLE;
       $this->description = MODULE_ORDER_TOTAL_SHIPPING_DESCRIPTION;
       $this->enabled = ((MODULE_ORDER_TOTAL_SHIPPING_STATUS == 'true') ? true : false);
       $this->sort_order = MODULE_ORDER_TOTAL_SHIPPING_SORT_ORDER;
 
+      $this->_order = $OSCOM_Order;
+
       $this->output = array();
     }
 
     function process() {
-      global $order, $currencies;
+      global $currencies;
 
-      if (MODULE_ORDER_TOTAL_SHIPPING_FREE_SHIPPING == 'true') {
-        switch (MODULE_ORDER_TOTAL_SHIPPING_DESTINATION) {
-          case 'national':
-            if ($order->delivery['country_id'] == STORE_COUNTRY) $pass = true; break;
-          case 'international':
-            if ($order->delivery['country_id'] != STORE_COUNTRY) $pass = true; break;
-          case 'both':
-            $pass = true; break;
-          default:
-            $pass = false; break;
+      if ( $this->_order->hasShipping() ) {
+        $this->_order->setInfo('total', $this->_order->getInfo('total') + $this->_order->getShipping('cost'));
+
+        if ( $this->_order->hasShippingTax() ) {
+          $shipping_tax_rate = $this->_order->getShippingTaxRate();
+
+          if ( $shipping_tax_rate > 0 ) {
+            $shipping_tax = osc_calculate_tax($this->_order-getShipping('cost'), $shipping_tax_rate);
+            $shipping_tax_description = osc_get_tax_description($this->_order->getShipping('tax_class_id'), $this->_order->getShippingAddress('country_id'), $this->_order->getShippingAddress('zone_id'));
+
+            $this->_order->setInfo('tax', $this->_order->getInfo('tax') + $shipping_tax);
+
+            $otaxg = $this->_order->getInfo('tax_groups');
+            if ( isset($otaxg[$shipping_tax_description]) ) {
+              $otaxg[$shipping_tax_description] += $shipping_tax;
+            } else {
+              $otaxg[$shipping_tax_description] = $shipping_tax;
+            }
+            $this->_order->setInfo('tax_groups', $otaxg);
+
+            $this->_order->setInfo('total', $this->_order->getInfo('total') + $shipping_tax);
+
+//            if (DISPLAY_PRICE_WITH_TAX == 'true') $order->info['shipping_cost'] += osc_calculate_tax($order->info['shipping_cost'], $shipping_tax);
+          }
         }
 
-        if ( ($pass == true) && ( ($order->info['total'] - $order->info['shipping_cost']) >= MODULE_ORDER_TOTAL_SHIPPING_FREE_SHIPPING_OVER) ) {
-          $order->info['shipping_method'] = FREE_SHIPPING_TITLE;
-          $order->info['total'] -= $order->info['shipping_cost'];
-          $order->info['shipping_cost'] = 0;
-        }
-      }
-
-      $module = substr($_SESSION['shipping']['id'], 0, strpos($_SESSION['shipping']['id'], '_'));
-
-      if (osc_not_null($order->info['shipping_method'])) {
-        if ($GLOBALS[$module]->tax_class > 0) {
-          $shipping_tax = osc_get_tax_rate($GLOBALS[$module]->tax_class, $order->delivery['country']['id'], $order->delivery['zone_id']);
-          $shipping_tax_description = osc_get_tax_description($GLOBALS[$module]->tax_class, $order->delivery['country']['id'], $order->delivery['zone_id']);
-
-          $order->info['tax'] += osc_calculate_tax($order->info['shipping_cost'], $shipping_tax);
-          $order->info['tax_groups']["$shipping_tax_description"] += osc_calculate_tax($order->info['shipping_cost'], $shipping_tax);
-          $order->info['total'] += osc_calculate_tax($order->info['shipping_cost'], $shipping_tax);
-
-          if (DISPLAY_PRICE_WITH_TAX == 'true') $order->info['shipping_cost'] += osc_calculate_tax($order->info['shipping_cost'], $shipping_tax);
-        }
-
-        $this->output[] = array('title' => $order->info['shipping_method'] . ':',
-                                'text' => $currencies->format($order->info['shipping_cost'], true, $order->info['currency'], $order->info['currency_value']),
-                                'value' => $order->info['shipping_cost']);
+        $this->output[] = array('title' => $this->_order->getShipping('title') . ':',
+                                'text' => $currencies->format($this->_order->getShipping('cost')),
+                                'value' => $this->_order->getShipping('cost'));
       }
     }
 

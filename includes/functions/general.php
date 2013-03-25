@@ -478,7 +478,11 @@
         $state = osc_get_zone_code($address['country_id'], $address['zone_id'], $state);
       }
     } elseif (isset($address['country']) && osc_not_null($address['country'])) {
-      $country = osc_output_string_protected($address['country']['title']);
+      if ( is_string($address['country']) ) {
+        $country = osc_output_string_protected($address['country']);
+      } else {
+        $country = osc_output_string_protected($address['country']['title']);
+      }
     } else {
       $country = '';
     }
@@ -525,10 +529,14 @@
 // TABLES: customers, address_book
   function osc_address_label($customers_id, $address_id = 1, $html = false, $boln = '', $eoln = "\n") {
     if (is_array($address_id) && !empty($address_id)) {
+      if (!isset($address_id['address_format_id'])) {
+        $address_id['address_format_id'] = osc_get_address_format_id($address_id['country_id']);
+      }
+
       return osc_address_format($address_id['address_format_id'], $address_id, $html, $boln, $eoln);
     }
 
-    $address_query = osc_db_query("select entry_firstname as firstname, entry_lastname as lastname, entry_company as company, entry_street_address as street_address, entry_suburb as suburb, entry_city as city, entry_postcode as postcode, entry_state as state, entry_zone_id as zone_id, entry_country_id as country_id from " . TABLE_ADDRESS_BOOK . " where customers_id = '" . (int)$customers_id . "' and address_book_id = '" . (int)$address_id . "'");
+    $address_query = osc_db_query("select entry_firstname as firstname, entry_lastname as lastname, entry_company as company, entry_street_address as street_address, entry_suburb as suburb, entry_city as city, entry_postcode as postcode, entry_state as state, entry_zone_id as zone_id, entry_country_id as country_id from " . TABLE_ADDRESS_BOOK . " where address_book_id = '" . (int)$address_id . "' and customers_id = '" . (int)$customers_id . "'");
     $address = osc_db_fetch_array($address_query);
 
     $format_id = osc_get_address_format_id($address['country_id']);

@@ -1,341 +1,360 @@
 <?php
-/*
-  $Id$
+/**
+ * osCommerce Online Merchant
+ * 
+ * @copyright Copyright (c) 2013 osCommerce; http://www.oscommerce.com
+ * @license GNU General Public License; http://www.oscommerce.com/gpllicense.txt
+ */
 
-  osCommerce, Open Source E-Commerce Solutions
-  http://www.oscommerce.com
-
-  Copyright (c) 2013 osCommerce
-
-  Released under the GNU General Public License
-*/
+  require(DIR_FS_CATALOG . DIR_WS_CLASSES . 'order_total.php');
+  require(DIR_FS_CATALOG . DIR_WS_CLASSES . 'payment.php');
+  require(DIR_FS_CATALOG . DIR_WS_CLASSES . 'shipping.php');
 
   class order {
-    var $info, $totals, $products, $customer, $delivery, $content_type;
+    protected $_data = array();
 
-    function order($order_id = '') {
-      $this->info = array();
-      $this->totals = array();
-      $this->products = array();
-      $this->customer = array();
-      $this->delivery = array();
+    public function __construct() {
+      if ( !isset($_SESSION['order']) ) {
+        $_SESSION['order'] = $this->_data;
+      }
 
-      if (osc_not_null($order_id)) {
-        $this->query($order_id);
-      } else {
-        $this->cart();
+      $this->_data =& $_SESSION['order'];
+
+      if ( isset($this->_data['shipping']['address']['id']) ) {
+        $this->setShippingAddress($this->_data['shipping']['address']['id']);
+      }
+
+      if ( isset($this->_data['billing']['address']['id']) ) {
+        $this->setBillingAddress($this->_data['billing']['address']['id']);
+      }
+
+      if ( !isset($this->_data['cart_id']) || !isset($_SESSION['cart']->cartID) || ($this->_data['cart_id'] != $_SESSION['cart']->cartID) ) {
+        $this->_initiate();
+      }
+
+      if ( $this->hasBillingAddress() ) {
+        $this->loadPaymentOptions();
+      }
+
+      if ( (!$this->requireShipping() || ($this->hasShippingAddress() && $this->hasShipping())) && $this->hasBillingAddress() && $this->hasBilling() ) {
+        $this->calculate();
       }
     }
 
-    function query($order_id) {
-      $order_id = osc_db_prepare_input($order_id);
+    protected function _initiate() {
+      $this->_data['info'] = array('order_status_id' => DEFAULT_ORDERS_STATUS_ID,
+                                   'subtotal' => $_SESSION['cart']->show_total(),
+                                   'tax' => 0,
+                                   'tax_groups' => array(),
+                                   'total' => $_SESSION['cart']->show_total());
 
-      $order_query = osc_db_query("select customers_id, customers_name, customers_company, customers_street_address, customers_suburb, customers_city, customers_postcode, customers_state, customers_country, customers_telephone, customers_email_address, customers_address_format_id, delivery_name, delivery_company, delivery_street_address, delivery_suburb, delivery_city, delivery_postcode, delivery_state, delivery_country, delivery_address_format_id, billing_name, billing_company, billing_street_address, billing_suburb, billing_city, billing_postcode, billing_state, billing_country, billing_address_format_id, payment_method, cc_type, cc_owner, cc_number, cc_expires, currency, currency_value, date_purchased, orders_status, last_modified from " . TABLE_ORDERS . " where orders_id = '" . (int)$order_id . "'");
-      $order = osc_db_fetch_array($order_query);
+// Out of stock products
+      $this->_data['out_of_stock_products'] = false;
 
-      $totals_query = osc_db_query("select title, text from " . TABLE_ORDERS_TOTAL . " where orders_id = '" . (int)$order_id . "' order by sort_order");
-      while ($totals = osc_db_fetch_array($totals_query)) {
-        $this->totals[] = array('title' => $totals['title'],
-                                'text' => $totals['text']);
-      }
-
-      $order_total_query = osc_db_query("select text from " . TABLE_ORDERS_TOTAL . " where orders_id = '" . (int)$order_id . "' and class = 'ot_total'");
-      $order_total = osc_db_fetch_array($order_total_query);
-
-      $shipping_method_query = osc_db_query("select title from " . TABLE_ORDERS_TOTAL . " where orders_id = '" . (int)$order_id . "' and class = 'ot_shipping'");
-      $shipping_method = osc_db_fetch_array($shipping_method_query);
-
-      $order_status_query = osc_db_query("select orders_status_name from " . TABLE_ORDERS_STATUS . " where orders_status_id = '" . $order['orders_status'] . "' and language_id = '" . (int)$_SESSION['languages_id'] . "'");
-      $order_status = osc_db_fetch_array($order_status_query);
-
-      $this->info = array('currency' => $order['currency'],
-                          'currency_value' => $order['currency_value'],
-                          'payment_method' => $order['payment_method'],
-                          'cc_type' => $order['cc_type'],
-                          'cc_owner' => $order['cc_owner'],
-                          'cc_number' => $order['cc_number'],
-                          'cc_expires' => $order['cc_expires'],
-                          'date_purchased' => $order['date_purchased'],
-                          'orders_status' => $order_status['orders_status_name'],
-                          'last_modified' => $order['last_modified'],
-                          'total' => strip_tags($order_total['text']),
-                          'shipping_method' => ((substr($shipping_method['title'], -1) == ':') ? substr(strip_tags($shipping_method['title']), 0, -1) : strip_tags($shipping_method['title'])));
-
-      $this->customer = array('id' => $order['customers_id'],
-                              'name' => $order['customers_name'],
-                              'company' => $order['customers_company'],
-                              'street_address' => $order['customers_street_address'],
-                              'suburb' => $order['customers_suburb'],
-                              'city' => $order['customers_city'],
-                              'postcode' => $order['customers_postcode'],
-                              'state' => $order['customers_state'],
-                              'country' => array('title' => $order['customers_country']),
-                              'format_id' => $order['customers_address_format_id'],
-                              'telephone' => $order['customers_telephone'],
-                              'email_address' => $order['customers_email_address']);
-
-      $this->delivery = array('name' => trim($order['delivery_name']),
-                              'company' => $order['delivery_company'],
-                              'street_address' => $order['delivery_street_address'],
-                              'suburb' => $order['delivery_suburb'],
-                              'city' => $order['delivery_city'],
-                              'postcode' => $order['delivery_postcode'],
-                              'state' => $order['delivery_state'],
-                              'country' => array('title' => $order['delivery_country']),
-                              'format_id' => $order['delivery_address_format_id']);
-
-      if (empty($this->delivery['name']) && empty($this->delivery['street_address'])) {
-        $this->delivery = false;
-      }
-
-      $this->billing = array('name' => $order['billing_name'],
-                             'company' => $order['billing_company'],
-                             'street_address' => $order['billing_street_address'],
-                             'suburb' => $order['billing_suburb'],
-                             'city' => $order['billing_city'],
-                             'postcode' => $order['billing_postcode'],
-                             'state' => $order['billing_state'],
-                             'country' => array('title' => $order['billing_country']),
-                             'format_id' => $order['billing_address_format_id']);
-
-      $index = 0;
-      $orders_products_query = osc_db_query("select orders_products_id, products_id, products_name, products_model, products_price, products_tax, products_quantity, final_price from " . TABLE_ORDERS_PRODUCTS . " where orders_id = '" . (int)$order_id . "'");
-      while ($orders_products = osc_db_fetch_array($orders_products_query)) {
-        $this->products[$index] = array('qty' => $orders_products['products_quantity'],
-	                                'id' => $orders_products['products_id'],
-                                        'name' => $orders_products['products_name'],
-                                        'model' => $orders_products['products_model'],
-                                        'tax' => $orders_products['products_tax'],
-                                        'price' => $orders_products['products_price'],
-                                        'final_price' => $orders_products['final_price']);
-
-        $subindex = 0;
-        $attributes_query = osc_db_query("select products_options, products_options_values, options_values_price, price_prefix from " . TABLE_ORDERS_PRODUCTS_ATTRIBUTES . " where orders_id = '" . (int)$order_id . "' and orders_products_id = '" . (int)$orders_products['orders_products_id'] . "'");
-        if (osc_db_num_rows($attributes_query)) {
-          while ($attributes = osc_db_fetch_array($attributes_query)) {
-            $this->products[$index]['attributes'][$subindex] = array('option' => $attributes['products_options'],
-                                                                     'value' => $attributes['products_options_values'],
-                                                                     'prefix' => $attributes['price_prefix'],
-                                                                     'price' => $attributes['options_values_price']);
-
-            $subindex++;
+      if ( STOCK_CHECK == 'true' ) {
+        foreach ( $_SESSION['cart']->get_products() as $p ) {
+          if ( osc_check_stock($p['id'], $p['quantity']) ) {
+            $this->_data['out_of_stock_products'] = true;
+            break;
           }
         }
+      }
 
-        $this->info['tax_groups']["{$this->products[$index]['tax']}"] = '1';
+// Require shipping
+      $this->_data['require_shipping'] = true;
 
-        $index++;
+      if ( $_SESSION['cart']->get_content_type() == 'virtual' ) {
+        $this->_data['require_shipping'] = false;
+
+        if ( isset($this->_data['shipping']) ) {
+          unset($this->_data['shipping']);
+        }
+      }
+
+      if ( $this->requireShipping() && $this->hasShippingAddress() ) {
+        $this->loadShippingRates();
+      }
+
+      $this->_data['cart_id'] = $_SESSION['cart']->cartID = $_SESSION['cart']->generate_cart_id();
+    }
+
+    public function hasInfo($key) {
+      return isset($this->_data['info'][$key]);
+    }
+
+    public function getInfo($key = null) {
+      if ( isset($key) ) {
+        return $this->_data['info'][$key];
+      }
+
+      return $this->_data['info'];
+    }
+
+    public function setInfo($key, $value) {
+      $this->_data['info'][$key] = $value;
+    }
+
+    public function hasOutOfStockProducts() {
+      return $this->_data['out_of_stock_products'];
+    }
+
+    public function requireShipping() {
+      return $this->_data['require_shipping'];
+    }
+
+    public function hasShippingAddress() {
+      return isset($this->_data['shipping']['address']);
+    }
+
+    public function setShippingAddress($address) { // INT or Array
+      if ( is_numeric($address) ) {
+        $address = $this->getCustomerAddress($address);
+      }
+
+      $is_different_address = false;
+
+      if ( !isset($this->_data['shipping']['address']) || !empty(array_diff_assoc($this->_data['shipping']['address'], $address)) ) {
+        $is_different_address = true;
+      }
+
+      $this->_data['shipping']['address'] = $address;
+
+      if ( $is_different_address === true ) {
+        unset($this->_data['cart_id']);
       }
     }
 
-    function cart() {
-      global $OSCOM_Customer, $currencies;
+    public function getShippingAddress($key = null) {
+      return $this->getAddress('shipping', $key);
+    }
 
-      $this->content_type = $_SESSION['cart']->get_content_type();
+    public function getBillingAddress($key = null) {
+      return $this->getAddress('billing', $key);
+    }
 
-      if ( ($this->content_type != 'virtual') && ($_SESSION['sendto'] == false) ) {
-        $_SESSION['sendto'] = $OSCOM_Customer->getDefaultAddressID();
+    public function getTaxAddress($key = null) {
+      return $this->getAddress($this->requireShipping() ? 'shipping' : 'billing', $key);
+    }
+
+    protected function getCustomerAddress($id) {
+      global $OSCOM_Customer, $OSCOM_PDO;
+
+      $Qaddress = $OSCOM_PDO->prepare('select * from :table_address_book where address_book_id = :address_book_id and customers_id = :customers_id');
+      $Qaddress->bindInt(':address_book_id', $id);
+      $Qaddress->bindInt(':customers_id', $OSCOM_Customer->getID());
+      $Qaddress->execute();
+
+      $address = array('id' => $Qaddress->valueInt('address_book_id'),
+                       'gender' => $Qaddress->value('entry_gender'),
+                       'company' => $Qaddress->value('entry_company'),
+                       'firstname' => $Qaddress->value('entry_firstname'),
+                       'lastname' => $Qaddress->value('entry_lastname'),
+                       'street_address' => $Qaddress->value('entry_street_address'),
+                       'suburb' => $Qaddress->value('entry_suburb'),
+                       'postcode' => $Qaddress->value('entry_postcode'),
+                       'city' => $Qaddress->value('entry_city'),
+                       'state' => osc_get_zone_name($Qaddress->valueInt('entry_country_id'), $Qaddress->valueInt('entry_zone_id'), $Qaddress->value('entry_state')),
+                       'zone_id' => $Qaddress->valueInt('entry_zone_id'),
+                       'country_id' => $Qaddress->valueInt('entry_country_id'));
+
+      return $address;
+    }
+
+    protected function getAddress($source, $key = null) {
+      $data = ($source == 'shipping') ? $this->_data['shipping']['address'] : $this->_data['billing']['address'];
+
+      if ( isset($key) ) {
+        return $data[$key];
       }
 
-      $customer_address_query = osc_db_query("select c.customers_firstname, c.customers_lastname, c.customers_telephone, c.customers_email_address, ab.entry_company, ab.entry_street_address, ab.entry_suburb, ab.entry_postcode, ab.entry_city, ab.entry_zone_id, z.zone_name, co.countries_id, co.countries_name, co.countries_iso_code_2, co.countries_iso_code_3, co.address_format_id, ab.entry_state from " . TABLE_CUSTOMERS . " c, " . TABLE_ADDRESS_BOOK . " ab left join " . TABLE_ZONES . " z on (ab.entry_zone_id = z.zone_id) left join " . TABLE_COUNTRIES . " co on (ab.entry_country_id = co.countries_id) where c.customers_id = '" . (int)$OSCOM_Customer->getID() . "' and ab.customers_id = '" . (int)$OSCOM_Customer->getID() . "' and c.customers_default_address_id = ab.address_book_id");
-      $customer_address = osc_db_fetch_array($customer_address_query);
+      return $data;
+    }
 
-      if (is_array($_SESSION['sendto']) && !empty($_SESSION['sendto'])) {
-        $shipping_address = array('entry_firstname' => $_SESSION['sendto']['firstname'],
-                                  'entry_lastname' => $_SESSION['sendto']['lastname'],
-                                  'entry_company' => $_SESSION['sendto']['company'],
-                                  'entry_street_address' => $_SESSION['sendto']['street_address'],
-                                  'entry_suburb' => $_SESSION['sendto']['suburb'],
-                                  'entry_postcode' => $_SESSION['sendto']['postcode'],
-                                  'entry_city' => $_SESSION['sendto']['city'],
-                                  'entry_zone_id' => $_SESSION['sendto']['zone_id'],
-                                  'zone_name' => $_SESSION['sendto']['zone_name'],
-                                  'entry_country_id' => $_SESSION['sendto']['country_id'],
-                                  'countries_id' => $_SESSION['sendto']['country_id'],
-                                  'countries_name' => $_SESSION['sendto']['country_name'],
-                                  'countries_iso_code_2' => $_SESSION['sendto']['country_iso_code_2'],
-                                  'countries_iso_code_3' => $_SESSION['sendto']['country_iso_code_3'],
-                                  'address_format_id' => $_SESSION['sendto']['address_format_id'],
-                                  'entry_state' => $_SESSION['sendto']['zone_name']);
-      } elseif (is_numeric($_SESSION['sendto'])) {
-        $shipping_address_query = osc_db_query("select ab.entry_firstname, ab.entry_lastname, ab.entry_company, ab.entry_street_address, ab.entry_suburb, ab.entry_postcode, ab.entry_city, ab.entry_zone_id, z.zone_name, ab.entry_country_id, c.countries_id, c.countries_name, c.countries_iso_code_2, c.countries_iso_code_3, c.address_format_id, ab.entry_state from " . TABLE_ADDRESS_BOOK . " ab left join " . TABLE_ZONES . " z on (ab.entry_zone_id = z.zone_id) left join " . TABLE_COUNTRIES . " c on (ab.entry_country_id = c.countries_id) where ab.customers_id = '" . (int)$OSCOM_Customer->getID() . "' and ab.address_book_id = '" . (int)$_SESSION['sendto'] . "'");
-        $shipping_address = osc_db_fetch_array($shipping_address_query);
-      } else {
-        $shipping_address = array('entry_firstname' => null,
-                                  'entry_lastname' => null,
-                                  'entry_company' => null,
-                                  'entry_street_address' => null,
-                                  'entry_suburb' => null,
-                                  'entry_postcode' => null,
-                                  'entry_city' => null,
-                                  'entry_zone_id' => null,
-                                  'zone_name' => null,
-                                  'entry_country_id' => null,
-                                  'countries_id' => null,
-                                  'countries_name' => null,
-                                  'countries_iso_code_2' => null,
-                                  'countries_iso_code_3' => null,
-                                  'address_format_id' => 0,
-                                  'entry_state' => null);
+    public function hasBillingAddress() {
+      return isset($this->_data['billing']['address']);
+    }
+
+    public function setBillingAddress($address) { // INT or Array
+      if ( is_numeric($address) ) {
+        $address = $this->getCustomerAddress($address);
       }
 
-      if (is_array($_SESSION['billto']) && !empty($_SESSION['billto'])) {
-        $billing_address = array('entry_firstname' => $_SESSION['billto']['firstname'],
-                                 'entry_lastname' => $_SESSION['billto']['lastname'],
-                                 'entry_company' => $_SESSION['billto']['company'],
-                                 'entry_street_address' => $_SESSION['billto']['street_address'],
-                                 'entry_suburb' => $_SESSION['billto']['suburb'],
-                                 'entry_postcode' => $_SESSION['billto']['postcode'],
-                                 'entry_city' => $_SESSION['billto']['city'],
-                                 'entry_zone_id' => $_SESSION['billto']['zone_id'],
-                                 'zone_name' => $_SESSION['billto']['zone_name'],
-                                 'entry_country_id' => $_SESSION['billto']['country_id'],
-                                 'countries_id' => $_SESSION['billto']['country_id'],
-                                 'countries_name' => $_SESSION['billto']['country_name'],
-                                 'countries_iso_code_2' => $_SESSION['billto']['country_iso_code_2'],
-                                 'countries_iso_code_3' => $_SESSION['billto']['country_iso_code_3'],
-                                 'address_format_id' => $_SESSION['billto']['address_format_id'],
-                                 'entry_state' => $_SESSION['billto']['zone_name']);
-      } else {
-        $billing_address_query = osc_db_query("select ab.entry_firstname, ab.entry_lastname, ab.entry_company, ab.entry_street_address, ab.entry_suburb, ab.entry_postcode, ab.entry_city, ab.entry_zone_id, z.zone_name, ab.entry_country_id, c.countries_id, c.countries_name, c.countries_iso_code_2, c.countries_iso_code_3, c.address_format_id, ab.entry_state from " . TABLE_ADDRESS_BOOK . " ab left join " . TABLE_ZONES . " z on (ab.entry_zone_id = z.zone_id) left join " . TABLE_COUNTRIES . " c on (ab.entry_country_id = c.countries_id) where ab.customers_id = '" . (int)$OSCOM_Customer->getID() . "' and ab.address_book_id = '" . (int)$_SESSION['billto'] . "'");
-        $billing_address = osc_db_fetch_array($billing_address_query);
+      $is_different_address = false;
+
+      if ( !isset($this->_data['billing']['address']) || !empty(array_diff_assoc($this->_data['billing']['address'], $address)) ) {
+        $is_different_address = true;
       }
 
-      if ($this->content_type == 'virtual') {
-        $tax_address = array('entry_country_id' => $billing_address['entry_country_id'],
-                             'entry_zone_id' => $billing_address['entry_zone_id']);
-      } else {
-        $tax_address = array('entry_country_id' => $shipping_address['entry_country_id'],
-                             'entry_zone_id' => $shipping_address['entry_zone_id']);
+      $this->_data['billing']['address'] = $address;
+
+      if ( $is_different_address === true ) {
+        unset($this->_data['cart_id']);
+      }
+    }
+
+    public function hasShipping() {
+      return isset($this->_data['shipping']['selected']);
+    }
+
+    public function setShipping($module, $method) {
+      $rate = $this->getShippingRate($module, $method);
+
+      $this->_data['shipping']['selected'] = array('id' => $module . '_' . $method,
+                                                   'title' => $rate['title'] . (isset($rate['methods']['title']) ? ' (' . $rate['methods']['title'] . ')' : ''),
+                                                   'cost' => $rate['methods']['cost']);
+
+      if ( isset($rate['tax_class_id']) ) {
+        $this->_data['shipping']['selected']['tax_class_id'] = $rate['tax_class_id'];
       }
 
-      $this->info = array('order_status' => DEFAULT_ORDERS_STATUS_ID,
-                          'currency' => $_SESSION['currency'],
-                          'currency_value' => $currencies->currencies[$_SESSION['currency']]['value'],
-                          'payment_method' => isset($_SESSION['payment']) ? $_SESSION['payment'] : '',
-                          'cc_type' => '',
-                          'cc_owner' => '',
-                          'cc_number' => '',
-                          'cc_expires' => '',
-                          'shipping_method' => isset($_SESSION['shipping']) ? $_SESSION['shipping']['title'] : '',
-                          'shipping_cost' => isset($_SESSION['shipping']) ? $_SESSION['shipping']['cost'] : 0,
-                          'subtotal' => 0,
-                          'tax' => 0,
-                          'tax_groups' => array(),
-                          'comments' => (isset($_SESSION['comments']) && !empty($_SESSION['comments']) ? $_SESSION['comments'] : ''));
+      if ( isset($rate['icon']) ) {
+        $this->_data['shipping']['selected']['icon'] = $rate['icon'];
+      }
+    }
 
-      if (isset($_SESSION['payment']) && isset($GLOBALS[$_SESSION['payment']]) && is_object($GLOBALS[$_SESSION['payment']])) {
-        if (isset($GLOBALS[$_SESSION['payment']]->public_title)) {
-          $this->info['payment_method'] = $GLOBALS[$_SESSION['payment']]->public_title;
+    public function getShipping($key = null) {
+      if ( isset($key) ) {
+        return $this->_data['shipping']['selected'][$key];
+      }
+
+      return $this->_data['shipping']['selected'];
+    }
+
+    public function hasShippingTax() {
+      return isset($this->_data['shipping']['selected']['tax_class_id']) && ($this->_data['shipping']['selected']['tax_class_id'] > 0);
+    }
+
+    public function getShippingTaxRate() {
+      return osc_get_tax_rate($this->getShipping('tax_class_id'), $this->getShippingAddress('country_id'), $this->getShippingAddress('zone_id'));
+    }
+
+    public function loadShippingRates() {
+      $OSCOM_Shipping = new shipping($this);
+
+      $this->_data['shipping']['rates'] = $OSCOM_Shipping->getQuotes();
+
+      if ( $this->hasShipping() ) {
+        if ( $this->hasShippingRate('free', 'free') ) {
+          $module = $method = 'free';
         } else {
-          $this->info['payment_method'] = $GLOBALS[$_SESSION['payment']]->title;
+          list($module, $method) = explode('_', $this->getShipping('id'), 2);
         }
 
-        if ( isset($GLOBALS[$_SESSION['payment']]->order_status) && is_numeric($GLOBALS[$_SESSION['payment']]->order_status) && ($GLOBALS[$_SESSION['payment']]->order_status > 0) ) {
-          $this->info['order_status'] = $GLOBALS[$_SESSION['payment']]->order_status;
-        }
-      }
-
-      $this->customer = array('firstname' => $customer_address['customers_firstname'],
-                              'lastname' => $customer_address['customers_lastname'],
-                              'company' => $customer_address['entry_company'],
-                              'street_address' => $customer_address['entry_street_address'],
-                              'suburb' => $customer_address['entry_suburb'],
-                              'city' => $customer_address['entry_city'],
-                              'postcode' => $customer_address['entry_postcode'],
-                              'state' => ((osc_not_null($customer_address['entry_state'])) ? $customer_address['entry_state'] : $customer_address['zone_name']),
-                              'zone_id' => $customer_address['entry_zone_id'],
-                              'country' => array('id' => $customer_address['countries_id'], 'title' => $customer_address['countries_name'], 'iso_code_2' => $customer_address['countries_iso_code_2'], 'iso_code_3' => $customer_address['countries_iso_code_3']),
-                              'format_id' => $customer_address['address_format_id'],
-                              'telephone' => $customer_address['customers_telephone'],
-                              'email_address' => $customer_address['customers_email_address']);
-
-      $this->delivery = array('firstname' => $shipping_address['entry_firstname'],
-                              'lastname' => $shipping_address['entry_lastname'],
-                              'company' => $shipping_address['entry_company'],
-                              'street_address' => $shipping_address['entry_street_address'],
-                              'suburb' => $shipping_address['entry_suburb'],
-                              'city' => $shipping_address['entry_city'],
-                              'postcode' => $shipping_address['entry_postcode'],
-                              'state' => ((osc_not_null($shipping_address['entry_state'])) ? $shipping_address['entry_state'] : $shipping_address['zone_name']),
-                              'zone_id' => $shipping_address['entry_zone_id'],
-                              'country' => array('id' => $shipping_address['countries_id'], 'title' => $shipping_address['countries_name'], 'iso_code_2' => $shipping_address['countries_iso_code_2'], 'iso_code_3' => $shipping_address['countries_iso_code_3']),
-                              'country_id' => $shipping_address['entry_country_id'],
-                              'format_id' => $shipping_address['address_format_id']);
-
-      $this->billing = array('firstname' => $billing_address['entry_firstname'],
-                             'lastname' => $billing_address['entry_lastname'],
-                             'company' => $billing_address['entry_company'],
-                             'street_address' => $billing_address['entry_street_address'],
-                             'suburb' => $billing_address['entry_suburb'],
-                             'city' => $billing_address['entry_city'],
-                             'postcode' => $billing_address['entry_postcode'],
-                             'state' => ((osc_not_null($billing_address['entry_state'])) ? $billing_address['entry_state'] : $billing_address['zone_name']),
-                             'zone_id' => $billing_address['entry_zone_id'],
-                             'country' => array('id' => $billing_address['countries_id'], 'title' => $billing_address['countries_name'], 'iso_code_2' => $billing_address['countries_iso_code_2'], 'iso_code_3' => $billing_address['countries_iso_code_3']),
-                             'country_id' => $billing_address['entry_country_id'],
-                             'format_id' => $billing_address['address_format_id']);
-
-      $index = 0;
-      $products = $_SESSION['cart']->get_products();
-      for ($i=0, $n=sizeof($products); $i<$n; $i++) {
-        $this->products[$index] = array('qty' => $products[$i]['quantity'],
-                                        'name' => $products[$i]['name'],
-                                        'model' => $products[$i]['model'],
-                                        'tax' => osc_get_tax_rate($products[$i]['tax_class_id'], $tax_address['entry_country_id'], $tax_address['entry_zone_id']),
-                                        'tax_description' => osc_get_tax_description($products[$i]['tax_class_id'], $tax_address['entry_country_id'], $tax_address['entry_zone_id']),
-                                        'price' => $products[$i]['price'],
-                                        'final_price' => $products[$i]['price'] + $_SESSION['cart']->attributes_price($products[$i]['id']),
-                                        'weight' => $products[$i]['weight'],
-                                        'id' => $products[$i]['id']);
-
-        if ($products[$i]['attributes']) {
-          $subindex = 0;
-          reset($products[$i]['attributes']);
-          while (list($option, $value) = each($products[$i]['attributes'])) {
-            $attributes_query = osc_db_query("select popt.products_options_name, poval.products_options_values_name, pa.options_values_price, pa.price_prefix from " . TABLE_PRODUCTS_OPTIONS . " popt, " . TABLE_PRODUCTS_OPTIONS_VALUES . " poval, " . TABLE_PRODUCTS_ATTRIBUTES . " pa where pa.products_id = '" . (int)$products[$i]['id'] . "' and pa.options_id = '" . (int)$option . "' and pa.options_id = popt.products_options_id and pa.options_values_id = '" . (int)$value . "' and pa.options_values_id = poval.products_options_values_id and popt.language_id = '" . (int)$_SESSION['languages_id'] . "' and poval.language_id = '" . (int)$_SESSION['languages_id'] . "'");
-            $attributes = osc_db_fetch_array($attributes_query);
-
-            $this->products[$index]['attributes'][$subindex] = array('option' => $attributes['products_options_name'],
-                                                                     'value' => $attributes['products_options_values_name'],
-                                                                     'option_id' => $option,
-                                                                     'value_id' => $value,
-                                                                     'prefix' => $attributes['price_prefix'],
-                                                                     'price' => $attributes['options_values_price']);
-
-            $subindex++;
-          }
-        }
-
-        $shown_price = $currencies->calculate_price($this->products[$index]['final_price'], $this->products[$index]['tax'], $this->products[$index]['qty']);
-        $this->info['subtotal'] += $shown_price;
-
-        $products_tax = $this->products[$index]['tax'];
-        $products_tax_description = $this->products[$index]['tax_description'];
-        if (DISPLAY_PRICE_WITH_TAX == 'true') {
-          $this->info['tax'] += $shown_price - ($shown_price / (($products_tax < 10) ? "1.0" . str_replace('.', '', $products_tax) : "1." . str_replace('.', '', $products_tax)));
-          if (isset($this->info['tax_groups']["$products_tax_description"])) {
-            $this->info['tax_groups']["$products_tax_description"] += $shown_price - ($shown_price / (($products_tax < 10) ? "1.0" . str_replace('.', '', $products_tax) : "1." . str_replace('.', '', $products_tax)));
-          } else {
-            $this->info['tax_groups']["$products_tax_description"] = $shown_price - ($shown_price / (($products_tax < 10) ? "1.0" . str_replace('.', '', $products_tax) : "1." . str_replace('.', '', $products_tax)));
-          }
+        if ( $this->hasShippingRate($module, $method) ) {
+          $this->setShipping($module, $method);
         } else {
-          $this->info['tax'] += ($products_tax / 100) * $shown_price;
-          if (isset($this->info['tax_groups']["$products_tax_description"])) {
-            $this->info['tax_groups']["$products_tax_description"] += ($products_tax / 100) * $shown_price;
-          } else {
-            $this->info['tax_groups']["$products_tax_description"] = ($products_tax / 100) * $shown_price;
+          unset($this->_data['shipping']['selected']);
+        }
+      }
+    }
+
+    public function hasShippingRates() {
+      return isset($this->_data['shipping']['rates']) && !empty($this->_data['shipping']['rates']);
+    }
+
+    public function getShippingRates() {
+      return isset($this->_data['shipping']['rates']) ? $this->_data['shipping']['rates'] : array();
+    }
+
+    public function getNumberOfShippingRates() {
+      return $this->hasShippingRates() ? count($this->_data['shipping']['rates']) : 0;
+    }
+
+    public function hasShippingRate($module, $method) {
+      foreach ( $this->_data['shipping']['rates'] as $s ) {
+        if ( $s['id'] == $module ) {
+          foreach ( $s['methods'] as $m ) {
+            if ( $m['id'] == $method ) {
+              return true;
+            }
           }
         }
-
-        $index++;
       }
 
-      if (DISPLAY_PRICE_WITH_TAX == 'true') {
-        $this->info['total'] = $this->info['subtotal'] + $this->info['shipping_cost'];
-      } else {
-        $this->info['total'] = $this->info['subtotal'] + $this->info['tax'] + $this->info['shipping_cost'];
+      return false;
+    }
+
+    public function getShippingRate($module, $method) {
+      foreach ( $this->_data['shipping']['rates'] as $s ) {
+        if ( $s['id'] == $module ) {
+          foreach ( $s['methods'] as $m ) {
+            if ( $m['id'] == $method ) {
+              $rate = $s;
+              $rate['methods'] = $m;
+
+              return $rate;
+            }
+          }
+        }
       }
+    }
+
+    public function getCheapestShippingRate() {
+      $rate = null;
+
+      foreach ( $this->_data['shipping']['rates'] as $s ) {
+        foreach ( $s['methods'] as $m ) {
+          if ( !isset($rate) || ($m['cost'] < $rate['cost']) ) {
+            $rate = array('id' => $s['id'] . '_' . $m['id'],
+                          'cost' => $m['cost']);
+          }
+        }
+      }
+
+      return $rate['id'];
+    }
+
+    public function loadPaymentOptions() {
+      global $OSCOM_Payment;
+
+      $OSCOM_Payment = new payment($this);
+    }
+
+    public function hasBilling() {
+      return isset($this->_data['billing']['selected']);
+    }
+
+    public function setBilling($code) {
+      global $OSCOM_Payment;
+
+      $module = $OSCOM_Payment->get($code);
+
+      $this->_data['billing']['selected'] = array('id' => $module->code,
+                                                  'title' => (isset($module->public_title) ? $module->public_title : $module->title));
+
+      if ( isset($module->order_status) && is_numeric($module->order_status) && ($module->order_status > 0) ) {
+        $this->_data['info']['order_status_id'] = $module->order_status;
+      }
+    }
+
+    public function getBilling($key = null) {
+      if ( isset($key) ) {
+        return $this->_data['billing']['selected'][$key];
+      }
+
+      return $this->_data['billing']['selected'];
+    }
+
+    public function getNumberOfTaxGroups() {
+      $groups = array();
+
+      foreach ( $_SESSION['cart']->get_products() as $p ) {
+        if ( !in_array($p['tax_class_id'], $groups) ) {
+          $groups[] = $p['tax_class_id'];
+        }
+      }
+
+      return count($groups);
+    }
+
+    public function getTotals() {
+      return $this->_data['totals'];
+    }
+
+    protected function calculate() {
+      $OSCOM_OrderTotal = new order_total($this);
+
+      $this->_data['totals'] = $OSCOM_OrderTotal->process();
     }
   }
 ?>

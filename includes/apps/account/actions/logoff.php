@@ -12,11 +12,9 @@
 
       $OSCOM_Customer->reset();
 
-      unset($_SESSION['sendto']);
-      unset($_SESSION['billto']);
-      unset($_SESSION['shipping']);
-      unset($_SESSION['payment']);
-      unset($_SESSION['comments']);
+      if ( isset($_SESSION['order']) ) {
+        unset($_SESSION['order']);
+      }
 
       $_SESSION['cart']->reset();
 

@@ -14,7 +14,7 @@
     var $modules;
 
 // class constructor
-    function order_total() {
+    function order_total(order $OSCOM_Order) {
       if (defined('MODULE_ORDER_TOTAL_INSTALLED') && osc_not_null(MODULE_ORDER_TOTAL_INSTALLED)) {
         $this->modules = explode(';', MODULE_ORDER_TOTAL_INSTALLED);
 
@@ -24,7 +24,7 @@
           include(DIR_WS_MODULES . 'order_total/' . $value);
 
           $class = substr($value, 0, strrpos($value, '.'));
-          $GLOBALS[$class] = new $class;
+          $GLOBALS[$class] = new $class($OSCOM_Order);
         }
       }
     }

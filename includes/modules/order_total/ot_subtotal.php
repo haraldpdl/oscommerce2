@@ -13,22 +13,24 @@
   class ot_subtotal {
     var $title, $output;
 
-    function ot_subtotal() {
+    function ot_subtotal(order $OSCOM_Order) {
       $this->code = 'ot_subtotal';
       $this->title = MODULE_ORDER_TOTAL_SUBTOTAL_TITLE;
       $this->description = MODULE_ORDER_TOTAL_SUBTOTAL_DESCRIPTION;
       $this->enabled = ((MODULE_ORDER_TOTAL_SUBTOTAL_STATUS == 'true') ? true : false);
       $this->sort_order = MODULE_ORDER_TOTAL_SUBTOTAL_SORT_ORDER;
 
+      $this->_order = $OSCOM_Order;
+
       $this->output = array();
     }
 
     function process() {
-      global $order, $currencies;
+      global $currencies;
 
       $this->output[] = array('title' => $this->title . ':',
-                              'text' => $currencies->format($order->info['subtotal'], true, $order->info['currency'], $order->info['currency_value']),
-                              'value' => $order->info['subtotal']);
+                              'text' => $currencies->format($this->_order->getInfo('subtotal')),
+                              'value' => $this->_order->getInfo('subtotal'));
     }
 
     function check() {

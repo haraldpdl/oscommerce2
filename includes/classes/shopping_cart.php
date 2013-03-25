@@ -338,6 +338,22 @@
             $products_price = $specials['specials_new_products_price'];
           }
 
+          $attributes = array();
+
+          if ( isset($this->contents[$products_id]['attributes']) ) {
+            foreach ( $this->contents[$products_id]['attributes'] as $pa => $po ) {
+              $product_attributes_query = osc_db_query("select popt.products_options_name, poval.products_options_values_name, pa.options_values_price, pa.price_prefix from " . TABLE_PRODUCTS_OPTIONS . " popt, " . TABLE_PRODUCTS_OPTIONS_VALUES . " poval, " . TABLE_PRODUCTS_ATTRIBUTES . " pa where pa.products_id = '" . (int)$prid . "' and pa.options_id = '" . (int)$pa . "' and pa.options_id = popt.products_options_id and pa.options_values_id = '" . (int)$po . "' and pa.options_values_id = poval.products_options_values_id and popt.language_id = '" . (int)$_SESSION['languages_id'] . "' and popt.language_id = poval.language_id");
+              $product_attributes = osc_db_fetch_array($product_attributes_query);
+
+              $attributes[$pa] = array('option' => $product_attributes['products_options_name'],
+                                       'value' => $product_attributes['products_options_values_name'],
+                                       'option_id' => $pa,
+                                       'value_id' => $po,
+                                       'prefix' => $product_attributes['price_prefix'],
+                                       'price' => $product_attributes['options_values_price']);
+            }
+          }
+
           $products_array[] = array('id' => $products_id,
                                     'name' => $products['products_name'],
                                     'model' => $products['products_model'],
@@ -347,7 +363,7 @@
                                     'weight' => $products['products_weight'],
                                     'final_price' => ($products_price + $this->attributes_price($products_id)),
                                     'tax_class_id' => $products['products_tax_class_id'],
-                                    'attributes' => (isset($this->contents[$products_id]['attributes']) ? $this->contents[$products_id]['attributes'] : ''));
+                                    'attributes' => (!empty($attributes) ? $attributes : null));
         }
       }
 

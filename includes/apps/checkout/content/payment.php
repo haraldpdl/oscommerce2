@@ -39,7 +39,7 @@ function rowOutEffect(object) {
   if (object.className == 'moduleRowOver') object.className = 'moduleRow';
 }
 //--></script>
-<?php echo $payment_modules->javascript_validation(); ?>
+<?php echo $OSCOM_Payment->getJavascriptValidation(); ?>
 
 <h1><?php echo HEADING_TITLE_PAYMENT; ?></h1>
 
@@ -59,7 +59,7 @@ function rowOutEffect(object) {
       <div class="ui-widget-header infoBoxHeading"><?php echo TITLE_BILLING_ADDRESS; ?></div>
 
       <div class="ui-widget-content infoBoxContents">
-        <?php echo osc_address_label($OSCOM_Customer->getID(), $_SESSION['billto'], true, ' ', '<br />'); ?>
+        <?php echo osc_address_label($OSCOM_Customer->getID(), $OSCOM_Order->getBillingAddress(), true, ' ', '<br />'); ?>
       </div>
     </div>
 
@@ -71,9 +71,7 @@ function rowOutEffect(object) {
   <h2><?php echo TABLE_HEADING_PAYMENT_METHOD; ?></h2>
 
 <?php
-  $selection = $payment_modules->selection();
-
-  if (sizeof($selection) > 1) {
+  if ( count($OSCOM_Payment->getModules()) > 1 ) {
 ?>
 
   <div class="contentText">
@@ -100,27 +98,27 @@ function rowOutEffect(object) {
 
 <?php
   $radio_buttons = 0;
-  for ($i=0, $n=sizeof($selection); $i<$n; $i++) {
+  foreach ( $OSCOM_Payment->getSelectionFields() as $m ) {
 ?>
 
     <table border="0" width="100%" cellspacing="0" cellpadding="2">
 
 <?php
-    if ( (isset($_SESSION['payment']) && ($selection[$i]['id'] == $_SESSION['payment'])) || ($n == 1) ) {
+    if ( ($OSCOM_Order->hasBilling() && ($m['id'] == $OSCOM_Order->getBilling('id'))) || (count($OSCOM_Payment->getModules()) == 1) ) {
       echo '      <tr id="defaultSelected" class="moduleRowSelected" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" onclick="selectRowEffect(this, ' . $radio_buttons . ')">' . "\n";
     } else {
       echo '      <tr class="moduleRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)" onclick="selectRowEffect(this, ' . $radio_buttons . ')">' . "\n";
     }
 ?>
 
-        <td><strong><?php echo $selection[$i]['module']; ?></strong></td>
+        <td><strong><?php echo $m['module']; ?></strong></td>
         <td align="right">
 
 <?php
-    if (sizeof($selection) > 1) {
-      echo osc_draw_radio_field('payment', $selection[$i]['id'], (isset($_SESSION['payment']) && ($selection[$i]['id'] == $_SESSION['payment'])));
+    if ( count($OSCOM_Payment->getModules()) > 1 ) {
+      echo osc_draw_radio_field('payment', $m['id'], ($OSCOM_Order->hasBilling() && ($m['id'] == $OSCOM_Order->getBilling('id'))));
     } else {
-      echo osc_draw_hidden_field('payment', $selection[$i]['id']);
+      echo osc_draw_hidden_field('payment', $m['id']);
     }
 ?>
 
@@ -128,27 +126,27 @@ function rowOutEffect(object) {
       </tr>
 
 <?php
-    if (isset($selection[$i]['error'])) {
+    if ( isset($m['error']) ) {
 ?>
 
       <tr>
-        <td colspan="2"><?php echo $selection[$i]['error']; ?></td>
+        <td colspan="2"><?php echo $m['error']; ?></td>
       </tr>
 
 <?php
-    } elseif (isset($selection[$i]['fields']) && is_array($selection[$i]['fields'])) {
+    } elseif ( isset($m['fields']) && is_array($m['fields']) ) {
 ?>
 
       <tr>
         <td colspan="2"><table border="0" cellspacing="0" cellpadding="2">
 
 <?php
-      for ($j=0, $n2=sizeof($selection[$i]['fields']); $j<$n2; $j++) {
+      foreach ( $m['fields'] as $f ) {
 ?>
 
           <tr>
-            <td><?php echo $selection[$i]['fields'][$j]['title']; ?></td>
-            <td><?php echo $selection[$i]['fields'][$j]['field']; ?></td>
+            <td><?php echo $f['title']; ?></td>
+            <td><?php echo $f['field']; ?></td>
           </tr>
 
 <?php
@@ -174,7 +172,7 @@ function rowOutEffect(object) {
   <h2><?php echo TABLE_HEADING_COMMENTS; ?></h2>
 
   <div class="contentText">
-    <?php echo osc_draw_textarea_field('comments', 'soft', '60', '5', isset($_SESSION['comments']) ? $_SESSION['comments'] : ''); ?>
+    <?php echo osc_draw_textarea_field('comments', 'soft', '60', '5', $OSCOM_Order->hasInfo('comments') ? $OSCOM_Order->getInfo('comments') : ''); ?>
   </div>
 
   <div class="contentText">

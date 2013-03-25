@@ -6,26 +6,17 @@
  * @license GNU General Public License; http://www.oscommerce.com/gpllicense.txt
  */
 
- require(DIR_FS_CATALOG . DIR_WS_CLASSES . 'order.php');
+ require(DIR_FS_CATALOG . DIR_WS_CLASSES . 'order_info.php');
 
   class app_account_action_orders_info {
     public static function execute(app $app) {
-      global $OSCOM_Customer, $OSCOM_PDO, $order, $OSCOM_Breadcrumb;
+      global $OSCOM_Breadcrumb, $OSCOM_Customer, $OSCOM_OrderInfo;
 
-      if ( !isset($_GET['id']) || !is_numeric($_GET['id']) ) {
+      if ( !isset($_GET['id']) || !is_numeric($_GET['id']) || !orderInfo::canView($_GET['id'], $OSCOM_Customer->getID()) ) {
         osc_redirect(osc_href_link('account', 'orders', 'SSL'));
       }
 
-      $Qcheck = $OSCOM_PDO->prepare('select o.customers_id from :table_orders o, :table_orders_status s where o.orders_id = :orders_id and o.orders_status = s.orders_status_id and s.language_id = :language_id and s.public_flag = "1"');
-      $Qcheck->bindInt(':orders_id', $_GET['id']);
-      $Qcheck->bindInt(':language_id', $_SESSION['languages_id']);
-      $Qcheck->execute();
-
-      if ( ($Qcheck->fetch() === false) || ($Qcheck->value('customers_id') != $OSCOM_Customer->getID()) ) {
-        osc_redirect(osc_href_link('account', 'orders', 'SSL'));
-      }
-
-      $order = new order($_GET['id']);
+      $OSCOM_OrderInfo = new orderInfo($_GET['id'], $OSCOM_Customer->getID());
 
       $app->setContentFile('orders_info.php');
 

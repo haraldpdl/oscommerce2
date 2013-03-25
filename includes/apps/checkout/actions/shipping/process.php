@@ -8,45 +8,25 @@
 
   class app_checkout_action_shipping_process {
     public static function execute(app $app) {
-      global $free_shipping, $shipping_modules;
+      global $OSCOM_Order;
 
       if ( isset($_POST['formid']) && ($_POST['formid'] == $_SESSION['sessiontoken']) ) {
         if ( osc_not_null($_POST['comments']) ) {
-          $_SESSION['comments'] = trim($_POST['comments']);
+          $OSCOM_Order->setInfo('comments', trim($_POST['comments']));
         }
 
-        if ( (osc_count_shipping_modules() > 0) || ($free_shipping == true) ) {
-          if ( (isset($_POST['shipping'])) && (strpos($_POST['shipping'], '_')) ) {
-            $_SESSION['shipping'] = $_POST['shipping'];
+        if ( $OSCOM_Order->hasShippingRates() ) {
+          if ( isset($_POST['shipping']) && (strpos($_POST['shipping'], '_') !== false) ) {
+            list($module, $method) = explode('_', $_POST['shipping'], 2);
 
-            list($module, $method) = explode('_', $_SESSION['shipping']);
-            if ( is_object($GLOBALS[$module]) || ($_SESSION['shipping'] == 'free_free') ) {
-              if ( $_SESSION['shipping'] == 'free_free' ) {
-                $quote[0]['methods'][0]['title'] = FREE_SHIPPING_TITLE;
-                $quote[0]['methods'][0]['cost'] = '0';
-              } else {
-                $quote = $shipping_modules->quote($method, $module);
+            if ( $OSCOM_Order->hasShippingRate($module, $method) ) {
+              $quote = $OSCOM_Order->getShippingRate($module, $method);
+
+              if ( !isset($quote['error']) ) {
+                $OSCOM_Order->setShipping($module, $method);
               }
-
-              if ( isset($quote['error']) ) {
-                unset($_SESSION['shipping']);
-              } else {
-                if ( (isset($quote[0]['methods'][0]['title'])) && (isset($quote[0]['methods'][0]['cost'])) ) {
-                  $_SESSION['shipping'] = array('id' => $_SESSION['shipping'],
-                                                'title' => (($free_shipping == true) ?  $quote[0]['methods'][0]['title'] : $quote[0]['module'] . ' (' . $quote[0]['methods'][0]['title'] . ')'),
-                                                'cost' => $quote[0]['methods'][0]['cost']);
-
-                  osc_redirect(osc_href_link('checkout', 'payment', 'SSL'));
-                }
-              }
-            } else {
-              unset($_SESSION['shipping']);
             }
           }
-        } else {
-          $_SESSION['shipping'] = false;
-
-          osc_redirect(osc_href_link('checkout', 'payment', 'SSL'));
         }
       }
 
