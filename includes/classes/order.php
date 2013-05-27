@@ -113,7 +113,7 @@
 
       $is_different_address = false;
 
-      if ( !isset($this->_data['shipping']['address']) || !empty(array_diff_assoc($this->_data['shipping']['address'], $address)) ) {
+      if ( !isset($this->_data['shipping']['address']) || (count(array_diff_assoc($this->_data['shipping']['address'], $address)) > 0) ) {
         $is_different_address = true;
       }
 
@@ -181,7 +181,7 @@
 
       $is_different_address = false;
 
-      if ( !isset($this->_data['billing']['address']) || !empty(array_diff_assoc($this->_data['billing']['address'], $address)) ) {
+      if ( !isset($this->_data['billing']['address']) || (count(array_diff_assoc($this->_data['billing']['address'], $address)) > 0) ) {
         $is_different_address = true;
       }
 
@@ -319,11 +319,11 @@
 
       $module = $OSCOM_Payment->get($code);
 
-      $this->_data['billing']['selected'] = array('id' => $module->code,
-                                                  'title' => (isset($module->public_title) ? $module->public_title : $module->title));
+      $this->_data['billing']['selected'] = array('id' => $module->getCode(),
+                                                  'title' => $module->getPublicTitle());
 
-      if ( isset($module->order_status) && is_numeric($module->order_status) && ($module->order_status > 0) ) {
-        $this->_data['info']['order_status_id'] = $module->order_status;
+      if ( $module->getOrderStatusID() > 0 ) {
+        $this->_data['info']['order_status_id'] = $module->getOrderStatusID();
       }
     }
 

@@ -8,8 +8,6 @@
 
   class table extends shipping_abstract {
     protected function initialize() {
-      global $OSCOM_PDO;
-
       $this->_title = MODULE_SHIPPING_TABLE_TITLE;
       $this->_public_title = MODULE_SHIPPING_TABLE_PUBLIC_TITLE;
       $this->_description = MODULE_SHIPPING_TABLE_DESCRIPTION;

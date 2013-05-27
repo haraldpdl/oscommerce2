@@ -17,8 +17,6 @@
     protected $_service = 'All';
 
     protected function initialize() {
-      global $OSCOM_PDO;
-
       $this->_title = MODULE_SHIPPING_USPS_TITLE;
       $this->_description = MODULE_SHIPPING_USPS_DESCRIPTION;
       $this->_icon = DIR_WS_ICONS . 'shipping_usps.gif';

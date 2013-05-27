@@ -6,7 +6,7 @@
  * @license GNU General Public License; http://www.oscommerce.com/gpllicense.txt
  */
 
-  require(DIR_FS_CATALOG . DIR_WS_CLASSES . 'shipping_abstract.php');
+  require(DIR_FS_CATALOG . 'includes/classes/shipping_abstract.php');
 
   class shipping {
     protected $_modules = array();
@@ -69,7 +69,7 @@
     }
 
     protected function load($code) {
-      include(DIR_WS_MODULES . 'shipping/' . $code . '.php');
+      include(DIR_FS_CATALOG . 'includes/modules/shipping/' . $code . '.php');
 
       if ( is_subclass_of($code, 'shipping_abstract') ) {
         $module = new $code($this->_order);

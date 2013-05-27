@@ -6,6 +6,8 @@
  * @license GNU General Public License; http://www.oscommerce.com/gpllicense.txt
  */
 
+  require(DIR_FS_CATALOG . 'includes/classes/payment_abstract.php');
+
   class payment {
     protected $_modules = array();
     protected $_order;
@@ -19,17 +21,7 @@
         foreach ( $installed as $file ) {
           $code = substr($file, 0, strrpos($file, '.'));
 
-          if ( file_exists(DIR_WS_LANGUAGES . $_SESSION['language'] . '/modules/payment/' . $file) ) {
-            include(DIR_WS_LANGUAGES . $_SESSION['language'] . '/modules/payment/' . $file);
-          }
-
-          include(DIR_WS_MODULES . 'payment/' . $file);
-
-          $module = new $code($this->_order);
-
-          if ( $module->enabled ) {
-            $this->_modules[$code] = $module;
-          }
+          $this->load($code);
         }
 
 /*
@@ -68,10 +60,6 @@
       return array_key_exists($module, $this->_modules);
     }
 
-    public function update_status() {
-      $this->get()->update_status();
-    }
-
     public function getJavascriptValidation() {
       $js = '';
 
@@ -94,7 +82,7 @@
               '  }' . "\n\n";
 
         foreach ( $this->_modules as $m ) {
-          $js .= $m->javascript_validation();
+          $js .= $m->getJavascriptValidation();
         }
 
         $js .= "\n" . '  if (payment_value == null) {' . "\n" .
@@ -118,8 +106,10 @@
       $initialize_array = array();
 
       foreach ( $this->_modules as $m ) {
-        if ( method_exists($m, 'checkout_initialization_method') ) {
-          $initialize_array[] = $m->checkout_initialization_method();
+        $button = $m->getCheckoutButton();
+
+        if ( !empty($button) ) {
+          $initialize_array[] = $button;
         }
       }
 
@@ -130,7 +120,7 @@
       $selection_array = array();
 
       foreach ( $this->_modules as $m ) {
-        $selection = $m->selection();
+        $selection = $m->getSelectionField();
 
         if ( is_array($selection) ) {
           $selection_array[] = $selection;
@@ -141,27 +131,43 @@
     }
 
     function pre_confirmation_check() {
-      $this->get()->pre_confirmation_check();
+      $this->get()->runBeforeConfirmation();
     }
 
     function confirmation() {
-      return $this->get()->confirmation();
+      return $this->get()->runConfirmation();
     }
 
     function process_button() {
-      return $this->get()->process_button();
+      return $this->get()->getProcessButton();
     }
 
     function before_process() {
-      return $this->get()->before_process();
+      return $this->get()->runBeforeProcess();
     }
 
     function after_process() {
-      return $this->get()->after_process();
+      return $this->get()->runAfterProcess();
     }
 
     function get_error() {
-      return $this->get()->get_error();
+      return $this->get()->getError();
+    }
+
+    protected function load($code) {
+      include(DIR_FS_CATALOG . 'includes/modules/payment/' . $code . '.php');
+
+      if ( is_subclass_of($code, 'payment_abstract') ) {
+        $module = new $code($this->_order);
+
+        if ( $module->isEnabled() ) {
+          $this->_modules[$code] = $module;
+
+          return true;
+        }
+      }
+
+      return false;
     }
   }
 ?>

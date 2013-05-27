@@ -1,119 +1,55 @@
 <?php
-/*
-  $Id$
+/**
+ * osCommerce Online Merchant
+ * 
+ * @copyright Copyright (c) 2013 osCommerce; http://www.oscommerce.com
+ * @license GNU General Public License; http://www.oscommerce.com/gpllicense.txt
+ */
 
-  osCommerce, Open Source E-Commerce Solutions
-  http://www.oscommerce.com
+  class cod extends payment_abstract {
+    protected function initialize() {
+      $this->_title = MODULE_PAYMENT_COD_TITLE;
+      $this->_public_title = MODULE_PAYMENT_COD_PUBLIC_TITLE;
+      $this->_description = MODULE_PAYMENT_COD_DESCRIPTION;
+      $this->_installed = defined('MODULE_PAYMENT_COD_STATUS');
 
-  Copyright (c) 2003 osCommerce
-
-  Released under the GNU General Public License
-*/
-
-  class cod {
-    var $code, $title, $description, $enabled;
-
-// class constructor
-    function cod() {
-      global $order;
-
-      $this->code = 'cod';
-      $this->title = MODULE_PAYMENT_COD_TEXT_TITLE;
-      $this->description = MODULE_PAYMENT_COD_TEXT_DESCRIPTION;
-      $this->sort_order = MODULE_PAYMENT_COD_SORT_ORDER;
-      $this->enabled = ((MODULE_PAYMENT_COD_STATUS == 'True') ? true : false);
-
-      if ((int)MODULE_PAYMENT_COD_ORDER_STATUS_ID > 0) {
-        $this->order_status = MODULE_PAYMENT_COD_ORDER_STATUS_ID;
-      }
-
-      if (is_object($order)) $this->update_status();
-    }
-
-// class methods
-    function update_status() {
-      global $order;
-
-      if ( ($this->enabled == true) && ((int)MODULE_PAYMENT_COD_ZONE > 0) ) {
-        $check_flag = false;
-        $check_query = osc_db_query("select zone_id from " . TABLE_ZONES_TO_GEO_ZONES . " where geo_zone_id = '" . MODULE_PAYMENT_COD_ZONE . "' and zone_country_id = '" . $order->delivery['country']['id'] . "' order by zone_id");
-        while ($check = osc_db_fetch_array($check_query)) {
-          if ($check['zone_id'] < 1) {
-            $check_flag = true;
-            break;
-          } elseif ($check['zone_id'] == $order->delivery['zone_id']) {
-            $check_flag = true;
-            break;
-          }
-        }
-
-        if ($check_flag == false) {
-          $this->enabled = false;
-        }
-      }
+      if ( isset($this->_order) ) {
+        $this->_enabled = (MODULE_PAYMENT_COD_STATUS == 'True') ? true : false;
+        $this->_sort_order = MODULE_PAYMENT_COD_SORT_ORDER;
+        $this->_order_status_id = MODULE_PAYMENT_COD_ORDER_STATUS_ID;
+        $this->_billing_zone_class_id = MODULE_PAYMENT_COD_ZONE;
 
 // disable the module if the order only contains virtual products
-      if ($this->enabled == true) {
-        if ($order->content_type == 'virtual') {
-          $this->enabled = false;
+        if ( $this->isEnabled() && !$this->_order->requireShipping() ) {
+          $this->_enabled = false;
+        }
+
+        if ( $this->isEnabled() && !$this->hasValidBillingZone() ) {
+          $this->_enabled = false;
         }
       }
     }
 
-    function javascript_validation() {
-      return false;
-    }
+    protected function getParams() {
+      $params = array('MODULE_PAYMENT_COD_STATUS' => array('title' => 'Enable Cash On Delivery Payments',
+                                                           'desc' => 'Do you want to accept Cash On Delivery payments?',
+                                                           'value' => 'True',
+                                                           'set_func' => 'osc_cfg_select_option(array(\'True\', \'False\'), '),
+                      'MODULE_PAYMENT_COD_ORDER_STATUS_ID' => array('title' => 'Order Status',
+                                                                    'desc' => 'The order status will be set to this value when this payment method has been selected.',
+                                                                    'value' => '0',
+                                                                    'use_func' => 'osc_get_order_status_name',
+                                                                    'set_func' => 'osc_cfg_pull_down_order_statuses('),
+                      'MODULE_PAYMENT_COD_ZONE' => array('title' => 'Billing Zone',
+                                                         'desc' => 'If a zone is selected, only enable this payment method for that zone.',
+                                                         'value' => '0',
+                                                         'use_func' => 'osc_get_zone_class_title',
+                                                         'set_func' => 'osc_cfg_pull_down_zone_classes('),
+                      'MODULE_PAYMENT_COD_SORT_ORDER' => array('title' => 'Sort Order',
+                                                               'desc' => 'Sort order of display.',
+                                                               'value' => '0'));
 
-    function selection() {
-      return array('id' => $this->code,
-                   'module' => $this->title);
-    }
-
-    function pre_confirmation_check() {
-      return false;
-    }
-
-    function confirmation() {
-      return false;
-    }
-
-    function process_button() {
-      return false;
-    }
-
-    function before_process() {
-      return false;
-    }
-
-    function after_process() {
-      return false;
-    }
-
-    function get_error() {
-      return false;
-    }
-
-    function check() {
-      if (!isset($this->_check)) {
-        $check_query = osc_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_COD_STATUS'");
-        $this->_check = osc_db_num_rows($check_query);
-      }
-      return $this->_check;
-    }
-
-    function install() {
-      osc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable Cash On Delivery Module', 'MODULE_PAYMENT_COD_STATUS', 'True', 'Do you want to accept Cash On Delevery payments?', '6', '1', 'osc_cfg_select_option(array(\'True\', \'False\'), ', now())");
-      osc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added) values ('Payment Zone', 'MODULE_PAYMENT_COD_ZONE', '0', 'If a zone is selected, only enable this payment method for that zone.', '6', '2', 'osc_get_zone_class_title', 'osc_cfg_pull_down_zone_classes(', now())");
-      osc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort order of display.', 'MODULE_PAYMENT_COD_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
-      osc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, use_function, date_added) values ('Set Order Status', 'MODULE_PAYMENT_COD_ORDER_STATUS_ID', '0', 'Set the status of orders made with this payment module to this value', '6', '0', 'osc_cfg_pull_down_order_statuses(', 'osc_get_order_status_name', now())");
-   }
-
-    function remove() {
-      osc_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
-    }
-
-    function keys() {
-      return array('MODULE_PAYMENT_COD_STATUS', 'MODULE_PAYMENT_COD_ZONE', 'MODULE_PAYMENT_COD_ORDER_STATUS_ID', 'MODULE_PAYMENT_COD_SORT_ORDER');
+      return $params;
     }
   }
 ?>

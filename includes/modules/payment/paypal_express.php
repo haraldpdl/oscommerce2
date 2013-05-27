@@ -1,65 +1,36 @@
 <?php
-/*
-  $Id$
+/**
+ * osCommerce Online Merchant
+ * 
+ * @copyright Copyright (c) 2013 osCommerce; http://www.oscommerce.com
+ * @license GNU General Public License; http://www.oscommerce.com/gpllicense.txt
+ */
 
-  osCommerce, Open Source E-Commerce Solutions
-  http://www.oscommerce.com
-
-  Copyright (c) 2013 osCommerce
-
-  Released under the GNU General Public License
-*/
-
-  class paypal_express {
-    var $code, $title, $description, $enabled;
-
-// class constructor
-    function paypal_express() {
-      global $order;
-
+  class paypal_express extends payment_abstract {
+    protected function initialize() {
       $this->signature = 'paypal|paypal_express|1.2|2.2';
       $this->api_version = '60.0';
 
-      $this->code = 'paypal_express';
-      $this->title = MODULE_PAYMENT_PAYPAL_EXPRESS_TEXT_TITLE;
-      $this->public_title = MODULE_PAYMENT_PAYPAL_EXPRESS_TEXT_PUBLIC_TITLE;
-      $this->description = MODULE_PAYMENT_PAYPAL_EXPRESS_TEXT_DESCRIPTION;
-      $this->sort_order = MODULE_PAYMENT_PAYPAL_EXPRESS_SORT_ORDER;
-      $this->enabled = ((MODULE_PAYMENT_PAYPAL_EXPRESS_STATUS == 'True') ? true : false);
+      $this->_title = MODULE_PAYMENT_PAYPAL_EXPRESS_TITLE;
+      $this->_public_title = MODULE_PAYMENT_PAYPAL_EXPRESS_PUBLIC_TITLE;
+      $this->_description = MODULE_PAYMENT_PAYPAL_EXPRESS_DESCRIPTION;
+      $this->_installed = defined('MODULE_PAYMENT_PAYPAL_EXPRESS_STATUS');
 
-      if ((int)MODULE_PAYMENT_PAYPAL_EXPRESS_ORDER_STATUS_ID > 0) {
-        $this->order_status = MODULE_PAYMENT_PAYPAL_EXPRESS_ORDER_STATUS_ID;
-      }
+      if ( isset($this->_order) ) {
+        $this->_enabled = (MODULE_PAYMENT_PAYPAL_EXPRESS_STATUS == 'True') ? true : false;
+        $this->_sort_order = MODULE_PAYMENT_PAYPAL_EXPRESS_SORT_ORDER;
+        $this->_order_status_id = MODULE_PAYMENT_PAYPAL_EXPRESS_ORDER_STATUS_ID;
+        $this->_billing_zone_class_id = MODULE_PAYMENT_PAYPAL_EXPRESS_ZONE;
 
-      if (is_object($order)) $this->update_status();
-    }
-
-// class methods
-    function update_status() {
-      global $order;
-
-      if ( ($this->enabled == true) && ((int)MODULE_PAYMENT_PAYPAL_EXPRESS_ZONE > 0) ) {
-        $check_flag = false;
-        $check_query = osc_db_query("select zone_id from " . TABLE_ZONES_TO_GEO_ZONES . " where geo_zone_id = '" . MODULE_PAYMENT_PAYPAL_EXPRESS_ZONE . "' and zone_country_id = '" . $order->delivery['country']['id'] . "' order by zone_id");
-        while ($check = osc_db_fetch_array($check_query)) {
-          if ($check['zone_id'] < 1) {
-            $check_flag = true;
-            break;
-          } elseif ($check['zone_id'] == $order->delivery['zone_id']) {
-            $check_flag = true;
-            break;
-          }
-        }
-
-        if ($check_flag == false) {
-          $this->enabled = false;
+        if ( $this->isEnabled() && !$this->hasValidBillingZone() ) {
+          $this->_enabled = false;
         }
       }
     }
 
-    function checkout_initialization_method() {
-      if (MODULE_PAYMENT_PAYPAL_EXPRESS_CHECKOUT_IMAGE == 'Dynamic') {
-        if (MODULE_PAYMENT_PAYPAL_EXPRESS_TRANSACTION_SERVER == 'Live') {
+    public function getCheckoutButton() {
+      if ( MODULE_PAYMENT_PAYPAL_EXPRESS_CHECKOUT_IMAGE == 'Dynamic' ) {
+        if ( MODULE_PAYMENT_PAYPAL_EXPRESS_TRANSACTION_SERVER == 'Live' ) {
           $image_button = 'https://fpdbs.paypal.com/dynamicimageweb?cmd=_dynamic-image';
         } else {
           $image_button = 'https://fpdbs.sandbox.paypal.com/dynamicimageweb?cmd=_dynamic-image';
@@ -67,40 +38,29 @@
 
         $params = array('locale=' . MODULE_PAYMENT_PAYPAL_EXPRESS_LANGUAGE_LOCALE);
 
-        if (osc_not_null(MODULE_PAYMENT_PAYPAL_EXPRESS_API_USERNAME)) {
+        if ( osc_not_null(MODULE_PAYMENT_PAYPAL_EXPRESS_API_USERNAME) ) {
           $response_array = $this->getPalDetails();
 
-          if (isset($response_array['PAL'])) {
+          if ( isset($response_array['PAL']) ) {
             $params[] = 'pal=' . $response_array['PAL'];
             $params[] = 'ordertotal=' . $this->format_raw($_SESSION['cart']->show_total());
           }
         }
 
-        if (!empty($params)) {
+        if ( !empty($params) ) {
           $image_button .= '&' . implode('&', $params);
         }
       } else {
         $image_button = MODULE_PAYMENT_PAYPAL_EXPRESS_BUTTON;
       }
 
-      $string = '<a href="' . osc_href_link('ext/modules/payment/paypal/express.php', '', 'SSL') . '"><img src="' . $image_button . '" border="0" alt="" title="' . osc_output_string_protected(MODULE_PAYMENT_PAYPAL_EXPRESS_TEXT_BUTTON) . '" /></a>';
+      $string = '<a href="' . osc_href_link('ext/modules/payment/paypal/express.php', '', 'SSL') . '"><img src="' . $image_button . '" border="0" alt="" title="' . osc_output_string_protected(MODULE_PAYMENT_PAYPAL_EXPRESS_BUTTON_TITLE) . '" /></a>';
 
       return $string;
     }
 
-    function javascript_validation() {
-      return false;
-    }
-
-    function selection() {
-      return array('id' => $this->code,
-                   'module' => $this->public_title);
-    }
-
-    function pre_confirmation_check() {
-      global $order;
-
-      if (!isset($_SESSION['ppe_token'])) {
+    public function runBeforeConfirmation() {
+      if ( !isset($_SESSION['ppe_token']) ) {
         osc_redirect(osc_href_link('ext/modules/payment/paypal/express.php', '', 'SSL'));
       }
 
@@ -133,7 +93,7 @@
       $confirmation = false;
 
       if (empty($_SESSION['comments'])) {
-        $confirmation = array('fields' => array(array('title' => MODULE_PAYMENT_PAYPAL_EXPRESS_TEXT_COMMENTS,
+        $confirmation = array('fields' => array(array('title' => MODULE_PAYMENT_PAYPAL_EXPRESS_COMMENTS,
                                                       'field' => osc_draw_textarea_field('ppecomments', 'soft', '60', '5', $_SESSION['comments']))));
       }
 
@@ -200,19 +160,8 @@
       unset($_SESSION['ppe_addressstatus']);
     }
 
-    function get_error() {
-      return false;
-    }
-
-    function check() {
-      if (!isset($this->_check)) {
-        $check_query = osc_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_PAYPAL_EXPRESS_STATUS'");
-        $this->_check = osc_db_num_rows($check_query);
-      }
-      return $this->_check;
-    }
-
-    function install() {
+    function getParams() {}
+    function install2() {
       $check_query = osc_db_query("select orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name = 'PayPal [Transactions]' limit 1");
 
       if (osc_db_num_rows($check_query) < 1) {
@@ -254,10 +203,6 @@
       osc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, use_function, date_added) values ('PayPal Transactions Order Status Level', 'MODULE_PAYMENT_PAYPAL_EXPRESS_TRANSACTIONS_ORDER_STATUS_ID', '" . $status_id . "', 'Include PayPal transaction information in this order status level', '6', '0', 'osc_cfg_pull_down_order_statuses(', 'osc_get_order_status_name', now())");
       osc_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('cURL Program Location', 'MODULE_PAYMENT_PAYPAL_EXPRESS_CURL', '/usr/bin/curl', 'The location to the cURL program application.', '6', '0' , now())");
    }
-
-    function remove() {
-      osc_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
-    }
 
     function keys() {
       return array('MODULE_PAYMENT_PAYPAL_EXPRESS_STATUS', 'MODULE_PAYMENT_PAYPAL_EXPRESS_SELLER_ACCOUNT', 'MODULE_PAYMENT_PAYPAL_EXPRESS_API_USERNAME', 'MODULE_PAYMENT_PAYPAL_EXPRESS_API_PASSWORD', 'MODULE_PAYMENT_PAYPAL_EXPRESS_API_SIGNATURE', 'MODULE_PAYMENT_PAYPAL_EXPRESS_TRANSACTION_SERVER', 'MODULE_PAYMENT_PAYPAL_EXPRESS_TRANSACTION_METHOD', 'MODULE_PAYMENT_PAYPAL_EXPRESS_ACCOUNT_OPTIONAL', 'MODULE_PAYMENT_PAYPAL_EXPRESS_INSTANT_UPDATE', 'MODULE_PAYMENT_PAYPAL_EXPRESS_CHECKOUT_IMAGE', 'MODULE_PAYMENT_PAYPAL_EXPRESS_DEBUG_EMAIL', 'MODULE_PAYMENT_PAYPAL_EXPRESS_ZONE', 'MODULE_PAYMENT_PAYPAL_EXPRESS_ORDER_STATUS_ID', 'MODULE_PAYMENT_PAYPAL_EXPRESS_TRANSACTIONS_ORDER_STATUS_ID', 'MODULE_PAYMENT_PAYPAL_EXPRESS_SORT_ORDER', 'MODULE_PAYMENT_PAYPAL_EXPRESS_CURL');
