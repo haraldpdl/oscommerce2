@@ -28,15 +28,19 @@
         $this->setBillingAddress($this->_data['billing']['address']['id']);
       }
 
+      $calculate_totals = false;
+
       if ( !isset($this->_data['cart_id']) || !isset($_SESSION['cart']->cartID) || ($this->_data['cart_id'] != $_SESSION['cart']->cartID) ) {
         $this->_initiate();
+
+        $calculate_totals = true;
       }
 
       if ( $this->hasBillingAddress() ) {
         $this->loadPaymentOptions();
       }
 
-      if ( (!$this->requireShipping() || ($this->hasShippingAddress() && $this->hasShipping())) && $this->hasBillingAddress() && $this->hasBilling() ) {
+      if ( (!$this->requireShipping() || ($this->hasShippingAddress() && $this->hasShipping())) && $this->hasBillingAddress() && $this->hasBilling() && ($calculate_totals === true) ) {
         $this->calculate();
       }
     }

@@ -55,6 +55,8 @@
               $tax_groups[$tax_description] = $tax;
             }
           }
+
+          $this->_order->setInfo('total', $this->_order->getInfo('total') + $tax);
         }
       }
 
