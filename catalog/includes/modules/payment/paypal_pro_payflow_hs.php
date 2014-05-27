@@ -14,9 +14,9 @@
     var $code, $title, $description, $enabled;
 
     function paypal_pro_payflow_hs() {
-      global $order;
+      global $HTTP_GET_VARS, $PHP_SELF, $order;
 
-      $this->signature = 'paypal|paypal_pro_payflow_hs|2.0|2.2';
+      $this->signature = 'paypal|paypal_pro_payflow_hs|1.0|2.2';
       $this->api_version = '112';
 
       $this->code = 'paypal_pro_payflow_hs';
@@ -33,13 +33,19 @@
           $this->public_title .= ' (' . $this->code . '; Sandbox)';
         }
 
-        $this->description .= $this->getTestLinkInfo();
-
         if ( MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_GATEWAY_SERVER == 'Live' ) {
           $this->api_url = 'https://api-3t.paypal.com/nvp';
         } else {
           $this->api_url = 'https://api-3t.sandbox.paypal.com/nvp';
         }
+
+        $this->description .= $this->getTestLinkInfo();
+      }
+
+      if ( !function_exists('curl_init') ) {
+        $this->description = '<div class="secWarning">' . MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_ERROR_ADMIN_CURL . '</div>' . $this->description;
+
+        $this->enabled = false;
       }
 
       if ( $this->enabled === true ) {
@@ -54,6 +60,11 @@
         if ( isset($order) && is_object($order) ) {
           $this->update_status();
         }
+      }
+
+      if ( defined('FILENAME_MODULES') && ($PHP_SELF == FILENAME_MODULES) && isset($HTTP_GET_VARS['action']) && ($HTTP_GET_VARS['action'] == 'install') && isset($HTTP_GET_VARS['subaction']) && ($HTTP_GET_VARS['subaction'] == 'conntest') ) {
+        echo $this->getTestConnectionResult();
+        exit;
       }
     }
 
@@ -291,7 +302,7 @@
 
         $params = array('vendor' => MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_VENDOR,
                         'partner' => MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_PARTNER,
-                        'bn' => 'OSCOM23_PRO_HS',
+                        'bn' => 'OSCOM23_HSPF',
                         'buyer_email' => $order->customer['email_address'],
                         'cancel_return' => tep_href_link(FILENAME_CHECKOUT_PAYMENT, '', 'SSL'),
                         'currency_code' => $currency,
@@ -299,7 +310,7 @@
                         'custom' => $customer_id,
                         'paymentaction' => MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_TRANSACTION_METHOD == 'Sale' ? 'sale' : 'authorization',
                         'return' => tep_href_link(FILENAME_CHECKOUT_PROCESS, '', 'SSL'),
-                        'notify_url' => tep_href_link('ext/modules/payment/paypal/pro_payflow_hosted_ipn.php', '', 'SSL', false, false),
+//                        'notify_url' => tep_href_link('ext/modules/payment/paypal/pro_payflow_hosted_ipn.php', '', 'SSL', false, false),
                         'shipping' => $this->format_raw($order->info['shipping_cost']),
                         'tax' => $this->format_raw($order->info['tax']),
                         'subtotal' => $this->format_raw($order->info['total'] - $order->info['shipping_cost'] - $order->info['tax']),
@@ -333,7 +344,7 @@
         }
 
         $counter = 0;
-        $params_string = 'USER=' . urlencode(utf8_encode(trim(MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_API_USERNAME))) . '&PWD=' . urlencode(utf8_encode(trim(MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_API_PASSWORD))) . '&SIGNATURE=' . urlencode(utf8_encode(trim(MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_API_SIGNATURE))) . '&VERSION=112&METHOD=BMCreateButton&BUTTONCODE=TOKEN&BUTTONTYPE=PAYMENT&';
+        $params_string = 'USER=' . urlencode(utf8_encode(trim(MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_API_USERNAME))) . '&PWD=' . urlencode(utf8_encode(trim(MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_API_PASSWORD))) . '&SIGNATURE=' . urlencode(utf8_encode(trim(MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_API_SIGNATURE))) . '&VERSION=' . $this->api_version . '&METHOD=BMCreateButton&BUTTONCODE=TOKEN&BUTTONTYPE=PAYMENT&';
 
         foreach ( $params as $key => $value ) {
           $params_string .= 'L_BUTTONVAR' . $counter . '=' . $key . '=' . urlencode(utf8_encode(trim($value))) . '&';
@@ -344,8 +355,13 @@
         $params_string = substr($params_string, 0, -1);
 
         $response = $this->sendTransactionToGateway($this->api_url, $params_string);
+
         $pppfhs_result = array();
         parse_str($response, $pppfhs_result);
+
+        if (($pppfhs_result['ACK'] != 'Success') && ($pppfhs_result['ACK'] != 'SuccessWithWarning')) {
+          $this->sendDebugEmail($pppfhs_result);
+        }
 
         if ( !tep_session_is_registered('pppfhs_result') ) {
           tep_session_register('pppfhs_result');
@@ -381,10 +397,16 @@ EOD;
     }
 
     function before_process() {
-      global $HTTP_GET_VARS, $cart_PayPal_Pro_Payflow_HS_ID, $customer_id, $pppfhs_result, $order, $order_totals, $sendto, $billto, $languages_id, $payment, $currencies, $cart, $$payment, $messageStack;
+      global $HTTP_GET_VARS, $HTTP_POST_VARS, $cart_PayPal_Pro_Payflow_HS_ID, $customer_id, $pppfhs_result, $order, $order_totals, $sendto, $billto, $languages_id, $payment, $currencies, $cart, $$payment, $messageStack;
 
       $result = false;
 
+      if ( isset($HTTP_GET_VARS['tx']) && !empty($HTTP_GET_VARS['tx']) ) { // direct payment (eg, credit card)
+        $result = $this->getTransactionDetails($HTTP_GET_VARS['tx']);
+      } elseif ( isset($HTTP_POST_VARS['txn_id']) && !empty($HTTP_POST_VARS['txn_id']) ) { // paypal payment
+        $result = $this->getTransactionDetails($HTTP_POST_VARS['txn_id']);
+      }
+echo '<pre>';var_dump($result);var_dump($_POST);exit;
       if ( !isset($HTTP_GET_VARS['RESULT']) || ($HTTP_GET_VARS['RESULT'] != '0') ) {
         if ( !isset($HTTP_GET_VARS['RESULT']) ) {
           $HTTP_GET_VARS['RESULT'] = '';
@@ -773,6 +795,8 @@ EOD;
                                                                                  'set_func' => 'tep_cfg_select_option(array(\'True\', \'False\'), '),
                       'MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_PROXY' => array('title' => 'Proxy Server',
                                                                             'desc' => 'Send API requests through this proxy server. (host:port, eg: 123.45.67.89:8080 or proxy.example.com:8080)'),
+                      'MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_DEBUG_EMAIL' => array('title' => 'Debug E-Mail Address',
+                                                                                  'desc' => 'All parameters of an invalid transaction will be sent to this email address.'),
                       'MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_SORT_ORDER' => array('title' => 'Sort order of display.',
                                                                                  'desc' => 'Sort order of display. Lowest is displayed first.',
                                                                                  'value' => '0'));
@@ -845,6 +869,10 @@ EOD;
 
       $response_array = array();
       parse_str($response, $response_array);
+echo '<pre>';var_dump($response_array);exit;
+      if (($response_array['ACK'] != 'Success') && ($response_array['ACK'] != 'SuccessWithWarning')) {
+        $this->sendDebugEmail($response_array);
+      }
 
       return $response_array;
     }
@@ -954,6 +982,30 @@ EOD;
                                   'comments' => $source . ' [' . tep_output_string_protected($comment_status) . ']');
 
           tep_db_perform(TABLE_ORDERS_STATUS_HISTORY, $sql_data_array);
+        }
+      }
+    }
+
+    function sendDebugEmail($response = array()) {
+      global $HTTP_POST_VARS, $HTTP_GET_VARS;
+
+      if (tep_not_null(MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_DEBUG_EMAIL)) {
+        $email_body = '';
+
+        if (!empty($response)) {
+          $email_body .= 'RESPONSE:' . "\n\n" . print_r($response, true) . "\n\n";
+        }
+
+        if (!empty($HTTP_POST_VARS)) {
+          $email_body .= '$HTTP_POST_VARS:' . "\n\n" . print_r($HTTP_POST_VARS, true) . "\n\n";
+        }
+
+        if (!empty($HTTP_GET_VARS)) {
+          $email_body .= '$HTTP_GET_VARS:' . "\n\n" . print_r($HTTP_GET_VARS, true) . "\n\n";
+        }
+
+        if (!empty($email_body)) {
+          tep_mail('', MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_DEBUG_EMAIL, 'PayPal Payments Pro (Hosted Solution Payflow Edition) Debug E-Mail', trim($email_body), STORE_OWNER, STORE_OWNER_EMAIL_ADDRESS);
         }
       }
     }

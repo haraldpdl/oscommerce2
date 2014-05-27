@@ -10,7 +10,7 @@
   Released under the GNU General Public License
 */
 
-  define('MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_TEXT_TITLE', 'PayPal Payments Pro Hosted Solution (Payflow Edition)');
+  define('MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_TEXT_TITLE', 'PayPal Payments Pro (Hosted Solution Payflow Edition)');
   define('MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_TEXT_PUBLIC_TITLE', 'PayPal (including Credit and Debit Cards)');
   define('MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_HS_TEXT_DESCRIPTION', '<img src="images/icon_popup.gif" border="0">&nbsp;<a href="https://www.paypal.com" target="_blank" style="text-decoration: underline; font-weight: bold;">Visit PayPal Website</a>');
 

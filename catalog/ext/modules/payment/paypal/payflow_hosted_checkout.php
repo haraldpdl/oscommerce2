@@ -19,8 +19,19 @@
     $error = true;
   }
 
-  if ( !isset($HTTP_GET_VARS['key']) || !tep_session_is_registered('pppfhs_key') || ($HTTP_GET_VARS['key'] != $pppfhs_key) || !tep_session_is_registered('pppfhs_result') ) {
-    $error = true;
+  if ( $error === false ) {
+    if ( !isset($HTTP_GET_VARS['key']) || !tep_session_is_registered('pppfhs_key') || ($HTTP_GET_VARS['key'] != $pppfhs_key) || !tep_session_is_registered('pppfhs_result') ) {
+      $error = true;
+    }
+  }
+
+  if ( $error === false ) {
+    if (($pppfhs_result['ACK'] != 'Success') && ($pppfhs_result['ACK'] != 'SuccessWithWarning')) {
+      $error = true;
+
+      tep_session_register('pppfhs_error_msg');
+      $pppfhs_error_msg = $pppfhs_result['L_LONGMESSAGE0'];
+    }
   }
 
   if ( $error === false ) {
