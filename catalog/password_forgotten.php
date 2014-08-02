@@ -23,7 +23,7 @@
     if (tep_db_num_rows($check_customer_query)) {
       $check_customer = tep_db_fetch_array($check_customer_query);
 
-      $actionRecorder = new actionRecorder('ar_reset_password', $check_customer['customers_id'], $email_address);
+      $actionRecorder = new osCommerce\OM\classes\actionRecorder('ar_reset_password', $check_customer['customers_id'], $email_address);
 
       if ($actionRecorder->canPerform()) {
         $actionRecorder->record();

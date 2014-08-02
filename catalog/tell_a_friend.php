@@ -66,7 +66,7 @@
       $messageStack->add('friend', ERROR_TO_ADDRESS);
     }
 
-    $actionRecorder = new actionRecorder('ar_tell_a_friend', (isset($_SESSION['customer_id']) ? $customer_id : null), $from_name);
+    $actionRecorder = new osCommerce\OM\classes\actionRecorder('ar_tell_a_friend', (isset($_SESSION['customer_id']) ? $customer_id : null), $from_name);
     if (!$actionRecorder->canPerform()) {
       $error = true;
 
