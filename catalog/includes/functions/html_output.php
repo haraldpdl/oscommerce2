@@ -311,7 +311,8 @@
       }
     }
 
-    for ($i=0, $n=sizeof($values); $i<$n; $i++) {
+    $n=sizeof($values);
+    for ($i=0;  $i<$n; $i++) {
       $field .= '<option value="' . tep_output_string($values[$i]['id']) . '"';
       if ($default == $values[$i]['id']) {
         $field .= ' selected="selected"';
@@ -332,7 +333,8 @@
     $countries_array = array(array('id' => '', 'text' => PULL_DOWN_DEFAULT));
     $countries = tep_get_countries();
 
-    for ($i=0, $n=sizeof($countries); $i<$n; $i++) {
+    $n=sizeof($countries);
+    for ($i=0;  $i<$n; $i++) {
       $countries_array[] = array('id' => $countries[$i]['countries_id'], 'text' => $countries[$i]['countries_name']);
     }
 
