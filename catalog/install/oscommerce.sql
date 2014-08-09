@@ -417,6 +417,7 @@ CREATE TABLE products (
   products_tax_class_id int NOT NULL,
   manufacturers_id int NULL,
   products_ordered int NOT NULL default '0',
+  products_sort_order int NOT NULL default '0',
   PRIMARY KEY (products_id),
   KEY idx_products_model (products_model),
   KEY idx_products_date_added (products_date_added)
