@@ -28,6 +28,7 @@
 // release the file lock
       flock($fp, 3); // LOCK_UN
       fclose($fp);
+      @chmod($filename, 0644);
       $success = true;
     }
 
