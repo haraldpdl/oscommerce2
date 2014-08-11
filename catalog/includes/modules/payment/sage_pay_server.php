@@ -106,14 +106,14 @@
     }
 
     function before_process() {
-      global $sagepay_server_skey_code, $sagepay_server_transaction_details, $sage_pay_server_nexturl, $customer_id, $order, $currency, $order_totals, $cartID;
+      global $sagepay_server_skey_code, $sagepay_server_transaction_details, $sage_pay_server_nexturl, $customer_id, $order, $order_totals, $cartID;
 
       $sagepay_server_transaction_details = null;
 
       $error = null;
 
       if (isset($_GET['check']) && ($_GET['check'] == 'PROCESS')) {
-        if ( isset($_GET['skcode']) && tep_session_is_registered('sagepay_server_skey_code') && ($_GET['skcode'] == $sagepay_server_skey_code) ) {
+        if ( isset($_GET['skcode']) && isset($_SESSION['sagepay_server_skey_code']) && ($_GET['skcode'] == $sagepay_server_skey_code) ) {
           $skcode = tep_db_prepare_input($_GET['skcode']);
 
           $sp_query = tep_db_query('select verified, transaction_details from sagepay_server_securitykeys where code = "' . tep_db_input($skcode) . '" limit 1');
@@ -121,7 +121,7 @@
           if ( tep_db_num_rows($sp_query) ) {
             $sp = tep_db_fetch_array($sp_query);
 
-            tep_session_unregister('sagepay_server_skey_code');
+            unset($_SESSION['sagepay_server_skey_code']);
             tep_db_query('delete from sagepay_server_securitykeys where code = "' . tep_db_input($skcode) . '"');
 
             if ( $sp['verified'] == '1' ) {
@@ -132,7 +132,7 @@
           }
         }
       } else {
-        if ( !tep_session_is_registered('sagepay_server_skey_code') ) {
+        if ( !isset($_SESSION['sagepay_server_skey_code']) ) {
           tep_session_register('sagepay_server_skey_code');
           $sagepay_server_skey_code = tep_create_random_value(16);
         }
@@ -142,7 +142,7 @@
                         'Vendor' => substr(MODULE_PAYMENT_SAGE_PAY_SERVER_VENDOR_LOGIN_NAME, 0, 15),
                         'VendorTxCode' => substr(date('YmdHis') . '-' . $customer_id . '-' . $cartID, 0, 40),
                         'Amount' => $this->format_raw($order->info['total']),
-                        'Currency' => $currency,
+                        'Currency' => $_SESSION['currency'],
                         'Description' => substr(STORE_NAME, 0, 100),
                         'NotificationURL' => $this->formatURL(tep_href_link('ext/modules/payment/sage_pay/server.php', 'check=SERVER&skcode=' . $sagepay_server_skey_code, 'SSL', false)),
                         'BillingSurname' => substr($order->billing['lastname'], 0, 20),
@@ -248,7 +248,7 @@
           if ( MODULE_PAYMENT_SAGE_PAY_SERVER_PROFILE_PAGE == 'Normal' ) {
             tep_redirect($return['NextURL']);
           } else {
-            if ( !tep_session_is_registered('sage_pay_server_nexturl') ) {
+            if ( !isset($_SESSION['sage_pay_server_nexturl']) ) {
               tep_session_register('sage_pay_server_nexturl');
             }
 
@@ -278,18 +278,16 @@
       tep_db_perform(TABLE_ORDERS_STATUS_HISTORY, $sql_data_array);
 
       if ( MODULE_PAYMENT_SAGE_PAY_SERVER_PROFILE_PAGE == 'Low' ) {
-        global $cart;
-
-        $cart->reset(true);
+        $_SESSION['cart']->reset(true);
 
 // unregister session variables used during checkout
-        tep_session_unregister('sendto');
-        tep_session_unregister('billto');
-        tep_session_unregister('shipping');
-        tep_session_unregister('payment');
-        tep_session_unregister('comments');
+        unset($_SESSION['sendto']);
+        unset($_SESSION['billto']);
+        unset($_SESSION['shipping']);
+        unset($_SESSION['payment']);
+        unset($_SESSION['comments']);
 
-        tep_session_unregister('sage_pay_server_nexturl');
+        unset($_SESSION['sage_pay_server_nexturl']);
 
         tep_redirect(tep_href_link('ext/modules/payment/sage_pay/redirect.php', '', 'SSL'));
       }
@@ -519,10 +517,10 @@ EOD;
 
 // format prices without currency formatting
     function format_raw($number, $currency_code = '', $currency_value = '') {
-      global $currencies, $currency;
+      global $currencies;
 
       if (empty($currency_code) || !$currencies->is_set($currency_code)) {
-        $currency_code = $currency;
+        $currency_code = $_SESSION['currency'];
       }
 
       if (empty($currency_value) || !is_numeric($currency_value)) {

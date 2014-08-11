@@ -36,9 +36,8 @@
     include(DIR_FS_CATALOG_MODULES . 'action_recorder/' . $file);
 
     $class = substr($file, 0, strrpos($file, '.'));
-    $ns_class = 'osCommerce\\OM\\modules\\action_recorder\\' . $class;
-    if (tep_class_exists($ns_class)) {
-      ${$class} = new $ns_class();
+    if (tep_class_exists($class)) {
+      ${$class} = new $class;
     }
   }
 
@@ -145,7 +144,7 @@
 
     $module_title = $actions['module'];
     if (is_object(${$module})) {
-      $module_title = ${$module}->getTitle();
+      $module_title = ${$module}->title;
     }
 
     if ((!isset($HTTP_GET_VARS['aID']) || (isset($HTTP_GET_VARS['aID']) && ($HTTP_GET_VARS['aID'] == $actions['id']))) && !isset($aInfo)) {

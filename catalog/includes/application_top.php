@@ -24,7 +24,7 @@
     include('includes/configure.php');
   }
 
-  if (strlen(DB_SERVER) < 1) {
+  if (DB_SERVER == '') {
     if (is_dir('install')) {
       header('Location: install/index.php');
     }
@@ -33,21 +33,18 @@
 // set default timezone if none exists (PHP 5.3 throws an E_WARNING)
   date_default_timezone_set(defined('CFG_TIME_ZONE') ? CFG_TIME_ZONE : date_default_timezone_get());
 
-  require('includes/functions/autoload.php');
-  spl_autoload_register('autoload');
-
 // set the type of request (secure or not)
-  $request_type = ($_SERVER['HTTPS'] == 'on') ? 'SSL' : 'NONSSL';
+  if ( (isset($_SERVER['HTTPS']) && (strtolower($_SERVER['HTTPS']) == 'on')) || (isset($_SERVER['SERVER_PORT']) && ($_SERVER['SERVER_PORT'] == 443)) ) {
+    $request_type =  'SSL';
+    define('DIR_WS_CATALOG', DIR_WS_HTTPS_CATALOG);
+      } else {
+    $request_type =  'NONSSL';
+    define('DIR_WS_CATALOG', DIR_WS_HTTP_CATALOG);
+  }
 
 // set php_self in the local scope
   $req = parse_url($_SERVER['SCRIPT_NAME']);
   $PHP_SELF = substr($req['path'], ($request_type == 'NONSSL') ? strlen(DIR_WS_HTTP_CATALOG) : strlen(DIR_WS_HTTPS_CATALOG));
-
-  if ( $request_type == 'NONSSL' ) {
-    define('DIR_WS_CATALOG', DIR_WS_HTTP_CATALOG);
-  } else {
-    define('DIR_WS_CATALOG', DIR_WS_HTTPS_CATALOG);
-  }
 
 // include the list of project filenames
   require('includes/filenames.php');
@@ -99,8 +96,8 @@
   require('includes/functions/sessions.php');
 
 // set the session name and save path
-  tep_session_name('osCsid');
-  tep_session_save_path(SESSION_WRITE_DIRECTORY);
+  session_name('osCsid');
+  session_save_path(SESSION_WRITE_DIRECTORY);
 
 // set the session cookie parameters
   session_set_cookie_params(0, $cookie_path, $cookie_domain);
@@ -203,7 +200,8 @@
   }
 
 // include currencies class and create an instance
-  $currencies = new osCommerce\OM\classes\currencies();
+  require('includes/classes/currencies.php');
+  $currencies = new currencies();
 
 // include the mail classes
   require('includes/classes/mime.php');
@@ -244,6 +242,9 @@
   }
 
   $_SESSION['navigation']->add_current_page();
+
+// action recorder
+  require('includes/classes/action_recorder.php');
 
 // Shopping cart actions
   if ( isset($_GET['action']) ) {

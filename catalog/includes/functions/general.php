@@ -32,11 +32,13 @@
 ////
 // Redirect to another page or site
   function tep_redirect($url) {
+    global $request_type;
+
     if ( (strstr($url, "\n") != false) || (strstr($url, "\r") != false) ) {
       tep_redirect(tep_href_link(FILENAME_DEFAULT, '', 'NONSSL', false));
     }
 
-    if ( (ENABLE_SSL == true) && (getenv('HTTPS') == 'on') ) { // We are loading an SSL page
+    if ( (ENABLE_SSL == true) && ($request_type == 'SSL') ) { // We are loading an SSL page
       if (substr($url, 0, strlen(HTTP_SERVER . DIR_WS_HTTP_CATALOG)) == HTTP_SERVER . DIR_WS_HTTP_CATALOG) { // NONSSL url
         $url = HTTPS_SERVER . DIR_WS_HTTPS_CATALOG . substr($url, strlen(HTTP_SERVER . DIR_WS_HTTP_CATALOG)); // Change it to SSL
       }
@@ -97,12 +99,10 @@
 ////
 // Return a product's name
 // TABLES: products
-  function tep_get_products_name($product_id, $language = '') {
-    global $languages_id;
+  function tep_get_products_name($product_id, $language_id = null) {
+    if (!isset($language_id)) $language_id = $_SESSION['languages_id'];
 
-    if (empty($language)) $language = $languages_id;
-
-    $product_query = tep_db_query("select products_name from " . TABLE_PRODUCTS_DESCRIPTION . " where products_id = '" . (int)$product_id . "' and language_id = '" . (int)$language . "'");
+    $product_query = tep_db_query("select products_name from " . TABLE_PRODUCTS_DESCRIPTION . " where products_id = '" . (int)$product_id . "' and language_id = '" . (int)$language_id . "'");
     $product = tep_db_fetch_array($product_query);
 
     return $product['products_name'];
@@ -171,10 +171,9 @@
     if (!is_array($exclude_array)) $exclude_array = array();
 
     $get_url = '';
-    if (is_array($_GET) && (sizeof($_GET) > 0)) {
-      reset($_GET);
-      while (list($key, $value) = each($_GET)) {
-        if ( is_string($value) && (strlen($value) > 0) && ($key != tep_session_name()) && ($key != 'error') && (!in_array($key, $exclude_array)) && ($key != 'x') && ($key != 'y') ) {
+    if (is_array($_GET) && (!empty($_GET))) {
+      foreach ($_GET as $key => $value) {
+        if ( is_string($value) && (strlen($value) > 0) && ($key != session_name()) && ($key != 'error') && (!in_array($key, $exclude_array)) && ($key != 'x') && ($key != 'y') ) {
           $get_url .= $key . '=' . rawurlencode(stripslashes($value)) . '&';
         }
       }
@@ -326,7 +325,7 @@
     static $tax_rates = array();
 
     if ( ($country_id == -1) && ($zone_id == -1) ) {
-      if (!tep_session_is_registered('customer_id')) {
+      if (!isset($_SESSION['customer_id'])) {
         $country_id = STORE_COUNTRY;
         $zone_id = STORE_ZONE;
       } else {
@@ -535,11 +534,9 @@
   }
 
   function tep_get_categories($categories_array = '', $parent_id = '0', $indent = '') {
-    global $languages_id;
-
     if (!is_array($categories_array)) $categories_array = array();
 
-    $categories_query = tep_db_query("select c.categories_id, cd.categories_name from " . TABLE_CATEGORIES . " c, " . TABLE_CATEGORIES_DESCRIPTION . " cd where parent_id = '" . (int)$parent_id . "' and c.categories_id = cd.categories_id and cd.language_id = '" . (int)$languages_id . "' order by sort_order, cd.categories_name");
+    $categories_query = tep_db_query("select c.categories_id, cd.categories_name from " . TABLE_CATEGORIES . " c, " . TABLE_CATEGORIES_DESCRIPTION . " cd where parent_id = '" . (int)$parent_id . "' and c.categories_id = cd.categories_id and cd.language_id = '" . (int)$_SESSION['languages_id'] . "' order by sort_order, cd.categories_name");
     while ($categories = tep_db_fetch_array($categories_query)) {
       $categories_array[] = array('id' => $categories['categories_id'],
                                   'text' => $indent . $categories['categories_name']);
@@ -940,12 +937,11 @@
     if (is_numeric($prid)) {
       $uprid = (int)$prid;
 
-      if (is_array($params) && (sizeof($params) > 0)) {
+      if (is_array($params) && (!empty($params))) {
         $attributes_check = true;
         $attributes_ids = '';
 
-        reset($params);
-        while (list($option, $value) = each($params)) {
+        foreach ($params as $option => $value) {
           if (is_numeric($option) && is_numeric($value)) {
             $attributes_ids .= '{' . (int)$option . '}' . (int)$value;
           } else {
@@ -1009,7 +1005,7 @@
   function tep_customer_greeting() {
     global $customer_id, $customer_first_name;
 
-    if (tep_session_is_registered('customer_first_name') && tep_session_is_registered('customer_id')) {
+    if (isset($_SESSION['customer_first_name']) && isset($_SESSION['customer_id'])) {
       $greeting_string = sprintf(TEXT_GREETING_PERSONAL, tep_output_string_protected($customer_first_name), tep_href_link(FILENAME_PRODUCTS_NEW));
     } else {
       $greeting_string = sprintf(TEXT_GREETING_GUEST, tep_href_link(FILENAME_LOGIN, '', 'SSL'), tep_href_link(FILENAME_CREATE_ACCOUNT, '', 'SSL'));
@@ -1062,14 +1058,6 @@
     } else {
       return false;
     }
-  }
-
-////
-// Get the number of times a word/character is present in a string
-  function tep_word_count($string, $needle) {
-    $temp_array = preg_split('/' . $needle . '/', $string);
-
-    return sizeof($temp_array);
   }
 
   function tep_count_modules($modules = '') {
@@ -1147,8 +1135,8 @@
     if (!is_array($exclude)) $exclude = array();
 
     $get_string = '';
-    if (sizeof($array) > 0) {
-      while (list($key, $value) = each($array)) {
+    if (!empty($array)) {
+      foreach ($array as $key => $value) {
         if ( (!in_array($key, $exclude)) && ($key != 'x') && ($key != 'y') ) {
           $get_string .= $key . $equals . $value . $separator;
         }
@@ -1162,10 +1150,16 @@
 
   function tep_not_null($value) {
     if (is_array($value)) {
-      if (sizeof($value) > 0) {
+      if (!empty($value)) {
         return true;
       } else {
         return false;
+      }
+    } elseif(is_object($value)) {
+      if (is_null($value)) {
+        return false;
+      } else {
+        return true;
       }
     } else {
       if (($value != '') && (strtolower($value) != 'null') && (strlen(trim($value)) > 0)) {
@@ -1225,15 +1219,13 @@
     }
   }
 
-  function tep_string_to_int($string) {
-    return (int)$string;
-  }
-
 ////
 // Parse and secure the cPath parameter values
   function tep_parse_category_path($cPath) {
 // make sure the category IDs are integers
-    $cPath_array = array_map('tep_string_to_int', explode('_', $cPath));
+    $cPath_array = array_map(function ($string) {
+      return (int)$string;
+    }, explode('_', $cPath));
 
 // make sure no duplicate category IDs exist which could lock the server in a loop
     $tmp_array = array();
@@ -1324,10 +1316,10 @@
   }
 
   function tep_count_customer_orders($id = '', $check_session = true) {
-    global $customer_id, $languages_id;
+    global $customer_id;
 
     if (is_numeric($id) == false) {
-      if (tep_session_is_registered('customer_id')) {
+      if (isset($_SESSION['customer_id'])) {
         $id = $customer_id;
       } else {
         return 0;
@@ -1335,12 +1327,12 @@
     }
 
     if ($check_session == true) {
-      if ( (tep_session_is_registered('customer_id') == false) || ($id != $customer_id) ) {
+      if ( (isset($_SESSION['customer_id']) == false) || ($id != $customer_id) ) {
         return 0;
       }
     }
 
-    $orders_check_query = tep_db_query("select count(*) as total from " . TABLE_ORDERS . " o, " . TABLE_ORDERS_STATUS . " s where o.customers_id = '" . (int)$id . "' and o.orders_status = s.orders_status_id and s.language_id = '" . (int)$languages_id . "' and s.public_flag = '1'");
+    $orders_check_query = tep_db_query("select count(*) as total from " . TABLE_ORDERS . " o, " . TABLE_ORDERS_STATUS . " s where o.customers_id = '" . (int)$id . "' and o.orders_status = s.orders_status_id and s.language_id = '" . (int)$_SESSION['languages_id'] . "' and s.public_flag = '1'");
     $orders_check = tep_db_fetch_array($orders_check_query);
 
     return $orders_check['total'];
@@ -1350,7 +1342,7 @@
     global $customer_id;
 
     if (is_numeric($id) == false) {
-      if (tep_session_is_registered('customer_id')) {
+      if (isset($_SESSION['customer_id'])) {
         $id = $customer_id;
       } else {
         return 0;
@@ -1358,7 +1350,7 @@
     }
 
     if ($check_session == true) {
-      if ( (tep_session_is_registered('customer_id') == false) || ($id != $customer_id) ) {
+      if ( (isset($_SESSION['customer_id']) == false) || ($id != $customer_id) ) {
         return 0;
       }
     }

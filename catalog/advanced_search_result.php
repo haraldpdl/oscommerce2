@@ -12,7 +12,7 @@
 
   require('includes/application_top.php');
 
-  require(DIR_WS_LANGUAGES . $language . '/' . FILENAME_ADVANCED_SEARCH);
+  require(DIR_WS_LANGUAGES . $_SESSION['language'] . '/' . FILENAME_ADVANCED_SEARCH);
 
   $error = false;
 
@@ -150,8 +150,8 @@
   asort($define_list);
 
   $column_list = array();
-  reset($define_list);
-  while (list($key, $value) = each($define_list)) {
+
+  foreach($define_list as $key => $value) {
     if ($value > 0) $column_list[] = $key;
   }
 
@@ -186,7 +186,7 @@
   $from_str = "from " . TABLE_PRODUCTS . " p left join " . TABLE_MANUFACTURERS . " m using(manufacturers_id) left join " . TABLE_SPECIALS . " s on p.products_id = s.products_id";
 
   if ( (DISPLAY_PRICE_WITH_TAX == 'true') && (tep_not_null($pfrom) || tep_not_null($pto)) ) {
-    if (!tep_session_is_registered('customer_country_id')) {
+    if (!isset($_SESSION['customer_country_id'])) {
       $customer_country_id = STORE_COUNTRY;
       $customer_zone_id = STORE_ZONE;
     }
@@ -195,7 +195,7 @@
 
   $from_str .= ", " . TABLE_PRODUCTS_DESCRIPTION . " pd, " . TABLE_CATEGORIES . " c, " . TABLE_PRODUCTS_TO_CATEGORIES . " p2c";
 
-  $where_str = " where p.products_status = '1' and p.products_id = pd.products_id and pd.language_id = '" . (int)$languages_id . "' and p.products_id = p2c.products_id and p2c.categories_id = c.categories_id ";
+  $where_str = " where p.products_status = '1' and p.products_id = pd.products_id and pd.language_id = '" . (int)$_SESSION['languages_id'] . "' and p.products_id = p2c.products_id and p2c.categories_id = c.categories_id ";
 
   if (isset($_GET['categories_id']) && tep_not_null($_GET['categories_id'])) {
     if (isset($_GET['inc_subcat']) && ($_GET['inc_subcat'] == '1')) {
@@ -210,7 +210,7 @@
 
       $where_str .= ")";
     } else {
-      $where_str .= " and p2c.products_id = p.products_id and p2c.products_id = pd.products_id and pd.language_id = '" . (int)$languages_id . "' and p2c.categories_id = '" . (int)$_GET['categories_id'] . "'";
+      $where_str .= " and p2c.products_id = p.products_id and p2c.products_id = pd.products_id and pd.language_id = '" . (int)$_SESSION['languages_id'] . "' and p2c.categories_id = '" . (int)$_GET['categories_id'] . "'";
     }
   }
 
@@ -248,8 +248,8 @@
   }
 
   if (tep_not_null($pfrom)) {
-    if ($currencies->is_set($currency)) {
-      $rate = $currencies->get_value($currency);
+    if ($currencies->is_set($_SESSION['currency'])) {
+      $rate = $currencies->get_value($_SESSION['currency']);
 
       $pfrom = $pfrom / $rate;
     }

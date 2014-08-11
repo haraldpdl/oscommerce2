@@ -57,10 +57,10 @@
       }
 
 // When changing the shipping address due to no shipping rates being available, head straight to the checkout confirmation page
-      if ( defined('FILENAME_CHECKOUT_PAYMENT') && (basename($PHP_SELF) == FILENAME_CHECKOUT_PAYMENT) && tep_session_is_registered('ppec_right_turn') ) {
-        tep_session_unregister('ppec_right_turn');
+      if ( defined('FILENAME_CHECKOUT_PAYMENT') && (basename($PHP_SELF) == FILENAME_CHECKOUT_PAYMENT) && isset($_SESSION['ppec_right_turn']) ) {
+        unset($_SESSION['ppec_right_turn']);
 
-        if ( tep_session_is_registered('payment') && ($payment == $this->code) ) {
+        if ( isset($_SESSION['payment']) && ($payment == $this->code) ) {
           tep_redirect(tep_href_link(FILENAME_CHECKOUT_CONFIRMATION, '', 'SSL'));
         }
       }
@@ -94,8 +94,6 @@
     }
 
     function checkout_initialization_method() {
-      global $cart;
-
       if (MODULE_PAYMENT_PAYPAL_EXPRESS_CHECKOUT_IMAGE == 'Dynamic') {
         if (MODULE_PAYMENT_PAYPAL_EXPRESS_TRANSACTION_SERVER == 'Live') {
           $image_button = 'https://fpdbs.paypal.com/dynamicimageweb?cmd=_dynamic-image';
@@ -110,7 +108,7 @@
 
           if (isset($response_array['PAL'])) {
             $params[] = 'pal=' . $response_array['PAL'];
-            $params[] = 'ordertotal=' . $this->format_raw($cart->show_total());
+            $params[] = 'ordertotal=' . $this->format_raw($_SESSION['cart']->show_total());
           }
         }
 
@@ -144,7 +142,7 @@
     function pre_confirmation_check() {
       global $ppe_token, $ppe_secret, $messageStack, $order;
 
-      if (!tep_session_is_registered('ppe_token')) {
+      if (!isset($_SESSION['ppe_token'])) {
         tep_redirect(tep_href_link('ext/modules/payment/paypal/express.php', '', 'SSL'));
       }
 
@@ -152,11 +150,11 @@
 
       if ( ($response_array['ACK'] != 'Success') && ($response_array['ACK'] != 'SuccessWithWarning') ) {
         tep_redirect(tep_href_link(FILENAME_SHOPPING_CART, 'error_message=' . stripslashes($response_array['L_LONGMESSAGE0']), 'SSL'));
-      } elseif ( !tep_session_is_registered('ppe_secret') || ($response_array['PAYMENTREQUEST_0_CUSTOM'] != $ppe_secret) ) {
+      } elseif ( !isset($_SESSION['ppe_secret']) || ($response_array['PAYMENTREQUEST_0_CUSTOM'] != $ppe_secret) ) {
         tep_redirect(tep_href_link(FILENAME_SHOPPING_CART, '', 'SSL'));
       }
 
-      if ( tep_session_is_registered('ppe_order_total_check') ) {
+      if ( isset($_SESSION['ppe_order_total_check']) ) {
         $messageStack->add('checkout_confirmation', '<span id="PayPalNotice">' . MODULE_PAYMENT_PAYPAL_EXPRESS_NOTICE_CHECKOUT_CONFIRMATION . '</span><script>$("#PayPalNotice").parent().css({backgroundColor: "#fcf8e3", border: "1px #faedd0 solid", color: "#a67d57", padding: "5px" });</script>', 'paypal');
       }
 
@@ -187,16 +185,16 @@
     function before_process() {
       global $customer_id, $order, $sendto, $ppe_token, $ppe_payerid, $ppe_secret, $ppe_order_total_check, $comments, $response_array;
 
-      if (!tep_session_is_registered('ppe_token')) {
+      if (!isset($_SESSION['ppe_token'])) {
         tep_redirect(tep_href_link('ext/modules/payment/paypal/express.php', '', 'SSL'));
       }
 
       $response_array = $this->getExpressCheckoutDetails($ppe_token);
 
       if (($response_array['ACK'] == 'Success') || ($response_array['ACK'] == 'SuccessWithWarning')) {
-        if ( !tep_session_is_registered('ppe_secret') || ($response_array['PAYMENTREQUEST_0_CUSTOM'] != $ppe_secret) ) {
+        if ( !isset($_SESSION['ppe_secret']) || ($response_array['PAYMENTREQUEST_0_CUSTOM'] != $ppe_secret) ) {
           tep_redirect(tep_href_link(FILENAME_SHOPPING_CART, '', 'SSL'));
-        } elseif ( ($response_array['PAYMENTREQUEST_0_AMT'] != $this->format_raw($order->info['total'])) && !tep_session_is_registered('ppe_order_total_check') ) {
+        } elseif ( ($response_array['PAYMENTREQUEST_0_AMT'] != $this->format_raw($order->info['total'])) && !isset($_SESSION['ppe_order_total_check']) ) {
           tep_session_register('ppe_order_total_check');
           $ppe_order_total_check = true;
 
@@ -206,8 +204,8 @@
         tep_redirect(tep_href_link(FILENAME_SHOPPING_CART, 'error_message=' . stripslashes($response_array['L_LONGMESSAGE0']), 'SSL'));
       }
 
-      if ( tep_session_is_registered('ppe_order_total_check') ) {
-        tep_session_unregister('ppe_order_total_check');
+      if ( isset($_SESSION['ppe_order_total_check']) ) {
+        unset($_SESSION['ppe_order_total_check']);
       }
 
       if (empty($comments)) {
@@ -270,11 +268,11 @@
 
       tep_db_perform(TABLE_ORDERS_STATUS_HISTORY, $sql_data_array);
 
-      tep_session_unregister('ppe_token');
-      tep_session_unregister('ppe_payerid');
-      tep_session_unregister('ppe_payerstatus');
-      tep_session_unregister('ppe_addressstatus');
-      tep_session_unregister('ppe_secret');
+      unset($_SESSION['ppe_token']);
+      unset($_SESSION['ppe_payerid']);
+      unset($_SESSION['ppe_payerstatus']);
+      unset($_SESSION['ppe_addressstatus']);
+      unset($_SESSION['ppe_secret']);
     }
 
     function get_error() {
@@ -480,10 +478,10 @@
 
 // format prices without currency formatting
     function format_raw($number, $currency_code = '', $currency_value = '') {
-      global $currencies, $currency;
+      global $currencies;
 
       if (empty($currency_code) || !$currencies->is_set($currency_code)) {
-        $currency_code = $currency;
+        $currency_code = $_SESSION['currency'];
       }
 
       if (empty($currency_value) || !is_numeric($currency_value)) {

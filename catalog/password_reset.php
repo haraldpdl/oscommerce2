@@ -12,7 +12,7 @@
 
   require('includes/application_top.php');
 
-  require(DIR_WS_LANGUAGES . $language . '/' . FILENAME_PASSWORD_RESET);
+  require(DIR_WS_LANGUAGES . $_SESSION['language'] . '/' . FILENAME_PASSWORD_RESET);
 
   $error = false;
 
@@ -56,7 +56,7 @@
     tep_redirect(tep_href_link(FILENAME_PASSWORD_FORGOTTEN));
   }
 
-  if (isset($_GET['action']) && ($_GET['action'] == 'process') && isset($_POST['formid']) && ($_POST['formid'] == $sessiontoken)) {
+  if (isset($_GET['action']) && ($_GET['action'] == 'process') && isset($_POST['formid']) && ($_POST['formid'] == $_SESSION['sessiontoken'])) {
     $password_new = tep_db_prepare_input($_POST['password']);
     $password_confirmation = tep_db_prepare_input($_POST['confirmation']);
 
