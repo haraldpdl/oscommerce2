@@ -122,7 +122,7 @@
   function tep_session_recreate() {
     global $SID;
 
-    if (PHP_VERSION >= 5.1) {
+
       $old_id = session_id();
 
       session_regenerate_id(true);
@@ -132,6 +132,5 @@
       }
 
       tep_whos_online_update_session_id($old_id, session_id());
-    }
   }
 ?>
