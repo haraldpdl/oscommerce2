@@ -245,13 +245,7 @@
     }
 
     function mysqli_real_escape_string($link, $string) {
-      if ( function_exists('mysql_real_escape_string') ) {
-        return mysql_real_escape_string($string, $link);
-      } elseif ( function_exists('mysql_escape_string') ) {
-        return mysql_escape_string($string);
-      }
-
-      return addslashes($string);
+     return mysqli_real_escape_string($string, $link);
     }
 
     function mysqli_affected_rows($link) {
