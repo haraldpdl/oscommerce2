@@ -203,7 +203,7 @@
   }
 
 // include currencies class and create an instance
-  $currencies = new osCommerce\OM\classes\currencies();
+  $currencies = new osCommerce\OM\Core\Currencies();
 
 // include the mail classes
   require('includes/classes/mime.php');

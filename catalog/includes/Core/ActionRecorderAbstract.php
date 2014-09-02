@@ -10,9 +10,9 @@
   Released under the GNU General Public License
 */
 
-  namespace osCommerce\OM\classes;
+  namespace osCommerce\OM\Core;
 
-  abstract class actionRecorderAbstract {
+  abstract class ActionRecorderAbstract {
 // TODO make protected when getters() are created and the admin/modules page calls them instead of the variable directly
     public $code;
     public $title;

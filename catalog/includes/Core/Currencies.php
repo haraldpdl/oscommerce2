@@ -10,9 +10,9 @@
   Released under the GNU General Public License
 */
 
-  namespace osCommerce\OM\classes;
+  namespace osCommerce\OM\Core;
 
-  class currencies {
+  class Currencies {
     protected $currencies = array();
 
     public function __construct() {

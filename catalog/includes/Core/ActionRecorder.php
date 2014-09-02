@@ -10,9 +10,9 @@
   Released under the GNU General Public License
 */
 
-  namespace osCommerce\OM\classes;
+  namespace osCommerce\OM\Core;
 
-  class actionRecorder {
+  class ActionRecorder {
     protected $_module;
 
     public function __construct($module, $user_id = null, $user_name = null) {
