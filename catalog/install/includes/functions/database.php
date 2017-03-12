@@ -24,8 +24,6 @@
 
     if ( !mysqli_connect_errno() ) {
       mysqli_set_charset($$link, 'utf8');
-
-      @mysqli_query($$link, 'set session sql_mode=""');
     } else {
       $db_error = mysqli_connect_error();
     }
@@ -86,20 +84,20 @@
       $sql_length = strlen($restore_query);
       $pos = strpos($restore_query, ';');
       for ($i=$pos; $i<$sql_length; $i++) {
-        if (substr($restore_query, 0, 1) == '#') {
+        if ($restore_query[0] == '#') {
           $restore_query = ltrim(substr($restore_query, strpos($restore_query, "\n")));
           $sql_length = strlen($restore_query);
           $i = strpos($restore_query, ';')-1;
           continue;
         }
-        if (substr($restore_query, $i+1, 1) == "\n") {
+        if ($restore_query[($i+1)] == "\n") {
           for ($j=($i+2); $j<$sql_length; $j++) {
-            if (trim(substr($restore_query, $j, 1)) != '') {
+            if (trim($restore_query[$j]) != '') {
               $next = substr($restore_query, $j, 6);
-              if (substr($next, 0, 1) == '#') {
+              if ($next[0] == '#') {
 // find out where the break position is so we can remove this line (#comment line)
                 for ($k=$j; $k<$sql_length; $k++) {
-                  if (substr($restore_query, $k, 1) == "\n") break;
+                  if ($restore_query[$k] == "\n") break;
                 }
                 $query = substr($restore_query, 0, $i+1);
                 $restore_query = substr($restore_query, $k);

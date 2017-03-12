@@ -35,7 +35,7 @@
         $this->group = 'header_tags';
       }
 
-      if ( ($PHP_SELF == FILENAME_CHECKOUT_SUCCESS) && tep_session_is_registered('customer_id') ) {
+      if ( ($PHP_SELF == 'checkout_success.php') && tep_session_is_registered('customer_id') ) {
         $order_query = tep_db_query("select orders_id, currency, currency_value from " . TABLE_ORDERS . " where customers_id = '" . (int)$customer_id . "' order by date_purchased desc limit 1");
 
         if (tep_db_num_rows($order_query) == 1) {
@@ -45,7 +45,7 @@
           $order_subtotal = tep_db_fetch_array($order_subtotal_query);
 
           if (!isset($lng) || (isset($lng) && !is_object($lng))) {
-            include(DIR_WS_CLASSES . 'language.php');
+            include('includes/classes/language.php');
             $lng = new language;
           }
 
@@ -66,7 +66,7 @@
           $conversion_value = $this->format_raw($order_subtotal['value'], $order['currency'], $order['currency_value']);
 
           $output = <<<EOD
-<script type="text/javascript">
+<script>
 /* <![CDATA[ */
 var google_conversion_id = {$conversion_id};
 var google_conversion_language = "{$conversion_language}";
@@ -76,7 +76,7 @@ var google_conversion_label = "{$conversion_label}";
 var google_conversion_value = {$conversion_value};
 /* ]]> */
 </script>
-<script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js"></script>
+<script src="//www.googleadservices.com/pagead/conversion.js"></script>
 <noscript>
 <div style="display:inline;">
 <img height="1" width="1" style="border-style:none;" alt="" src="//www.googleadservices.com/pagead/conversion/{$conversion_id}/?value={$conversion_value}&amp;label={$conversion_label}&amp;guid=ON&amp;script=0"/>

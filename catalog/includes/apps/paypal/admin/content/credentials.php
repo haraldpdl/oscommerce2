@@ -16,7 +16,7 @@
   <?php echo $OSCOM_PayPal->drawButton($OSCOM_PayPal->getDef('section_payflow'), tep_href_link('paypal.php', 'action=credentials&module=PF'), 'info', 'data-module="PF"'); ?>
 
 <?php
-  if ($current_module == 'PP') {
+  if ( ($current_module == 'PP') && $OSCOM_PayPal->isReqApiCountrySupported(STORE_COUNTRY) ) {
 ?>
 
   <span style="float: right;">
@@ -65,15 +65,6 @@
       <td width="420px" valign="top">
         <div>
           <p>
-            <label for="live_merchant_id"><?php echo $OSCOM_PayPal->getDef('paypal_live_merchant_id'); ?></label>
-            <?php echo tep_draw_input_field('live_merchant_id', OSCOM_APP_PAYPAL_LIVE_MERCHANT_ID); ?>
-          </p>
-
-          <p><em><?php echo $OSCOM_PayPal->getDef('paypal_live_merchant_id_desc'); ?></em></p>
-        </div>
-
-        <div>
-          <p>
             <label for="live_email"><?php echo $OSCOM_PayPal->getDef('paypal_live_email_address'); ?></label>
             <?php echo tep_draw_input_field('live_email', OSCOM_APP_PAYPAL_LIVE_SELLER_EMAIL); ?>
           </p>
@@ -119,15 +110,6 @@
         </div>
       </td>
       <td width="420px" valign="top">
-        <div>
-          <p>
-            <label for="sandbox_merchant_id"><?php echo $OSCOM_PayPal->getDef('paypal_sandbox_merchant_id'); ?></label>
-            <?php echo tep_draw_input_field('sandbox_merchant_id', OSCOM_APP_PAYPAL_SANDBOX_MERCHANT_ID); ?>
-          </p>
-
-          <p><em><?php echo $OSCOM_PayPal->getDef('paypal_sandbox_merchant_id_desc'); ?></em></p>
-        </div>
-
         <div>
           <p>
             <label for="sandbox_email"><?php echo $OSCOM_PayPal->getDef('paypal_sandbox_email_address'); ?></label>

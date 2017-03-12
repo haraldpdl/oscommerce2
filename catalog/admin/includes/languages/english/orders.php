@@ -5,7 +5,7 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2014 osCommerce
+  Copyright (c) 2002 osCommerce
 
   Released under the GNU General Public License
 */
@@ -13,6 +13,10 @@
 define('HEADING_TITLE', 'Orders');
 define('HEADING_TITLE_SEARCH', 'Order ID:');
 define('HEADING_TITLE_STATUS', 'Status:');
+
+define('TAB_TITLE_SUMMARY','Summary');
+define('TAB_TITLE_PRODUCTS','Products');
+define('TAB_TITLE_STATUS_HISTORY','Status History');
 
 define('TABLE_HEADING_COMMENTS', 'Comments');
 define('TABLE_HEADING_CUSTOMERS', 'Customers');
@@ -51,7 +55,6 @@ define('ENTRY_TOTAL', 'Total:');
 define('ENTRY_DATE_PURCHASED', 'Date Purchased:');
 define('ENTRY_STATUS', 'Status:');
 define('ENTRY_DATE_LAST_UPDATED', 'Date Last Updated:');
-define('ENTRY_ADD_COMMENT', 'Add Comment:');
 define('ENTRY_NOTIFY_CUSTOMER', 'Notify Customer:');
 define('ENTRY_NOTIFY_COMMENTS', 'Append Comments:');
 define('ENTRY_PRINTABLE', 'Print Invoice');
@@ -77,4 +80,5 @@ define('EMAIL_TEXT_COMMENTS_UPDATE', 'The comments for your order are' . "\n\n%s
 define('ERROR_ORDER_DOES_NOT_EXIST', 'Error: Order does not exist.');
 define('SUCCESS_ORDER_UPDATED', 'Success: Order has been successfully updated.');
 define('WARNING_ORDER_NOT_UPDATED', 'Warning: Nothing to change. The order was not updated.');
-?>
+
+define('ENTRY_ADD_COMMENT', 'Add Comment:');

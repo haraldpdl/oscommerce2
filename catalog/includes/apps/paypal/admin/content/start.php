@@ -12,6 +12,11 @@
 ?>
 
 <div id="ppStartDashboard" style="width: 100%;">
+
+<?php
+  if ( $OSCOM_PayPal->isReqApiCountrySupported(STORE_COUNTRY) ) {
+?>
+
   <div style="float: left; width: 50%;">
     <div style="padding: 2px;">
       <h3 class="pp-panel-header-info"><?php echo $OSCOM_PayPal->getDef('onboarding_intro_title'); ?></h3>
@@ -20,6 +25,10 @@
       </div>
     </div>
   </div>
+
+<?php
+  }
+?>
 
   <div style="float: left; width: 50%;">
     <div style="padding: 2px;">

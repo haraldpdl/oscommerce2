@@ -26,7 +26,7 @@
                     'BUTTONTYPE' => 'PAYMENT');
 
     $l_params = array('business' => $OSCOM_PayPal->getCredentials('HS', 'email'),
-                      'bn' => $OSCOM_PayPal->getIdentifier());
+                      'bn' => 'OSCOM23_HS');
 
     if ( is_array($extra_params) && !empty($extra_params) ) {
       $l_params = array_merge($l_params, $extra_params);

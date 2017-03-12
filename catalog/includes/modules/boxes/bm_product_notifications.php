@@ -5,7 +5,7 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2014 osCommerce
+  Copyright (c) 2010 osCommerce
 
   Released under the GNU General Public License
 */
@@ -25,17 +25,17 @@
       if ( defined('MODULE_BOXES_PRODUCT_NOTIFICATIONS_STATUS') ) {
         $this->sort_order = MODULE_BOXES_PRODUCT_NOTIFICATIONS_SORT_ORDER;
         $this->enabled = (MODULE_BOXES_PRODUCT_NOTIFICATIONS_STATUS == 'True');
-
+        
         $this->group = ((MODULE_BOXES_PRODUCT_NOTIFICATIONS_CONTENT_PLACEMENT == 'Left Column') ? 'boxes_column_left' : 'boxes_column_right');
       }
     }
 
     function execute() {
-      global $HTTP_GET_VARS, $customer_id, $PHP_SELF, $request_type, $oscTemplate;
+      global $customer_id, $PHP_SELF, $request_type, $oscTemplate;
 
-      if (isset($HTTP_GET_VARS['products_id'])) {
+      if (isset($_GET['products_id'])) {
         if (tep_session_is_registered('customer_id')) {
-          $check_query = tep_db_query("select count(*) as count from " . TABLE_PRODUCTS_NOTIFICATIONS . " where products_id = '" . (int)$HTTP_GET_VARS['products_id'] . "' and customers_id = '" . (int)$customer_id . "'");
+          $check_query = tep_db_query("select count(*) as count from " . TABLE_PRODUCTS_NOTIFICATIONS . " where products_id = '" . (int)$_GET['products_id'] . "' and customers_id = '" . (int)$customer_id . "'");
           $check = tep_db_fetch_array($check_query);
 
           $notification_exists = (($check['count'] > 0) ? true : false);
@@ -46,16 +46,15 @@
         $notif_contents = '';
 
         if ($notification_exists == true) {
-          $notif_contents = '<table border="0" cellspacing="0" cellpadding="2" class="ui-widget-content infoBoxContents"><tr><td><a href="' . tep_href_link($PHP_SELF, tep_get_all_get_params(array('action')) . 'action=notify_remove', $request_type) . '">' . tep_image(DIR_WS_IMAGES . 'box_products_notifications_remove.gif', IMAGE_BUTTON_REMOVE_NOTIFICATIONS) . '</a></td><td><a href="' . tep_href_link($PHP_SELF, tep_get_all_get_params(array('action')) . 'action=notify_remove', $request_type) . '">' . sprintf(MODULE_BOXES_PRODUCT_NOTIFICATIONS_BOX_NOTIFY_REMOVE, tep_get_products_name($HTTP_GET_VARS['products_id'])) .'</a></td></tr></table>';
+          $notif_contents = '<a href="' . tep_href_link($PHP_SELF, tep_get_all_get_params(array('action')) . 'action=notify_remove', $request_type) . '"><span class="fa fa-remove"></span> ' . sprintf(MODULE_BOXES_PRODUCT_NOTIFICATIONS_BOX_NOTIFY_REMOVE, tep_get_products_name($_GET['products_id'])) .'</a>';
         } else {
-          $notif_contents = '<table border="0" cellspacing="0" cellpadding="2" class="ui-widget-content infoBoxContents"><tr><td><a href="' . tep_href_link($PHP_SELF, tep_get_all_get_params(array('action')) . 'action=notify', $request_type) . '">' . tep_image(DIR_WS_IMAGES . 'box_products_notifications.gif', IMAGE_BUTTON_NOTIFICATIONS) . '</a></td><td><a href="' . tep_href_link($PHP_SELF, tep_get_all_get_params(array('action')) . 'action=notify', $request_type) . '">' . sprintf(MODULE_BOXES_PRODUCT_NOTIFICATIONS_BOX_NOTIFY, tep_get_products_name($HTTP_GET_VARS['products_id'])) .'</a></td></tr></table>';
+          $notif_contents = '<a href="' . tep_href_link($PHP_SELF, tep_get_all_get_params(array('action')) . 'action=notify', $request_type) . '"><span class="fa fa-envelope"></span> ' . sprintf(MODULE_BOXES_PRODUCT_NOTIFICATIONS_BOX_NOTIFY, tep_get_products_name($_GET['products_id'])) .'</a>';
         }
-
-        $data = '<div class="ui-widget infoBoxContainer">' .
-                '  <div class="ui-widget-header infoBoxHeading"><a href="' . tep_href_link(FILENAME_ACCOUNT_NOTIFICATIONS, '', 'SSL') . '">' . MODULE_BOXES_PRODUCT_NOTIFICATIONS_BOX_TITLE . '</a></div>' .
-                '  ' . $notif_contents .
-                '</div>';
-
+        
+        ob_start();
+        include('includes/modules/boxes/templates/product_notifications.php');
+        $data = ob_get_clean();
+                 
         $oscTemplate->addBlock($data, $this->group);
       }
     }
@@ -82,4 +81,4 @@
       return array('MODULE_BOXES_PRODUCT_NOTIFICATIONS_STATUS', 'MODULE_BOXES_PRODUCT_NOTIFICATIONS_CONTENT_PLACEMENT', 'MODULE_BOXES_PRODUCT_NOTIFICATIONS_SORT_ORDER');
     }
   }
-?>
+

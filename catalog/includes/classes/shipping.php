@@ -5,7 +5,7 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2014 osCommerce
+  Copyright (c) 2003 osCommerce
 
   Released under the GNU General Public License
 */
@@ -33,8 +33,8 @@
         }
 
         for ($i=0, $n=sizeof($include_modules); $i<$n; $i++) {
-          include(DIR_WS_LANGUAGES . $language . '/modules/shipping/' . $include_modules[$i]['file']);
-          include(DIR_WS_MODULES . 'shipping/' . $include_modules[$i]['file']);
+          include('includes/languages/' . $language . '/modules/shipping/' . $include_modules[$i]['file']);
+          include('includes/modules/shipping/' . $include_modules[$i]['file']);
 
           $GLOBALS[$include_modules[$i]['class']] = new $include_modules[$i]['class'];
         }
@@ -84,21 +84,6 @@
       }
 
       return $quotes_array;
-    }
-
-    function get_first() {
-      foreach ( $this->modules as $value ) {
-        $class = substr($value, 0, strrpos($value, '.'));
-        if ( $GLOBALS[$class]->enabled ) {
-          foreach ( $GLOBALS[$class]->quotes['methods'] as $method ) {
-            if ( isset($method['cost']) && tep_not_null($method['cost']) ) {
-              return array('id' => $GLOBALS[$class]->quotes['id'] . '_' . $method['id'],
-                           'title' => $GLOBALS[$class]->quotes['module'] . ' (' . $method['title'] . ')',
-                           'cost' => $method['cost']);
-            }
-          }
-        }
-      }
     }
 
     function cheapest() {

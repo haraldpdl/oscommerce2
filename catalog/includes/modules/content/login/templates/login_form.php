@@ -1,26 +1,26 @@
-<div class="contentContainer <?php echo (MODULE_CONTENT_LOGIN_FORM_CONTENT_WIDTH == 'Half') ? 'grid_8' : 'grid_16'; ?>">
-  <h2><?php echo MODULE_CONTENT_LOGIN_HEADING_RETURNING_CUSTOMER; ?></h2>
+<div class="login-form <?php echo (MODULE_CONTENT_LOGIN_FORM_CONTENT_WIDTH == 'Half') ? 'col-sm-6' : 'col-sm-12'; ?>">
+  <div class="panel panel-success">
+    <div class="panel-body">
+      <h2><?php echo MODULE_CONTENT_LOGIN_HEADING_RETURNING_CUSTOMER; ?></h2>
 
-  <div class="contentText">
-    <p><?php echo MODULE_CONTENT_LOGIN_TEXT_RETURNING_CUSTOMER; ?></p>
+      <p class="alert alert-success"><?php echo MODULE_CONTENT_LOGIN_TEXT_RETURNING_CUSTOMER; ?></p>
 
-    <?php echo tep_draw_form('login', tep_href_link(FILENAME_LOGIN, 'action=process', 'SSL'), 'post', '', true); ?>
+      <?php echo tep_draw_form('login', tep_href_link('login.php', 'action=process', 'SSL'), 'post', '', true); ?>
 
-    <table border="0" cellspacing="0" cellpadding="2" width="100%">
-      <tr>
-        <td class="fieldKey"><?php echo ENTRY_EMAIL_ADDRESS; ?></td>
-        <td class="fieldValue"><?php echo tep_draw_input_field('email_address'); ?></td>
-      </tr>
-      <tr>
-        <td class="fieldKey"><?php echo ENTRY_PASSWORD; ?></td>
-        <td class="fieldValue"><?php echo tep_draw_password_field('password'); ?></td>
-      </tr>
-    </table>
+        <div class="form-group">
+          <?php echo tep_draw_input_field('email_address', NULL, 'autofocus="autofocus" required id="inputEmail" placeholder="' . ENTRY_EMAIL_ADDRESS_TEXT . '"', 'email'); ?>
+        </div>
 
-    <p><?php echo '<a href="' . tep_href_link(FILENAME_PASSWORD_FORGOTTEN, '', 'SSL') . '">' . MODULE_CONTENT_LOGIN_TEXT_PASSWORD_FORGOTTEN . '</a>'; ?></p>
+        <div class="form-group">
+          <?php echo tep_draw_input_field('password', NULL, 'required aria-required="true" id="inputPassword" autocomplete="new-password" placeholder="' . ENTRY_PASSWORD_TEXT . '"', 'password'); ?>
+        </div>
 
-    <p align="right"><?php echo tep_draw_button(IMAGE_BUTTON_LOGIN, 'key', null, 'primary'); ?></p>
+        <p class="text-right"><?php echo tep_draw_button(IMAGE_BUTTON_LOGIN, 'fa fa-sign-in', null, 'primary', NULL, 'btn-success btn-block'); ?></p>
 
-    </form>
+      </form>
+    </div>
   </div>
+
+  <p><?php echo '<a class="btn btn-default" role="button" href="' . tep_href_link('password_forgotten.php', '', 'SSL') . '">' . MODULE_CONTENT_LOGIN_TEXT_PASSWORD_FORGOTTEN . '</a>'; ?></p>
+
 </div>

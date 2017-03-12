@@ -31,7 +31,7 @@
     }
 
     function getData() {
-      global $HTTP_GET_VARS, $request_type, $oscTemplate;
+      global $request_type, $oscTemplate;
 
       $data = '';
 
@@ -39,16 +39,16 @@
       if ($number_of_rows = tep_db_num_rows($manufacturers_query)) {
         if ($number_of_rows <= MAX_DISPLAY_MANUFACTURERS_IN_A_LIST) {
 // Display a list
-          $manufacturers_list = '<ul style="list-style: none; margin: 0; padding: 0;">';
+          $manufacturers_list = '<ul class="nav nav-list">';
           while ($manufacturers = tep_db_fetch_array($manufacturers_query)) {
             $manufacturers_name = ((strlen($manufacturers['manufacturers_name']) > MAX_DISPLAY_MANUFACTURER_NAME_LEN) ? substr($manufacturers['manufacturers_name'], 0, MAX_DISPLAY_MANUFACTURER_NAME_LEN) . '..' : $manufacturers['manufacturers_name']);
-            if (isset($HTTP_GET_VARS['manufacturers_id']) && ($HTTP_GET_VARS['manufacturers_id'] == $manufacturers['manufacturers_id'])) $manufacturers_name = '<strong>' . $manufacturers_name .'</strong>';
-            $manufacturers_list .= '<li><a href="' . tep_href_link(FILENAME_DEFAULT, 'manufacturers_id=' . $manufacturers['manufacturers_id']) . '">' . $manufacturers_name . '</a></li>';
+            if (isset($_GET['manufacturers_id']) && ($_GET['manufacturers_id'] == $manufacturers['manufacturers_id'])) $manufacturers_name = '<strong>' . $manufacturers_name .'</strong>';
+            $manufacturers_list .= '<li><a href="' . tep_href_link('index.php', 'manufacturers_id=' . $manufacturers['manufacturers_id']) . '">' . $manufacturers_name . '</a></li>';
           }
 
           $manufacturers_list .= '</ul>';
 
-          $content = $manufacturers_list;
+          $data = $manufacturers_list;
         } else {
 // Display a drop-down
           $manufacturers_array = array();
@@ -62,15 +62,11 @@
                                            'text' => $manufacturers_name);
           }
 
-          $content = tep_draw_form('manufacturers', tep_href_link(FILENAME_DEFAULT, '', $request_type, false), 'get') .
-                     tep_draw_pull_down_menu('manufacturers_id', $manufacturers_array, (isset($HTTP_GET_VARS['manufacturers_id']) ? $HTTP_GET_VARS['manufacturers_id'] : ''), 'onchange="this.form.submit();" size="' . MAX_MANUFACTURERS_LIST . '" style="width: 100%"') . tep_hide_session_id() .
+          $data = tep_draw_form('manufacturers', tep_href_link('index.php', '', $request_type, false), 'get') .
+                     tep_draw_pull_down_menu('manufacturers_id', $manufacturers_array, (isset($_GET['manufacturers_id']) ? $_GET['manufacturers_id'] : ''), 'onchange="this.form.submit();" size="' . MAX_MANUFACTURERS_LIST . '" style="width: 100%"') . tep_hide_session_id() .
                      '</form>';
         }
 
-        $data = '<div class="ui-widget infoBoxContainer">' .
-                  '  <div class="ui-widget-header infoBoxHeading">' . MODULE_BOXES_MANUFACTURERS_BOX_TITLE . '</div>' .
-                  '  <div class="ui-widget-content infoBoxContents">' . $content . '</div>' .
-                  '</div>';
       }
 
       return $data;
@@ -84,8 +80,12 @@
       } else {
         $output = $this->getData();
       }
+      
+      ob_start();
+      include('includes/modules/boxes/templates/manufacturers.php');
+      $data = ob_get_clean();
 
-      $oscTemplate->addBlock($output, $this->group);
+      $oscTemplate->addBlock($data, $this->group);
     }
 
     function isEnabled() {

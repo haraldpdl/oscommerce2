@@ -5,7 +5,7 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2014 osCommerce
+  Copyright (c) 2016 osCommerce
 
   Released under the GNU General Public License
 */
@@ -14,7 +14,7 @@
     var $_site;
     var $_hooks = array();
 
-    function hooks($site) {
+    function __construct($site) {
       $this->_site = basename($site);
 
       $this->register('global');
@@ -53,10 +53,8 @@
     function call($group, $action) {
       $result = '';
 
-      if (isset($this->_hooks[$this->_site][$group][$action])) {
-        foreach ( $this->_hooks[$this->_site][$group][$action] as $hook ) {
-          $result .= call_user_func(array($GLOBALS['hook_' . $this->_site . '_' . $group . '_' . $hook], 'listen_' . $action));
-        }
+      foreach ( (array)$this->_hooks[$this->_site][$group][$action] as $hook ) {
+        $result .= call_user_func(array($GLOBALS['hook_' . $this->_site . '_' . $group . '_' . $hook], 'listen_' . $action));
       }
 
       if ( !empty($result) ) {
@@ -64,4 +62,3 @@
       }
     }
   }
-?>

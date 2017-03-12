@@ -14,17 +14,19 @@
 
   if (!tep_session_is_registered('customer_id')) {
     $navigation->set_snapshot();
-    tep_redirect(tep_href_link(FILENAME_LOGIN, '', 'SSL'));
+    tep_redirect(tep_href_link('login.php', '', 'SSL'));
   }
 
-  require(DIR_WS_LANGUAGES . $language . '/' . FILENAME_ACCOUNT);
+  require('includes/languages/' . $language . '/account.php');
 
-  $breadcrumb->add(NAVBAR_TITLE, tep_href_link(FILENAME_ACCOUNT, '', 'SSL'));
+  $breadcrumb->add(NAVBAR_TITLE, tep_href_link('account.php', '', 'SSL'));
 
-  require(DIR_WS_INCLUDES . 'template_top.php');
+  require('includes/template_top.php');
 ?>
 
-<h1><?php echo HEADING_TITLE; ?></h1>
+<div class="page-header">
+  <h1><?php echo HEADING_TITLE; ?></h1>
+</div>
 
 <?php
   if ($messageStack->size('account') > 0) {
@@ -33,14 +35,17 @@
 ?>
 
 <div class="contentContainer">
+  <div class="row">
 
-<?php
-  echo $oscTemplate->getContent('account');
-?>
-
+    <?php
+    echo $oscTemplate->getContent('account');
+    ?>
+  
+  </div>
 </div>
 
+
 <?php
-  require(DIR_WS_INCLUDES . 'template_bottom.php');
-  require(DIR_WS_INCLUDES . 'application_bottom.php');
+  require('includes/template_bottom.php');
+  require('includes/application_bottom.php');
 ?>

@@ -5,7 +5,7 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2014 osCommerce
+  Copyright (c) 2012 osCommerce
 
   Released under the GNU General Public License
 */
@@ -14,13 +14,13 @@
 
 // redirect the customer to a friendly cookie-must-be-enabled page if cookies are disabled (or the session has not started)
   if ($session_started == false) {
-    if ( !isset($HTTP_GET_VARS['cookie_test']) ) {
+    if ( !isset($_GET['cookie_test']) ) {
       $all_get = tep_get_all_get_params();
 
-      tep_redirect(tep_href_link(FILENAME_LOGIN, $all_get . (empty($all_get) ? '' : '&') . 'cookie_test=1', 'SSL'));
+      tep_redirect(tep_href_link('login.php', $all_get . (empty($all_get) ? '' : '&') . 'cookie_test=1', 'SSL'));
     }
 
-    tep_redirect(tep_href_link(FILENAME_COOKIE_USAGE));
+    tep_redirect(tep_href_link('cookie_usage.php'));
   }
 
 // login content module must return $login_customer_id as an integer after successful customer authentication
@@ -65,17 +65,19 @@
       tep_redirect($origin_href);
     }
 
-    tep_redirect(tep_href_link(FILENAME_DEFAULT));
+    tep_redirect(tep_href_link('index.php'));
   }
 
-  require(DIR_WS_LANGUAGES . $language . '/' . FILENAME_LOGIN);
+  require('includes/languages/' . $language . '/login.php');
 
-  $breadcrumb->add(NAVBAR_TITLE, tep_href_link(FILENAME_LOGIN, '', 'SSL'));
+  $breadcrumb->add(NAVBAR_TITLE, tep_href_link('login.php', '', 'SSL'));
 
-  require(DIR_WS_INCLUDES . 'template_top.php');
+  require('includes/template_top.php');
 ?>
 
-<h1><?php echo HEADING_TITLE; ?></h1>
+<div class="page-header">
+  <h1><?php echo HEADING_TITLE; ?></h1>
+</div>
 
 <?php
   if ($messageStack->size('login') > 0) {
@@ -84,33 +86,12 @@
 ?>
 
 <div id="loginModules">
-  <?php echo $page_content; ?>
+  <div class="row">
+    <?php echo $page_content; ?>
+  </div>
 </div>
 
-<script type="text/javascript">
-var login_modules_counter = 0;
-var login_modules_total = $('#loginModules .contentContainer').length;
-
-$('#loginModules .contentContainer').each(function(index, element) {
-  login_modules_counter++;
-
-  if ( login_modules_counter == 1 ) {
-    if ( $(this).hasClass('grid_8') && ((index+1) != login_modules_total) ) {
-      $(this).addClass('alpha');
-    } else {
-      login_modules_counter = 0;
-    }
-  } else {
-    if ( $(this).hasClass('grid_8') ) {
-      $(this).addClass('omega');
-    }
-
-    login_modules_counter = 0;
-  }
-});
-</script>
-
 <?php
-  require(DIR_WS_INCLUDES . 'template_bottom.php');
-  require(DIR_WS_INCLUDES . 'application_bottom.php');
+  require('includes/template_bottom.php');
+  require('includes/application_bottom.php');
 ?>

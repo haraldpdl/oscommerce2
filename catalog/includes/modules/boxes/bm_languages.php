@@ -5,7 +5,7 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2014 osCommerce
+  Copyright (c) 2010 osCommerce
 
   Released under the GNU General Public License
 */
@@ -35,7 +35,7 @@
 
       if (substr(basename($PHP_SELF), 0, 8) != 'checkout') {
         if (!isset($lng) || (isset($lng) && !is_object($lng))) {
-          include(DIR_WS_CLASSES . 'language.php');
+          include('includes/classes/language.php');
           $lng = new language;
         }
 
@@ -43,13 +43,12 @@
           $languages_string = '';
           reset($lng->catalog_languages);
           while (list($key, $value) = each($lng->catalog_languages)) {
-            $languages_string .= ' <a href="' . tep_href_link($PHP_SELF, tep_get_all_get_params(array('language', 'currency')) . 'language=' . $key, $request_type) . '">' . tep_image(DIR_WS_LANGUAGES .  $value['directory'] . '/images/' . $value['image'], $value['name']) . '</a> ';
+            $languages_string .= ' <a href="' . tep_href_link($PHP_SELF, tep_get_all_get_params(array('language', 'currency')) . 'language=' . $key, $request_type) . '">' .tep_image('includes/languages/' .  $value['directory'] . '/images/' . $value['image'], $value['name'], NULL, NULL, NULL, false) . '</a> ';
           }
-
-          $data = '<div class="ui-widget infoBoxContainer">' .
-                  '  <div class="ui-widget-header infoBoxHeading">' . MODULE_BOXES_LANGUAGES_BOX_TITLE . '</div>' .
-                  '  <div class="ui-widget-content infoBoxContents" style="text-align: center;">' . $languages_string . '</div>' .
-                  '</div>';
+                  
+          ob_start();
+          include('includes/modules/boxes/templates/languages.php');
+          $data = ob_get_clean();
 
           $oscTemplate->addBlock($data, $this->group);
         }

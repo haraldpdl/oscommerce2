@@ -12,12 +12,12 @@
 
   require('includes/application_top.php');
 
-  require(DIR_WS_LANGUAGES . $language . '/' . FILENAME_PASSWORD_FORGOTTEN);
+  require('includes/languages/' . $language . '/password_forgotten.php');
 
   $password_reset_initiated = false;
 
-  if (isset($HTTP_GET_VARS['action']) && ($HTTP_GET_VARS['action'] == 'process') && isset($HTTP_POST_VARS['formid']) && ($HTTP_POST_VARS['formid'] == $sessiontoken)) {
-    $email_address = tep_db_prepare_input($HTTP_POST_VARS['email_address']);
+  if (isset($_GET['action']) && ($_GET['action'] == 'process') && isset($_POST['formid']) && ($_POST['formid'] == $sessiontoken)) {
+    $email_address = tep_db_prepare_input($_POST['email_address']);
 
     $check_customer_query = tep_db_query("select customers_firstname, customers_lastname, customers_id from " . TABLE_CUSTOMERS . " where customers_email_address = '" . tep_db_input($email_address) . "'");
     if (tep_db_num_rows($check_customer_query)) {
@@ -32,7 +32,7 @@
 
         tep_db_query("update " . TABLE_CUSTOMERS_INFO . " set password_reset_key = '" . tep_db_input($reset_key) . "', password_reset_date = now() where customers_info_id = '" . (int)$check_customer['customers_id'] . "'");
 
-        $reset_key_url = tep_href_link(FILENAME_PASSWORD_RESET, 'account=' . urlencode($email_address) . '&key=' . $reset_key, 'SSL', false);
+        $reset_key_url = tep_href_link('password_reset.php', 'account=' . urlencode($email_address) . '&key=' . $reset_key, 'SSL', false);
 
         if ( strpos($reset_key_url, '&amp;') !== false ) {
           $reset_key_url = str_replace('&amp;', '&', $reset_key_url);
@@ -51,13 +51,15 @@
     }
   }
 
-  $breadcrumb->add(NAVBAR_TITLE_1, tep_href_link(FILENAME_LOGIN, '', 'SSL'));
-  $breadcrumb->add(NAVBAR_TITLE_2, tep_href_link(FILENAME_PASSWORD_FORGOTTEN, '', 'SSL'));
+  $breadcrumb->add(NAVBAR_TITLE_1, tep_href_link('login.php', '', 'SSL'));
+  $breadcrumb->add(NAVBAR_TITLE_2, tep_href_link('password_forgotten.php', '', 'SSL'));
 
-  require(DIR_WS_INCLUDES . 'template_top.php');
+  require('includes/template_top.php');
 ?>
 
-<h1><?php echo HEADING_TITLE; ?></h1>
+<div class="page-header">
+  <h1><?php echo HEADING_TITLE; ?></h1>
+</div>
 
 <?php
   if ($messageStack->size('password_forgotten') > 0) {
@@ -69,7 +71,7 @@
 
 <div class="contentContainer">
   <div class="contentText">
-    <?php echo TEXT_PASSWORD_RESET_INITIATED; ?>
+    <div class="alert alert-success"><?php echo TEXT_PASSWORD_RESET_INITIATED; ?></div>
   </div>
 </div>
 
@@ -77,24 +79,24 @@
   } else {
 ?>
 
-<?php echo tep_draw_form('password_forgotten', tep_href_link(FILENAME_PASSWORD_FORGOTTEN, 'action=process', 'SSL'), 'post', '', true); ?>
+<?php echo tep_draw_form('password_forgotten', tep_href_link('password_forgotten.php', 'action=process', 'SSL'), 'post', 'class="form-horizontal"', true); ?>
 
 <div class="contentContainer">
   <div class="contentText">
-    <div><?php echo TEXT_MAIN; ?></div>
+    <div class="alert alert-info"><?php echo TEXT_MAIN; ?></div>
 
-    <table border="0" width="100%" cellspacing="0" cellpadding="2">
-      <tr>
-        <td class="fieldKey"><?php echo ENTRY_EMAIL_ADDRESS; ?></td>
-        <td class="fieldValue"><?php echo tep_draw_input_field('email_address'); ?></td>
-      </tr>
-    </table>
+    <div class="form-group has-feedback">
+      <label for="inputEmail" class="control-label col-sm-3"><?php echo ENTRY_EMAIL_ADDRESS; ?></label>
+      <div class="col-sm-9">
+        <?php echo tep_draw_input_field('email_address', NULL, 'required aria-required="true" autofocus="autofocus" id="inputEmail" placeholder="' . ENTRY_EMAIL_ADDRESS_TEXT . '"', 'email'); ?>
+        <?php echo FORM_REQUIRED_INPUT; ?>
+      </div>
+    </div>
   </div>
 
-  <div class="buttonSet">
-    <span class="buttonAction"><?php echo tep_draw_button(IMAGE_BUTTON_CONTINUE, 'triangle-1-e', null, 'primary'); ?></span>
-
-    <?php echo tep_draw_button(IMAGE_BUTTON_BACK, 'triangle-1-w', tep_href_link(FILENAME_LOGIN, '', 'SSL')); ?>
+  <div class="buttonSet row">
+    <div class="col-xs-6"><?php echo tep_draw_button(IMAGE_BUTTON_BACK, 'fa fa-angle-left', tep_href_link('login.php', '', 'SSL')); ?></div>
+    <div class="col-xs-6 text-right"><?php echo tep_draw_button(IMAGE_BUTTON_CONTINUE, 'fa fa-angle-right', null, 'primary', null, 'btn-success'); ?></div>
   </div>
 </div>
 
@@ -103,6 +105,6 @@
 <?php
   }
 
-  require(DIR_WS_INCLUDES . 'template_bottom.php');
-  require(DIR_WS_INCLUDES . 'application_bottom.php');
+  require('includes/template_bottom.php');
+  require('includes/application_bottom.php');
 ?>

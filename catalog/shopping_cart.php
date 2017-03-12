@@ -12,31 +12,35 @@
 
   require("includes/application_top.php");
 
-  $OSCOM_Hooks->register('cart');
-
   if ($cart->count_contents() > 0) {
-    include(DIR_WS_CLASSES . 'payment.php');
+    include('includes/classes/payment.php');
     $payment_modules = new payment;
   }
 
-  require(DIR_WS_LANGUAGES . $language . '/' . FILENAME_SHOPPING_CART);
+  require('includes/languages/' . $language . '/shopping_cart.php');
 
-  $breadcrumb->add(NAVBAR_TITLE, tep_href_link(FILENAME_SHOPPING_CART));
+  $breadcrumb->add(NAVBAR_TITLE, tep_href_link('shopping_cart.php'));
 
-  require(DIR_WS_INCLUDES . 'template_top.php');
+  require('includes/template_top.php');
 ?>
 
-<h1><?php echo HEADING_TITLE; ?></h1>
+<div class="page-header">
+  <h1><?php echo HEADING_TITLE; ?></h1>
+</div>
+
+<?php
+  if ($messageStack->size('product_action') > 0) {
+    echo $messageStack->output('product_action');
+  }
+?>
 
 <?php
   if ($cart->count_contents() > 0) {
 ?>
 
-<?php echo tep_draw_form('cart_quantity', tep_href_link(FILENAME_SHOPPING_CART, 'action=update_product')); ?>
+<?php echo tep_draw_form('cart_quantity', tep_href_link('shopping_cart.php', 'action=update_product')); ?>
 
 <div class="contentContainer">
-  <h2><?php echo TABLE_HEADING_PRODUCTS; ?></h2>
-
   <div class="contentText">
 
 <?php
@@ -68,17 +72,15 @@
     }
 ?>
 
-    <table border="0" width="100%" cellspacing="0" cellpadding="0">
-
+    <table class="table table-striped table-condensed">
+      <tbody>
 <?php
-
+    $products_name = NULL;
     for ($i=0, $n=sizeof($products); $i<$n; $i++) {
-      echo '      <tr>';
+      $products_name .= '<tr>';
 
-      $products_name = '<table border="0" cellspacing="2" cellpadding="2">' .
-                       '  <tr>' .
-                       '    <td align="center"><a href="' . tep_href_link(FILENAME_PRODUCT_INFO, 'products_id=' . $products[$i]['id']) . '">' . tep_image(DIR_WS_IMAGES . $products[$i]['image'], $products[$i]['name'], SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT) . '</a></td>' .
-                       '    <td valign="top"><a href="' . tep_href_link(FILENAME_PRODUCT_INFO, 'products_id=' . $products[$i]['id']) . '"><strong>' . $products[$i]['name'] . '</strong></a>';
+      $products_name .= '  <td valign="top" align="center"><a href="' . tep_href_link('product_info.php', 'products_id=' . $products[$i]['id']) . '">' . tep_image('images/' . $products[$i]['image'], $products[$i]['name'], SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT) . '</a></td>' .
+                        '  <td valign="top"><a href="' . tep_href_link('product_info.php', 'products_id=' . $products[$i]['id']) . '"><strong>' . $products[$i]['name'] . '</strong></a>';
 
       if (STOCK_CHECK == 'true') {
         $stock_check = tep_check_stock($products[$i]['id'], $products[$i]['quantity']);
@@ -96,34 +98,33 @@
         }
       }
 
-      $products_name .= '<br /><br />' . tep_draw_input_field('cart_quantity[]', $products[$i]['quantity'], 'size="4"') . tep_draw_hidden_field('products_id[]', $products[$i]['id']) . tep_draw_button(IMAGE_BUTTON_UPDATE, 'refresh') . '&nbsp;&nbsp;&nbsp;' . TEXT_OR . '<a href="' . tep_href_link(FILENAME_SHOPPING_CART, 'products_id=' . $products[$i]['id'] . '&action=remove_product') . '">' . TEXT_REMOVE . '</a>';
+      $products_name .= '<br>' . tep_draw_input_field('cart_quantity[]', $products[$i]['quantity'], 'style="width: 65px;" min="0"', 'number') . tep_draw_hidden_field('products_id[]', $products[$i]['id']) . ' ' . tep_draw_button(CART_BUTTON_UPDATE, 'fa fa-refresh', NULL, NULL, NULL, 'btn-info btn-xs') . ' ' . tep_draw_button(CART_BUTTON_REMOVE, 'fa fa-remove', tep_href_link('shopping_cart.php', 'products_id=' . $products[$i]['id'] . '&action=remove_product'), NULL, NULL, 'btn-danger btn-xs');
 
-      $products_name .= '    </td>' .
-                        '  </tr>' .
-                        '</table>';
+      $products_name .= '</td>';
 
-      echo '        <td valign="top">' . $products_name . '</td>' .
-           '        <td align="right" valign="top"><strong>' . $currencies->display_price($products[$i]['final_price'], tep_get_tax_rate($products[$i]['tax_class_id']), $products[$i]['quantity']) . '</strong></td>' .
-           '      </tr>';
+      $products_name .= '  <td align="right" valign="top"><strong>' . $currencies->display_price($products[$i]['final_price'], tep_get_tax_rate($products[$i]['tax_class_id']), $products[$i]['quantity']) . '</strong></td>' .
+                        '</tr>';
     }
+    echo $products_name;
 ?>
 
+      </tbody>
     </table>
 
-    <p align="right"><strong><?php echo SUB_TITLE_SUB_TOTAL; ?> <?php echo $currencies->format($cart->show_total()); ?></strong></p>
+    <p class="text-right"><strong><?php echo SUB_TITLE_SUB_TOTAL; ?> <?php echo $currencies->format($cart->show_total()); ?></strong></p>
 
 <?php
     if ($any_out_of_stock == 1) {
       if (STOCK_ALLOW_CHECKOUT == 'true') {
 ?>
 
-    <p class="stockWarning" align="center"><?php echo OUT_OF_STOCK_CAN_CHECKOUT; ?></p>
+    <div class="alert alert-warning"><?php echo OUT_OF_STOCK_CAN_CHECKOUT; ?></div>
 
 <?php
       } else {
 ?>
 
-    <p class="stockWarning" align="center"><?php echo OUT_OF_STOCK_CANT_CHECKOUT; ?></p>
+    <div class="alert alert-danger"><?php echo OUT_OF_STOCK_CANT_CHECKOUT; ?></div>
 
 <?php
       }
@@ -133,11 +134,27 @@
   </div>
 
   <div class="buttonSet">
-    <span class="buttonAction"><?php echo tep_draw_button(IMAGE_BUTTON_CHECKOUT, 'triangle-1-e', tep_href_link(FILENAME_CHECKOUT_SHIPPING, '', 'SSL'), 'primary'); ?></span>
+    <div class="text-right"><?php echo tep_draw_button(IMAGE_BUTTON_CHECKOUT, 'fa fa-angle-right', tep_href_link('checkout_shipping.php', '', 'SSL'), 'primary', NULL, 'btn-success'); ?></div>
   </div>
 
 <?php
-    echo $OSCOM_Hooks->call('cart', 'displayAlternativeCheckoutButtons');
+    $initialize_checkout_methods = $payment_modules->checkout_initialization_method();
+
+    if (!empty($initialize_checkout_methods)) {
+?>
+  <div class="clearfix"></div>
+  <p class="text-right"><?php echo TEXT_ALTERNATIVE_CHECKOUT_METHODS; ?></p>
+
+<?php
+      reset($initialize_checkout_methods);
+      while (list(, $value) = each($initialize_checkout_methods)) {
+?>
+
+  <p class="text-right"><?php echo $value; ?></p>
+
+<?php
+      }
+    }
 ?>
 
 </div>
@@ -148,17 +165,15 @@
   } else {
 ?>
 
-<div class="contentContainer">
-  <div class="contentText">
-    <?php echo TEXT_CART_EMPTY; ?>
-
-    <p align="right"><?php echo tep_draw_button(IMAGE_BUTTON_CONTINUE, 'triangle-1-e', tep_href_link(FILENAME_DEFAULT)); ?></p>
-  </div>
+<div class="alert alert-danger">
+  <?php echo TEXT_CART_EMPTY; ?>
 </div>
+
+<p class="text-right"><?php echo tep_draw_button(IMAGE_BUTTON_CONTINUE, 'fa fa-angle-right', tep_href_link('index.php'), 'primary', NULL, 'btn-danger'); ?></p>
 
 <?php
   }
 
-  require(DIR_WS_INCLUDES . 'template_bottom.php');
-  require(DIR_WS_INCLUDES . 'application_bottom.php');
+  require('includes/template_bottom.php');
+  require('includes/application_bottom.php');
 ?>

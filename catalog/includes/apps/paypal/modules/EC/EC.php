@@ -5,7 +5,7 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2017 osCommerce
+  Copyright (c) 2014 osCommerce
 
   Released under the GNU General Public License
 */
@@ -32,12 +32,10 @@
         $this->_req_notes[] = $OSCOM_PayPal->getDef('module_ec_error_curl');
       }
 
-      if ( defined('OSCOM_APP_PAYPAL_GATEWAY') ) {
-        if ( (OSCOM_APP_PAYPAL_GATEWAY == '1') && !$OSCOM_PayPal->hasCredentials('EC') ) { // PayPal
-          $this->_req_notes[] = $OSCOM_PayPal->getDef('module_ec_error_credentials');
-        } elseif ( (OSCOM_APP_PAYPAL_GATEWAY == '0') && !$OSCOM_PayPal->hasCredentials('EC', 'payflow') ) { // Payflow
-          $this->_req_notes[] = $OSCOM_PayPal->getDef('module_ec_error_credentials_payflow');
-        }
+      if ( (OSCOM_APP_PAYPAL_GATEWAY == '1') && !$OSCOM_PayPal->hasCredentials('EC') ) { // PayPal
+        $this->_req_notes[] = $OSCOM_PayPal->getDef('module_ec_error_credentials');
+      } elseif ( (OSCOM_APP_PAYPAL_GATEWAY == '0') && !$OSCOM_PayPal->hasCredentials('EC', 'payflow') ) { // Payflow
+        $this->_req_notes[] = $OSCOM_PayPal->getDef('module_ec_error_credentials_payflow');
       }
     }
 
@@ -168,10 +166,12 @@
       }
 
       if ( defined('MODULE_PAYMENT_PAYPAL_EXPRESS_PAGE_STYLE') ) {
+        $OSCOM_PayPal->saveParameter('OSCOM_APP_PAYPAL_EC_PAGE_STYLE', MODULE_PAYMENT_PAYPAL_EXPRESS_PAGE_STYLE);
         $OSCOM_PayPal->deleteParameter('MODULE_PAYMENT_PAYPAL_EXPRESS_PAGE_STYLE');
       }
 
       if ( defined('MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_EC_PAGE_STYLE') ) {
+        $OSCOM_PayPal->saveParameter('OSCOM_APP_PAYPAL_EC_PAGE_STYLE', MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_EC_PAGE_STYLE);
         $OSCOM_PayPal->deleteParameter('MODULE_PAYMENT_PAYPAL_PRO_PAYFLOW_EC_PAGE_STYLE');
       }
 

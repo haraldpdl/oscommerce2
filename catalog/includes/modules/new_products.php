@@ -5,7 +5,7 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2010 osCommerce
+  Copyright (c) 2014 osCommerce
 
   Released under the GNU General Public License
 */
@@ -19,34 +19,33 @@
   $num_new_products = tep_db_num_rows($new_products_query);
 
   if ($num_new_products > 0) {
-    $counter = 0;
-    $col = 0;
 
-    $new_prods_content = '<table border="0" width="100%" cellspacing="0" cellpadding="2">';
+    $new_prods_content = NULL;
+
     while ($new_products = tep_db_fetch_array($new_products_query)) {
-      $counter++;
-
-      if ($col === 0) {
-        $new_prods_content .= '<tr>';
-      }
-
-      $new_prods_content .= '<td width="33%" align="center" valign="top"><a href="' . tep_href_link(FILENAME_PRODUCT_INFO, 'products_id=' . $new_products['products_id']) . '">' . tep_image(DIR_WS_IMAGES . $new_products['products_image'], $new_products['products_name'], SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT) . '</a><br /><a href="' . tep_href_link(FILENAME_PRODUCT_INFO, 'products_id=' . $new_products['products_id']) . '">' . $new_products['products_name'] . '</a><br />' . $currencies->display_price($new_products['products_price'], tep_get_tax_rate($new_products['products_tax_class_id'])) . '</td>';
-
-      $col ++;
-
-      if (($col > 2) || ($counter == $num_new_products)) {
-        $new_prods_content .= '</tr>';
-
-        $col = 0;
-      }
+      $new_prods_content .= '<div class="col-sm-6 col-md-4" itemprop="itemListElement" itemscope="" itemtype="http://schema.org/Product">';
+      $new_prods_content .= '  <div class="thumbnail equal-height">';
+      $new_prods_content .= '    <a href="' . tep_href_link('product_info.php', 'products_id=' . $new_products['products_id']) . '">' . tep_image('images/' . $new_products['products_image'], $new_products['products_name'], SMALL_IMAGE_WIDTH, SMALL_IMAGE_HEIGHT, 'itemprop="image"') . '</a>';
+      $new_prods_content .= '    <div class="caption">';
+      $new_prods_content .= '      <p class="text-center"><a itemprop="url" href="' . tep_href_link('product_info.php', 'products_id=' . $new_products['products_id']) . '"><span itemprop="name">' . $new_products['products_name'] . '</span></a></p>';
+      $new_prods_content .= '      <hr>';
+      $new_prods_content .= '      <p class="text-center" itemprop="offers" itemscope itemtype="http://schema.org/Offer"><span itemprop="price" content="' . $currencies->display_raw($new_products['products_price'], tep_get_tax_rate($new_products['products_tax_class_id'])) . '">' . $currencies->display_price($new_products['products_price'], tep_get_tax_rate($new_products['products_tax_class_id'])) . '</span></p>';
+      $new_prods_content .= '      <div class="text-center">';
+      $new_prods_content .= '        <div class="btn-group">';
+      $new_prods_content .= '          <a href="' . tep_href_link('product_info.php', tep_get_all_get_params(array('action')) . 'products_id=' . $new_products['products_id']) . '" class="btn btn-default" role="button">' . SMALL_IMAGE_BUTTON_VIEW . '</a>';
+      $new_prods_content .= '          <a href="' . tep_href_link($PHP_SELF, tep_get_all_get_params(array('action')) . 'action=buy_now&products_id=' . $new_products['products_id']) . '" class="btn btn-success" role="button">' . SMALL_IMAGE_BUTTON_BUY . '</a>';
+      $new_prods_content .= '        </div>';
+      $new_prods_content .= '      </div>';
+      $new_prods_content .= '    </div>';
+      $new_prods_content .= '  </div>';
+      $new_prods_content .= '</div>';
     }
-
-    $new_prods_content .= '</table>';
 ?>
 
-  <h2><?php echo sprintf(TABLE_HEADING_NEW_PRODUCTS, strftime('%B')); ?></h2>
+  <h3><?php echo sprintf(TABLE_HEADING_NEW_PRODUCTS, strftime('%B')); ?></h3>
 
-  <div class="contentText">
+  <div class="row" itemtype="http://schema.org/ItemList">
+    <meta itemprop="numberOfItems" content="<?php echo (int)$num_new_products; ?>" />
     <?php echo $new_prods_content; ?>
   </div>
 

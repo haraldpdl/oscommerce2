@@ -23,37 +23,36 @@
 <!DOCTYPE html>
 <html <?php echo HTML_PARAMS; ?>>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=<?php echo CHARSET; ?>" />
+<meta charset="<?php echo CHARSET; ?>">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title><?php echo tep_output_string_protected($oscTemplate->getTitle()); ?></title>
-<base href="<?php echo (($request_type == 'SSL') ? HTTPS_SERVER : HTTP_SERVER) . DIR_WS_CATALOG; ?>" />
-<link rel="stylesheet" type="text/css" href="ext/jquery/ui/redmond/jquery-ui-1.10.4.min.css" />
-<script type="text/javascript" src="ext/jquery/jquery-1.11.1.min.js"></script>
-<script type="text/javascript" src="ext/jquery/ui/jquery-ui-1.10.4.min.js"></script>
+<base href="<?php echo (($request_type == 'SSL') ? HTTPS_SERVER : HTTP_SERVER) . DIR_WS_CATALOG; ?>">
 
-<?php
-  if (tep_not_null(JQUERY_DATEPICKER_I18N_CODE)) {
-?>
-<script type="text/javascript" src="ext/jquery/ui/i18n/jquery.ui.datepicker-<?php echo JQUERY_DATEPICKER_I18N_CODE; ?>.js"></script>
-<script type="text/javascript">
-$.datepicker.setDefaults($.datepicker.regional['<?php echo JQUERY_DATEPICKER_I18N_CODE; ?>']);
-</script>
-<?php
-  }
-?>
+<link href="ext/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<!-- font awesome -->
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 
-<script type="text/javascript" src="ext/photoset-grid/jquery.photoset-grid.min.js"></script>
+<link href="custom.css" rel="stylesheet">
+<link href="user.css" rel="stylesheet">
 
-<link rel="stylesheet" type="text/css" href="ext/colorbox/colorbox.css" />
-<script type="text/javascript" src="ext/colorbox/jquery.colorbox-min.js"></script>
+<!--[if lt IE 9]>
+   <script src="ext/js/html5shiv.js"></script>
+   <script src="ext/js/respond.min.js"></script>
+   <script src="ext/js/excanvas.min.js"></script>
+<![endif]-->
+ 
+<script src="ext/jquery/jquery-3.1.1.min.js"></script>
 
-<link rel="stylesheet" type="text/css" href="ext/960gs/<?php echo ((stripos(HTML_PARAMS, 'dir="rtl"') !== false) ? 'rtl_' : ''); ?>960_24_col.css" />
-<link rel="stylesheet" type="text/css" href="stylesheet.css" />
 <?php echo $oscTemplate->getBlocks('header_tags'); ?>
 </head>
 <body>
 
-<div id="bodyWrapper" class="container_<?php echo $oscTemplate->getGridContainerWidth(); ?>">
+  <?php echo $oscTemplate->getContent('navigation'); ?>
+  
+  <div id="bodyWrapper" class="<?php echo BOOTSTRAP_CONTAINER; ?>">
+    <div class="row">
 
-<?php require(DIR_WS_INCLUDES . 'header.php'); ?>
+      <?php require('includes/header.php'); ?>
 
-<div id="bodyContent" class="grid_<?php echo $oscTemplate->getGridContentWidth(); ?> <?php echo ($oscTemplate->hasBlocks('boxes_column_left') ? 'push_' . $oscTemplate->getGridColumnWidth() : ''); ?>">
+      <div id="bodyContent" class="col-md-<?php echo $oscTemplate->getGridContentWidth(); ?> <?php echo ($oscTemplate->hasBlocks('boxes_column_left') ? 'col-md-push-' . $oscTemplate->getGridColumnWidth() : ''); ?>">
