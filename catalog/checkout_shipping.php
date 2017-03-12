@@ -5,7 +5,7 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2014 osCommerce
+  Copyright (c) 2017 osCommerce
 
   Released under the GNU General Public License
 */
@@ -149,11 +149,11 @@
 // get all available shipping quotes
   $quotes = $shipping_modules->quote();
 
-// if no shipping method has been selected, automatically select the cheapest method.
+// if no shipping method has been selected, automatically select the first method.
 // if the modules status was changed when none were available, to save on implementing
-// a javascript force-selection method, also automatically select the cheapest shipping
+// a javascript force-selection method, also automatically select the first shipping
 // method if more than one module is now enabled
-  if ( !tep_session_is_registered('shipping') || ( tep_session_is_registered('shipping') && ($shipping == false) && (tep_count_shipping_modules() > 1) ) ) $shipping = $shipping_modules->cheapest();
+  if ( !tep_session_is_registered('shipping') || ( tep_session_is_registered('shipping') && ($shipping == false) && (tep_count_shipping_modules() > 1) ) ) $shipping = $shipping_modules->get_first();
 
   require('includes/languages/' . $language . '/checkout_shipping.php');
 
@@ -257,7 +257,7 @@
       for ($i=0, $n=sizeof($quotes); $i<$n; $i++) {
         for ($j=0, $n2=sizeof($quotes[$i]['methods']); $j<$n2; $j++) {
 // set the radio button to be checked if it is the method chosen
-          $checked = (($quotes[$i]['id'] . '_' . $quotes[$i]['methods'][$j]['id'] == $shipping['id']) ? true : false);         
+          $checked = (($quotes[$i]['id'] . '_' . $quotes[$i]['methods'][$j]['id'] == $shipping['id']) ? true : false);
 
 ?>
       <tr class="table-selection">
@@ -336,7 +336,7 @@
   <div class="buttonSet">
     <div class="text-right"><?php echo tep_draw_button(IMAGE_BUTTON_CONTINUE, 'fa fa-angle-right', null, 'primary', null, 'btn-success'); ?></div>
   </div>
-  
+
   <div class="clearfix"></div>
 
   <div class="contentText">
