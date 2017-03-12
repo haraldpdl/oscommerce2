@@ -5,12 +5,14 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2010 osCommerce
+  Copyright (c) 2017 osCommerce
 
   Released under the GNU General Public License
 */
 
   require("includes/application_top.php");
+
+  $OSCOM_Hooks->register('cart');
 
   if ($cart->count_contents() > 0) {
     include('includes/classes/payment.php');
@@ -138,23 +140,7 @@
   </div>
 
 <?php
-    $initialize_checkout_methods = $payment_modules->checkout_initialization_method();
-
-    if (!empty($initialize_checkout_methods)) {
-?>
-  <div class="clearfix"></div>
-  <p class="text-right"><?php echo TEXT_ALTERNATIVE_CHECKOUT_METHODS; ?></p>
-
-<?php
-      reset($initialize_checkout_methods);
-      while (list(, $value) = each($initialize_checkout_methods)) {
-?>
-
-  <p class="text-right"><?php echo $value; ?></p>
-
-<?php
-      }
-    }
+    echo $OSCOM_Hooks->call('cart', 'displayAlternativeCheckoutButtons');
 ?>
 
 </div>
