@@ -46,7 +46,7 @@
           $oscTemplate->addBlock('<script src="ext/photoset-grid/jquery.photoset-grid.min.js"></script>' . "\n", $this->group);
           $oscTemplate->addBlock('<link rel="stylesheet" href="ext/colorbox/colorbox.css" />' . "\n", 'header_tags');
           $oscTemplate->addBlock('<script src="ext/colorbox/jquery.colorbox-min.js"></script>' . "\n", $this->group);
-          $oscTemplate->addBlock('<script>var ImgCount = $(".piGal").data("imgcount"); $(function() {$(\'.piGal\').css({\'visibility\': \'hidden\'});$(\'.piGal\').photosetGrid({layout: ""+ ImgCount +"",width: \'100%\',highresLinks: true,rel: \'pigallery\',onComplete: function() {$(\'.piGal\').css({\'visibility\': \'visible\'});$(\'.piGal a\').colorbox({maxHeight: \'90%\',maxWidth: \'90%\', rel: \'pigallery\'});$(\'.piGal img\').each(function() {var imgid = $(this).attr(\'id\') ? $(this).attr(\'id\').substring(9) : 0;if ( $(\'#piGalDiv_\' + imgid).length ) {$(this).parent().colorbox({ inline: true, href: "#piGalDiv_" + imgid });}});}});});</script>', $this->group);
+          $oscTemplate->addBlock('<script>var ImgCount = $(".piGal").data("imgcount"); $(function() {$(\'.piGal\').css({\'visibility\': \'hidden\'});$(\'.piGal\').photosetGrid({layout: ""+ ImgCount +"",width: \'100%\',highresLinks: true,rel: \'pigallery\',onComplete: function() {$(\'.piGal\').css({\'visibility\': \'visible\'});$(\'.piGal a\').colorbox({maxHeight: \'90%\',maxWidth: \'90%\', rel: \'pigallery\'});$(\'.piGal img[id^="piGalImg_"]\').each(function() {var imgid = $(this).attr(\'id\') ? $(this).attr(\'id\').substring(9) : 0;if ( $(\'#piGalDiv_\' + imgid).length ) {$(this).parent().colorbox({ inline: true, href: "#piGalDiv_" + imgid });}});}});});</script>', $this->group);
         }
       }
     }
@@ -82,7 +82,7 @@
   function ht_product_colorbox_show_pages($text) {
     return nl2br(implode("\n", explode(';', $text)));
   }
-  
+
   function ht_product_colorbox_thumbnail_number() {
     return sprintf(MODULE_HEADER_TAGS_PRODUCT_COLORBOX_THUMBNAIL_LAYOUT, MODULE_HEADER_TAGS_PRODUCT_COLORBOX_LAYOUT, array_sum(str_split(MODULE_HEADER_TAGS_PRODUCT_COLORBOX_LAYOUT)));
   }
