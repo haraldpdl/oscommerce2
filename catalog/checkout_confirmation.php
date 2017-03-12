@@ -5,7 +5,7 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2010 osCommerce
+  Copyright (c) 2017 osCommerce
 
   Released under the GNU General Public License
 */
@@ -104,7 +104,7 @@
   } else {
     $form_action_url = tep_href_link('checkout_process.php', '', 'SSL');
   }
-  
+
   echo tep_draw_form('checkout_confirmation', $form_action_url, 'post');
 ?>
 
@@ -270,7 +270,7 @@
       if (is_array($payment_modules->modules)) {
         echo $payment_modules->process_button();
       }
-      echo tep_draw_button(IMAGE_BUTTON_CONFIRM_ORDER, 'fa fa-ok', null, 'primary', null, 'btn-success');
+      echo tep_draw_button(sprintf(IMAGE_BUTTON_PAY_TOTAL_NOW, $currencies->format($order->info['total'], true, $order->info['currency'], $order->info['currency_value'])), null, null, 'primary', array('params' => 'data-button="payNow"', 'btn-success'));
       ?>
     </div>
   </div>
@@ -299,6 +299,15 @@
 </div>
 
 </form>
+
+<script>
+$('form[name="checkout_confirmation"]').submit(function() {
+  $('form[name="checkout_confirmation"] button[data-button="payNow"]').button('option', {
+    label: '<?php echo addslashes(IMAGE_BUTTON_PAY_TOTAL_PROCESSING); ?>',
+    disabled: true
+  });
+});
+</script>
 
 <?php
   require('includes/template_bottom.php');
