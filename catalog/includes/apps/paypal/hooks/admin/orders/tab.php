@@ -28,7 +28,7 @@
     }
 
     function execute() {
-      global $oID;
+      global $oID, $base_url;
 
       $output = '';
 

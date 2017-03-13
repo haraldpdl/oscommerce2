@@ -13,7 +13,7 @@
       <p><?php echo $cm_paypal_login->_app->getDef('module_login_template_content'); ?></p>
 
       <div id="PayPalLoginButton" class="text-right"></div>
-      
+
     </div>
   </div>
 </div>

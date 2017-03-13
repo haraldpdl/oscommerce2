@@ -5,7 +5,7 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2014 osCommerce
+  Copyright (c) 2017 osCommerce
 
   Released under the GNU General Public License
 */
@@ -69,5 +69,5 @@
 </html>
 
 <?php
-  require('includes/application_bottom.php');
+  require(DIR_FS_CATALOG . 'includes/application_bottom.php');
 ?>

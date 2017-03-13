@@ -5,7 +5,7 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2014 osCommerce
+  Copyright (c) 2017 osCommerce
 
   Released under the GNU General Public License
 */
@@ -76,7 +76,7 @@ EOD;
     include(DIR_FS_CATALOG . 'includes/apps/paypal/admin/actions/' . $action . '/' . $subaction . '.php');
   }
 
-  include('includes/template_top.php');
+  include(DIR_FS_ADMIN . 'includes/template_top.php');
 ?>
 
 <style>
@@ -277,12 +277,12 @@ small .pp-button {
 
 .pp-table tbody tr td.pp-table-action {
   text-align: right;
-  visibility: hidden;
-  display: block;
 }
 
-.pp-table tbody tr:hover td.pp-table-action {
-  visibility: visible;
+.pp-table tbody tr:hover td.pp-table-action a.pp-button-info {
+  background-color: #0078e7;
+  border-left: 1px solid #023c63;
+  border-bottom: 1px solid #023c63;
 }
 
 .pp-table.pp-table-hover tbody tr:hover:not(.pp-table-header) {
@@ -341,7 +341,7 @@ var OSCOM = {
       versionCheckResult: <?php echo (defined('OSCOM_APP_PAYPAL_VERSION_CHECK')) ? '"' . OSCOM_APP_PAYPAL_VERSION_CHECK . '"' : 'undefined'; ?>,
       action: '<?php echo $action; ?>',
       doOnlineVersionCheck: false,
-      canApplyOnlineUpdates: <?php echo class_exists('ZipArchive') && function_exists('json_encode') && function_exists('openssl_verify') ? 'true' : 'false'; ?>,
+      canApplyOnlineUpdates: <?php echo class_exists('ZipArchive') && function_exists('openssl_verify') ? 'true' : 'false'; ?>,
       accountTypes: {
         live: <?php echo ($OSCOM_PayPal->hasApiCredentials('live') === true) ? 'true' : 'false'; ?>,
         sandbox: <?php echo ($OSCOM_PayPal->hasApiCredentials('sandbox') === true) ? 'true' : 'false'; ?>
@@ -456,6 +456,6 @@ $(function() {
 </script>
 
 <?php
-  include('includes/template_bottom.php');
-  require('includes/application_bottom.php');
+  include(DIR_FS_ADMIN . 'includes/template_bottom.php');
+  require(DIR_FS_ADMIN . 'includes/application_bottom.php');
 ?>

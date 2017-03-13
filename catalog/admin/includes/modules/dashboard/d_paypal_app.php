@@ -38,7 +38,7 @@
     function getOutput() {
       $version = $this->_app->getVersion();
       $version_check_result = defined('OSCOM_APP_PAYPAL_VERSION_CHECK') ? '"' . OSCOM_APP_PAYPAL_VERSION_CHECK . '"' : 'undefined';
-      $can_apply_online_updates = class_exists('ZipArchive') && function_exists('json_encode') && function_exists('openssl_verify') ? 'true' : 'false';
+      $can_apply_online_updates = class_exists('ZipArchive') && function_exists('openssl_verify') ? 'true' : 'false';
       $has_live_account = ($this->_app->hasApiCredentials('live') === true) ? 'true' : 'false';
       $has_sandbox_account = ($this->_app->hasApiCredentials('sandbox') === true) ? 'true' : 'false';
       $version_check_url = tep_href_link('paypal.php', 'action=checkVersion');

@@ -5,7 +5,7 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2014 osCommerce
+  Copyright (c) 2017 osCommerce
 
   Released under the GNU General Public License
 */
@@ -14,33 +14,9 @@
     var $_code = 'paypal';
     var $_title = 'PayPal App';
     var $_version;
-    var $_api_version = '112';
+    var $_api_version = '204';
+    var $_identifier = 'osCommerce_PPapp_v5';
     var $_definitions = array();
-
-    function isReqApiCountrySupported($country_id) {
-      $country_query = tep_db_query("select countries_iso_code_2 from countries where countries_id = '" . (int)$country_id . "'");
-      $country = tep_db_fetch_array($country_query);
-
-      return in_array($country['countries_iso_code_2'], $this->getReqApiCountries());
-    }
-
-    function getReqApiCountries() {
-      static $countries;
-
-      if ( !isset($countries) ) {
-        $countries = array();
-
-        foreach ( file(DIR_FS_CATALOG . 'includes/apps/paypal/req_api_countries.txt') as $c ) {
-          $c = trim($c);
-
-          if ( !empty($c) ) {
-            $countries[]= $c;
-          }
-        }
-      }
-
-      return $countries;
-    }
 
     function log($module, $action, $result, $request, $response, $server, $is_ipn = false) {
       global $customer_id;
@@ -80,9 +56,7 @@
       if ( is_array($response) ) {
         foreach ( $response as $key => $value ) {
           if ( is_array($value) ) {
-            if ( function_exists('http_build_query') ) {
-              $value = http_build_query($value);
-            }
+            $value = http_build_query($value);
           } elseif ( (strpos($key, '_nh-dns') !== false) || in_array($key, $filter) ) {
             $value = '**********';
           }
@@ -281,11 +255,11 @@
     }
 
     function getApiCredentials($server, $type) {
-      if ( $server == 'live' ) {
+      if ( ($server == 'live') && defined('OSCOM_APP_PAYPAL_LIVE_API_' . strtoupper($type)) ) {
         return constant('OSCOM_APP_PAYPAL_LIVE_API_' . strtoupper($type));
+      } elseif ( defined('OSCOM_APP_PAYPAL_SANDBOX_API_' . strtoupper($type)) ) {
+        return constant('OSCOM_APP_PAYPAL_SANDBOX_API_' . strtoupper($type));
       }
-
-      return constant('OSCOM_APP_PAYPAL_SANDBOX_API_' . strtoupper($type));
     }
 
     function getParameters($module) {
@@ -347,7 +321,7 @@
         $cfg = new $cfg_class();
 
         if ( !defined($key) ) {
-          $this->saveParameter($key, $cfg->default);
+          $this->saveParameter($key, $cfg->default, isset($cfg->title) ? $cfg->title : null, isset($cfg->description) ? $cfg->description : null, isset($cfg->set_func) ? $cfg->set_func : null);
         }
 
         if ( !isset($cfg->app_configured) || ($cfg->app_configured !== false) ) {
@@ -407,7 +381,7 @@
       return $result['res'];
     }
 
-    function makeApiCall($url, $parameters = null, $headers = null) {
+    function makeApiCall($url, $parameters = null, $headers = null, $opts = null) {
       $server = parse_url($url);
 
       if ( !isset($server['port']) ) {
@@ -453,12 +427,36 @@
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
       }
 
+      if (substr($server['host'], -10) == 'paypal.com') {
+        $ssl_version = 0;
+
+        if ( defined('OSCOM_APP_PAYPAL_SSL_VERSION') && (OSCOM_APP_PAYPAL_SSL_VERSION == '1') ) {
+          $ssl_version = 6;
+        }
+
+        if (isset($opts['sslVersion']) && is_int($opts['sslVersion'])) {
+          $ssl_version = $opts['sslVersion'];
+        }
+
+        if ($ssl_version !== 0) {
+          curl_setopt($curl, CURLOPT_SSLVERSION, $ssl_version);
+        }
+      }
+
       if ( defined('OSCOM_APP_PAYPAL_PROXY') && tep_not_null(OSCOM_APP_PAYPAL_PROXY) ) {
         curl_setopt($curl, CURLOPT_HTTPPROXYTUNNEL, true);
         curl_setopt($curl, CURLOPT_PROXY, OSCOM_APP_PAYPAL_PROXY);
       }
 
       $result = curl_exec($curl);
+
+      if (isset($opts['returnFull']) && ($opts['returnFull'] === true)) {
+        $result = array(
+          'response' => $result,
+          'error' => curl_error($curl),
+          'info' => curl_getinfo($curl)
+        );
+      }
 
       curl_close($curl);
 
@@ -647,6 +645,10 @@
 
     function getApiVersion() {
       return $this->_api_version;
+    }
+
+    function getIdentifier() {
+      return $this->_identifier;
     }
 
     function hasAlert() {
@@ -866,58 +868,13 @@
 
       return str_replace('/', DIRECTORY_SEPARATOR, $pathname);
     }
-// OSCOM v2.2rc2a compatibility
+
     function getIpAddress() {
-      if ( function_exists('tep_get_ip_address') ) {
-        return tep_get_ip_address();
-      }
-      global $HTTP_SERVER_VARS;
-      $ip_address = null;
-      $ip_addresses = array();
-      if (isset($HTTP_SERVER_VARS['HTTP_X_FORWARDED_FOR']) && !empty($HTTP_SERVER_VARS['HTTP_X_FORWARDED_FOR'])) {
-        foreach ( array_reverse(explode(',', $HTTP_SERVER_VARS['HTTP_X_FORWARDED_FOR'])) as $x_ip ) {
-          $x_ip = trim($x_ip);
-          if ($this->isValidIpAddress($x_ip)) {
-            $ip_addresses[] = $x_ip;
-          }
-        }
-      }
-      if (isset($HTTP_SERVER_VARS['HTTP_CLIENT_IP']) && !empty($HTTP_SERVER_VARS['HTTP_CLIENT_IP'])) {
-        $ip_addresses[] = $HTTP_SERVER_VARS['HTTP_CLIENT_IP'];
-      }
-      if (isset($HTTP_SERVER_VARS['HTTP_X_CLUSTER_CLIENT_IP']) && !empty($HTTP_SERVER_VARS['HTTP_X_CLUSTER_CLIENT_IP'])) {
-        $ip_addresses[] = $HTTP_SERVER_VARS['HTTP_X_CLUSTER_CLIENT_IP'];
-      }
-      if (isset($HTTP_SERVER_VARS['HTTP_PROXY_USER']) && !empty($HTTP_SERVER_VARS['HTTP_PROXY_USER'])) {
-        $ip_addresses[] = $HTTP_SERVER_VARS['HTTP_PROXY_USER'];
-      }
-      $ip_addresses[] = $HTTP_SERVER_VARS['REMOTE_ADDR'];
-      foreach ( $ip_addresses as $ip ) {
-        if (!empty($ip) && $this->isValidIpAddress($ip)) {
-          $ip_address = $ip;
-          break;
-        }
-      }
-      return $ip_address;
+      return tep_get_ip_address();
     }
-// OSCOM v2.2rc2a compatibility
+
     function isValidIpAddress($ip_address) {
-      if ( function_exists('tep_validate_ip_address') ) {
-        return tep_validate_ip_address($ip_address);
-      }
-      if (function_exists('filter_var') && defined('FILTER_VALIDATE_IP')) {
-        return filter_var($ip_address, FILTER_VALIDATE_IP, array('flags' => FILTER_FLAG_IPV4));
-      }
-      if (preg_match('/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/', $ip_address)) {
-        $parts = explode('.', $ip_address);
-        foreach ($parts as $ip_parts) {
-          if ( (intval($ip_parts) > 255) || (intval($ip_parts) < 0) ) {
-            return false; // number is not within 0-255
-          }
-        }
-        return true;
-      }
-      return false;
+      return tep_validate_ip_address($ip_address);
     }
   }
 ?>
