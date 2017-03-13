@@ -5,7 +5,7 @@
   osCommerce, Open Source E-Commerce Solutions
   http://www.oscommerce.com
 
-  Copyright (c) 2014 osCommerce
+  Copyright (c) 2017 osCommerce
 
   Released under the GNU General Public License
 */
@@ -18,6 +18,7 @@
   var dbUsername;
   var dbPassword;
   var dbName;
+  var dbImportSample;
 
   var formSubmited = false;
   var formSuccess = false;
@@ -37,6 +38,7 @@
     dbUsername = $('#DB_SERVER_USERNAME').val();
     dbPassword = $('#DB_SERVER_PASSWORD').val();
     dbName = $('#DB_DATABASE').val();
+    dbImportSample = $('#DB_IMPORT_SAMPLE').val();
 
     $.get('rpc.php?action=dbCheck&server=' + encodeURIComponent(dbServer) + '&username=' + encodeURIComponent(dbUsername) + '&password=' + encodeURIComponent(dbPassword) + '&name=' + encodeURIComponent(dbName), function (response) {
       var result = /\[\[([^|]*?)(?:\|([^|]*?)){0,1}\]\]/.exec(response);
@@ -45,7 +47,7 @@
       if (result[0] == '1') {
         $('#mBoxContents').html('<p><i class="fa fa-spinner fa-spin fa-2x"></i> The database structure is now being imported. Please be patient during this procedure.</p>');
 
-        $.get('rpc.php?action=dbImport&server=' + encodeURIComponent(dbServer) + '&username=' + encodeURIComponent(dbUsername) + '&password='+ encodeURIComponent(dbPassword) + '&name=' + encodeURIComponent(dbName), function (response2) {
+        $.get('rpc.php?action=dbImport&server=' + encodeURIComponent(dbServer) + '&username=' + encodeURIComponent(dbUsername) + '&password='+ encodeURIComponent(dbPassword) + '&name=' + encodeURIComponent(dbName) + '&importsample=' + encodeURIComponent(dbImportSample), function (response2) {
           var result2 = /\[\[([^|]*?)(?:\|([^|]*?)){0,1}\]\]/.exec(response2);
           result2.shift();
 
@@ -116,7 +118,7 @@
     </div>
   </div>
 </div>
-  
+
 <div class="clearfix"></div>
 
 <div class="row">
@@ -127,14 +129,14 @@
         <div id="mBoxContents"></div>
       </div>
     </div>
-    
+
     <div class="page-header">
       <p class="text-danger pull-right text-right"><span class="fa fa-asterisk text-danger"></span> Required information</p>
       <h2>Database Server</h2>
     </div>
-    
+
     <form name="install" id="installForm" action="install.php?step=2" method="post" class="form-horizontal" role="form">
-    
+
       <div class="form-group has-feedback">
         <label for="dbServer" class="control-label col-xs-3">Database Server</label>
         <div class="col-xs-9">
@@ -143,7 +145,7 @@
           <span class="help-block">The address of the database server in the form of a hostname or IP address.</span>
         </div>
       </div>
-    
+
       <div class="form-group has-feedback">
         <label for="userName" class="control-label col-xs-3">Username</label>
         <div class="col-xs-9">
@@ -152,7 +154,7 @@
           <span class="help-block">The username used to connect to the database server.</span>
         </div>
       </div>
-    
+
       <div class="form-group has-feedback">
         <label for="passWord" class="control-label col-xs-3">Password</label>
         <div class="col-xs-9">
@@ -161,7 +163,7 @@
           <span class="help-block">The password that is used together with the username to connect to the database server.</span>
         </div>
       </div>
-    
+
       <div class="form-group has-feedback">
         <label for="dbName" class="control-label col-xs-3">Database Name</label>
         <div class="col-xs-9">
@@ -171,10 +173,18 @@
         </div>
       </div>
 
+      <div class="form-group">
+        <label for="dbImportSample" class="control-label col-xs-3">Import Sample Data</label>
+        <div class="col-xs-9">
+          <?php echo osc_draw_select_menu('DB_IMPORT_SAMPLE', array(array('id' => '0', 'text' => 'Skip sample data'), array('id' => '1', 'text' => 'Import sample data')), '1', 'id="dbImportSample"'); ?>
+          <span class="help-block">Import sample product and category data?</span>
+        </div>
+      </div>
+
       <p><?php echo osc_draw_button('Continue To Step 2', 'triangle-1-e', null, 'primary', null, 'btn-success btn-block'); ?></p>
 
     </form>
-    
+
   </div>
   <div class="col-xs-12 col-sm-pull-9 col-sm-3">
     <div class="panel panel-success">
@@ -187,5 +197,5 @@
       </div>
     </div>
   </div>
-  
+
 </div>
