@@ -16,7 +16,7 @@
     function stripe() {
       global $PHP_SELF, $order, $payment;
 
-      $this->signature = 'stripe|stripe|1.0|2.3';
+      $this->signature = 'stripe|stripe|1.1|2.3';
       $this->api_version = '2014-05-19';
 
       $this->code = 'stripe';
@@ -598,6 +598,14 @@ EOD;
 
       $js = <<<EOD
 <script>
+if ( typeof jQuery == 'undefined' ) {
+  document.write('<scr' + 'ipt src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></scr' + 'ipt>');
+  document.write('<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/redmond/jquery-ui.css" />');
+  document.write('<scr' + 'ipt src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></scr' + 'ipt>');
+}
+</script>
+
+<script>
 $(function() {
   $('#tcdprogressbar').progressbar({
     value: false
@@ -676,6 +684,11 @@ EOD;
       $stripe_publishable_key = MODULE_PAYMENT_STRIPE_PUBLISHABLE_KEY;
 
       $js = <<<EOD
+<script>
+if ( typeof jQuery == 'undefined' ) {
+  document.write('<scr' + 'ipt src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></scr' + 'ipt>');
+}
+</script>
 <script src="https://js.stripe.com/v2/"></script>
 <script>
 $(function() {

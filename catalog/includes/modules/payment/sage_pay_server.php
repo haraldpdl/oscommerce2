@@ -16,7 +16,7 @@
     function sage_pay_server() {
       global $PHP_SELF, $order;
 
-      $this->signature = 'sage_pay|sage_pay_server|2.0|2.3';
+      $this->signature = 'sage_pay|sage_pay_server|2.1|2.3';
       $this->api_version = '3.00';
 
       $this->code = 'sage_pay_server';
@@ -591,6 +591,14 @@ EOD;
       $test_url = tep_href_link('modules.php', 'set=payment&module=' . $this->code . '&action=install&subaction=conntest');
 
       $js = <<<EOD
+<script>
+if ( typeof jQuery == 'undefined' ) {
+  document.write('<scr' + 'ipt src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></scr' + 'ipt>');
+  document.write('<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/redmond/jquery-ui.css" />');
+  document.write('<scr' + 'ipt src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></scr' + 'ipt>');
+}
+</script>
+
 <script>
 $(function() {
   $('#tcdprogressbar').progressbar({
