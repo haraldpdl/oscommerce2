@@ -11,15 +11,15 @@
 */
 
   class securityCheck_download_directory {
-    var $type = 'warning';
+    public $type = 'warning';
 
-    function securityCheck_download_directory() {
+    public function __construct() {
       global $language;
 
       include(DIR_FS_ADMIN . 'includes/languages/' . $language . '/modules/security_check/download_directory.php');
     }
 
-    function pass() {
+    public function pass() {
       if (DOWNLOAD_ENABLED != 'true') {
         return true;
       }
@@ -32,8 +32,7 @@
       return is_dir(DIR_FS_DOWNLOAD);
     }
 
-    function getMessage() {
+    public function getMessage() {
       return WARNING_DOWNLOAD_DIRECTORY_NON_EXISTENT;
     }
   }
-?>

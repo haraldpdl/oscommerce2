@@ -15,9 +15,9 @@
   }
 
   class paypal_express {
-    var $code, $title, $description, $enabled, $_app;
+    public $code, $title, $description, $enabled, $_app;
 
-    function paypal_express() {
+    public function __construct() {
       global $PHP_SELF, $oscTemplate, $order, $payment, $request_type;
 
       $this->_app = new OSCOM_PayPal();
@@ -103,7 +103,7 @@
       }
     }
 
-    function update_status() {
+    public function update_status() {
       global $order;
 
       if ( ($this->enabled == true) && ((int)OSCOM_APP_PAYPAL_EC_ZONE > 0) ) {
@@ -125,7 +125,7 @@
       }
     }
 
-    function checkout_initialization_method() {
+    public function checkout_initialization_method() {
       global $cart;
 
       $string = '';
@@ -267,16 +267,16 @@ EOD;
       return $string;
     }
 
-    function javascript_validation() {
+    public function javascript_validation() {
       return false;
     }
 
-    function selection() {
+    public function selection() {
       return array('id' => $this->code,
                    'module' => $this->public_title);
     }
 
-    function pre_confirmation_check() {
+    public function pre_confirmation_check() {
       global $appPayPalEcResult, $appPayPalEcSecret, $messageStack, $order;
 
       if ( !tep_session_is_registered('appPayPalEcResult') ) {
@@ -300,7 +300,7 @@ EOD;
       $order->info['payment_method'] = '<img src="https://www.paypalobjects.com/webstatic/mktg/Logo/pp-logo-100px.png" border="0" alt="PayPal Logo" style="padding: 3px;" />';
     }
 
-    function confirmation() {
+    public function confirmation() {
       global $comments;
 
       if (!isset($comments)) {
@@ -317,11 +317,11 @@ EOD;
       return $confirmation;
     }
 
-    function process_button() {
+    public function process_button() {
       return false;
     }
 
-    function before_process() {
+    public function before_process() {
       if ( OSCOM_APP_PAYPAL_GATEWAY == '1' ) {
         $this->before_process_paypal();
       } else {
@@ -329,7 +329,7 @@ EOD;
       }
     }
 
-    function before_process_paypal() {
+    public function before_process_paypal() {
       global $customer_id, $order, $sendto, $appPayPalEcResult, $appPayPalEcSecret, $response_array, $comments;
 
       if ( !tep_session_is_registered('appPayPalEcResult') ) {
@@ -386,7 +386,7 @@ EOD;
       }
     }
 
-    function before_process_payflow() {
+    public function before_process_payflow() {
       global $customer_id, $order, $sendto, $appPayPalEcResult, $appPayPalEcSecret, $response_array, $comments;
 
       if ( !tep_session_is_registered('appPayPalEcResult') ) {
@@ -432,7 +432,7 @@ EOD;
       }
     }
 
-    function after_process() {
+    public function after_process() {
       if ( OSCOM_APP_PAYPAL_GATEWAY == '1' ) {
         $this->after_process_paypal();
       } else {
@@ -440,7 +440,7 @@ EOD;
       }
     }
 
-    function after_process_paypal() {
+    public function after_process_paypal() {
       global $response_array, $insert_id, $appPayPalEcResult;
 
       $pp_result = 'Transaction ID: ' . tep_output_string_protected($response_array['PAYMENTINFO_0_TRANSACTIONID']) . "\n" .
@@ -462,7 +462,7 @@ EOD;
       tep_session_unregister('appPayPalEcSecret');
     }
 
-    function after_process_payflow() {
+    public function after_process_payflow() {
       global $response_array, $insert_id, $appPayPalEcResult;
 
       $pp_result = 'Transaction ID: ' . tep_output_string_protected($response_array['PNREF']) . "\n" .
@@ -574,11 +574,11 @@ EOD;
       }
     }
 
-    function get_error() {
+    public function get_error() {
       return false;
     }
 
-    function check() {
+    public function check() {
       $check_query = tep_db_query("select configuration_value from configuration where configuration_key = 'OSCOM_APP_PAYPAL_EC_STATUS'");
       if ( tep_db_num_rows($check_query) ) {
         $check = tep_db_fetch_array($check_query);
@@ -589,19 +589,19 @@ EOD;
       return false;
     }
 
-    function install() {
+    public function install() {
       tep_redirect(tep_href_link('paypal.php', 'action=configure&subaction=install&module=EC'));
     }
 
-    function remove() {
+    public function remove() {
       tep_redirect(tep_href_link('paypal.php', 'action=configure&subaction=uninstall&module=EC'));
     }
 
-    function keys() {
+    public function keys() {
       return array('OSCOM_APP_PAYPAL_EC_SORT_ORDER');
     }
 
-    function getProductType($id, $attributes) {
+    public function getProductType($id, $attributes) {
       foreach ( $attributes as $a ) {
         $virtual_check_query = tep_db_query("select pad.products_attributes_id from products_attributes pa, products_attributes_download pad where pa.products_id = '" . (int)$id . "' and pa.options_values_id = '" . (int)$a['value_id'] . "' and pa.products_attributes_id = pad.products_attributes_id limit 1");
 
@@ -613,8 +613,7 @@ EOD;
       return 'Physical';
     }
 
-    function templateClassExists() {
+    public function templateClassExists() {
       return class_exists('oscTemplate') && isset($GLOBALS['oscTemplate']) && is_object($GLOBALS['oscTemplate']) && (get_class($GLOBALS['oscTemplate']) == 'oscTemplate');
     }
   }
-?>

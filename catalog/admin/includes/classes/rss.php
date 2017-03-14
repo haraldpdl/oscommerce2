@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  ======================================================================
  lastRSS 0.9.1
 
@@ -35,25 +35,25 @@ class lastRSS {
     // -------------------------------------------------------------------
     // Public properties
     // -------------------------------------------------------------------
-    var $default_cp = 'UTF-8';
-    var $CDATA = 'strip';
-    var $cp = '';
-    var $items_limit = 0;
-    var $stripHTML = False;
-    var $date_format = '';
+    public $default_cp = 'UTF-8';
+    public $CDATA = 'strip';
+    public $cp = '';
+    public $items_limit = 0;
+    public $stripHTML = False;
+    public $date_format = '';
 
     // -------------------------------------------------------------------
     // Private variables
     // -------------------------------------------------------------------
-    var $channeltags = array ('title', 'link', 'description', 'language', 'copyright', 'managingEditor', 'webMaster', 'lastBuildDate', 'rating', 'docs');
-    var $itemtags = array('title', 'link', 'description', 'author', 'category', 'comments', 'enclosure', 'guid', 'pubDate', 'source');
-    var $imagetags = array('title', 'url', 'link', 'width', 'height');
-    var $textinputtags = array('title', 'description', 'name', 'link');
+    public $channeltags = array ('title', 'link', 'description', 'language', 'copyright', 'managingEditor', 'webMaster', 'lastBuildDate', 'rating', 'docs');
+    public $itemtags = array('title', 'link', 'description', 'author', 'category', 'comments', 'enclosure', 'guid', 'pubDate', 'source');
+    public $imagetags = array('title', 'url', 'link', 'width', 'height');
+    public $textinputtags = array('title', 'description', 'name', 'link');
 
     // -------------------------------------------------------------------
     // Parse RSS file and returns associative array.
     // -------------------------------------------------------------------
-    function Get ($rss_url) {
+    public function Get ($rss_url) {
         // If CACHE ENABLED
         if ($this->cache_dir != '') {
             $cache_file = $this->cache_dir . '/rss_' . md5($rss_url) . '.cache';
@@ -87,7 +87,7 @@ class lastRSS {
     // Modification of preg_match(); return trimed field with index 1
     // from 'classic' preg_match() array output
     // -------------------------------------------------------------------
-    function my_preg_match ($pattern, $subject) {
+    public function my_preg_match ($pattern, $subject) {
         // start regullar expression
         preg_match($pattern, $subject, $out);
         // if there is some result... process it and return it
@@ -114,7 +114,7 @@ class lastRSS {
     // -------------------------------------------------------------------
     // Replace HTML entities &something; by real characters
     // -------------------------------------------------------------------
-    function unhtmlentities ($string) {
+    public function unhtmlentities ($string) {
         // Get HTML entities table
         $trans_tbl = get_html_translation_table (HTML_ENTITIES, ENT_QUOTES);
         // Flip keys<==>values
@@ -129,7 +129,7 @@ class lastRSS {
     // Parse() is private method used by Get() to load and parse RSS file.
     // Don't use Parse() in your scripts - use Get($rss_file) instead.
     // -------------------------------------------------------------------
-    function Parse ($rss_url) {
+    public function Parse ($rss_url) {
         $rss_content = '';
 
         // Open and load RSS file
@@ -229,5 +229,3 @@ class lastRSS {
         }
     }
 }
-
-?>

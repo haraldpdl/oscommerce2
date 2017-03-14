@@ -11,19 +11,19 @@
 */
 
   class OSCOM_PayPal_HS_Cfg_order_status_id {
-    var $default = '0';
-    var $title;
-    var $description;
-    var $sort_order = 400;
+    public $default = '0';
+    public $title;
+    public $description;
+    public $sort_order = 400;
 
-    function OSCOM_PayPal_HS_Cfg_order_status_id() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->title = $OSCOM_PayPal->getDef('cfg_hs_order_status_id_title');
       $this->description = $OSCOM_PayPal->getDef('cfg_hs_order_status_id_desc');
     }
 
-    function getSetField() {
+    public function getSetField() {
       global $OSCOM_PayPal, $languages_id;
 
       $statuses_array = array(array('id' => '0', 'text' => $OSCOM_PayPal->getDef('cfg_hs_order_status_id_default')));
@@ -53,4 +53,3 @@ EOT;
       return $result;
     }
   }
-?>

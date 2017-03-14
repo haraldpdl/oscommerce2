@@ -11,14 +11,14 @@
 */
 
   class ht_mailchimp_360 {
-    var $code = 'ht_mailchimp_360';
-    var $group = 'header_tags';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_mailchimp_360';
+    public $group = 'header_tags';
+    public $title;
+    public $description;
+    public $sort_order;
+    public $enabled = false;
 
-    function ht_mailchimp_360() {
+    public function __construct() {
       $this->title = MODULE_HEADER_TAGS_MAILCHIMP_360_TITLE;
       $this->description = MODULE_HEADER_TAGS_MAILCHIMP_360_DESCRIPTION;
 
@@ -28,7 +28,7 @@
       }
     }
 
-    function execute() {
+    public function execute() {
       global $PHP_SELF;
 
       include('includes/modules/header_tags/ht_mailchimp_360/MCAPI.class.php');
@@ -42,15 +42,15 @@
       }
     }
 
-    function isEnabled() {
+    public function isEnabled() {
       return $this->enabled;
     }
 
-    function check() {
+    public function check() {
       return defined('MODULE_HEADER_TAGS_MAILCHIMP_360_STATUS');
     }
 
-    function install() {
+    public function install() {
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable MailChimp 360 Module', 'MODULE_HEADER_TAGS_MAILCHIMP_360_STATUS', 'True', 'Do you want to activate this module in your shop?', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('API Key', 'MODULE_HEADER_TAGS_MAILCHIMP_360_API_KEY', '', 'An API Key assigned to your MailChimp account', '6', '0', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Debug E-Mail', 'MODULE_HEADER_TAGS_MAILCHIMP_360_DEBUG_EMAIL', '', 'If an e-mail address is entered, debug data will be sent to it', '6', '0', now())");
@@ -61,15 +61,14 @@
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('MailChimp Key Valid', 'MODULE_HEADER_TAGS_MAILCHIMP_360_KEY_VALID', '', 'Do not edit. Key Value value.', '6', '0', now())");
     }
 
-    function remove() {
+    public function remove() {
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
 
 // Internal parameters
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('MODULE_HEADER_TAGS_MAILCHIMP_360_STORE_ID', 'MODULE_HEADER_TAGS_MAILCHIMP_360_KEY_VALID')");
     }
 
-    function keys() {
+    public function keys() {
       return array('MODULE_HEADER_TAGS_MAILCHIMP_360_STATUS', 'MODULE_HEADER_TAGS_MAILCHIMP_360_API_KEY', 'MODULE_HEADER_TAGS_MAILCHIMP_360_DEBUG_EMAIL', 'MODULE_HEADER_TAGS_MAILCHIMP_360_SORT_ORDER');
     }
   }
-?>

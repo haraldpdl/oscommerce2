@@ -11,10 +11,10 @@
 */
 
   class securityCheckExtended_admin_backup_directory_listing {
-    var $type = 'error';
-    var $has_doc = true;
+    public $type = 'error';
+    public $has_doc = true;
 
-    function securityCheckExtended_admin_backup_directory_listing() {
+    public function __construct() {
       global $language;
 
       include(DIR_FS_ADMIN . 'includes/languages/' . $language . '/modules/security_check/extended/admin_backup_directory_listing.php');
@@ -22,17 +22,17 @@
       $this->title = MODULE_SECURITY_CHECK_EXTENDED_ADMIN_BACKUP_DIRECTORY_LISTING_TITLE;
     }
 
-    function pass() {
+    public function pass() {
       $request = $this->getHttpRequest(tep_href_link('backups/'));
 
       return $request['http_code'] != 200;
     }
 
-    function getMessage() {
+    public function getMessage() {
       return MODULE_SECURITY_CHECK_EXTENDED_ADMIN_BACKUP_DIRECTORY_LISTING_HTTP_200;
     }
 
-    function getHttpRequest($url) {
+    public function getHttpRequest($url) {
       $server = parse_url($url);
 
       if (isset($server['port']) === false) {
@@ -67,4 +67,3 @@
       return $info;
     }
   }
-?>

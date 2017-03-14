@@ -11,13 +11,13 @@
 */
 
   class d_latest_news {
-    var $code = 'd_latest_news';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'd_latest_news';
+    public $title;
+    public $description;
+    public $sort_order;
+    public $enabled = false;
 
-    function d_latest_news() {
+    public function __construct() {
       $this->title = MODULE_ADMIN_DASHBOARD_LATEST_NEWS_TITLE;
       $this->description = MODULE_ADMIN_DASHBOARD_LATEST_NEWS_DESCRIPTION;
 
@@ -27,7 +27,7 @@
       }
     }
 
-    function getOutput() {
+    public function getOutput() {
       if (!class_exists('lastRSS')) {
         include('includes/classes/rss.php');
       }
@@ -65,25 +65,24 @@
       return $output;
     }
 
-    function isEnabled() {
+    public function isEnabled() {
       return $this->enabled;
     }
 
-    function check() {
+    public function check() {
       return defined('MODULE_ADMIN_DASHBOARD_LATEST_NEWS_STATUS');
     }
 
-    function install() {
+    public function install() {
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable Latest News Module', 'MODULE_ADMIN_DASHBOARD_LATEST_NEWS_STATUS', 'True', 'Do you want to show the latest osCommerce News on the dashboard?', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort Order', 'MODULE_ADMIN_DASHBOARD_LATEST_NEWS_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
     }
 
-    function remove() {
+    public function remove() {
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
-    function keys() {
+    public function keys() {
       return array('MODULE_ADMIN_DASHBOARD_LATEST_NEWS_STATUS', 'MODULE_ADMIN_DASHBOARD_LATEST_NEWS_SORT_ORDER');
     }
   }
-?>

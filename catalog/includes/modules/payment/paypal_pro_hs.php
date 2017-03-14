@@ -15,9 +15,9 @@
   }
 
   class paypal_pro_hs {
-    var $code, $title, $description, $enabled, $_app;
+    public $code, $title, $description, $enabled, $_app;
 
-    function paypal_pro_hs() {
+    public function __construct() {
       global $order;
 
       $this->_app = new OSCOM_PayPal();
@@ -72,7 +72,7 @@
       }
     }
 
-    function update_status() {
+    public function update_status() {
       global $order;
 
       if ( ($this->enabled == true) && ((int)OSCOM_APP_PAYPAL_HS_ZONE > 0) ) {
@@ -94,11 +94,11 @@
       }
     }
 
-    function javascript_validation() {
+    public function javascript_validation() {
       return false;
     }
 
-    function selection() {
+    public function selection() {
       global $cart_PayPal_Pro_HS_ID;
 
       if (tep_session_is_registered('cart_PayPal_Pro_HS_ID')) {
@@ -122,7 +122,7 @@
                    'module' => $this->public_title);
     }
 
-    function pre_confirmation_check() {
+    public function pre_confirmation_check() {
       global $cartID, $cart;
 
       if (empty($cart->cartID)) {
@@ -134,7 +134,7 @@
       }
     }
 
-    function confirmation() {
+    public function confirmation() {
       global $cartID, $cart_PayPal_Pro_HS_ID, $customer_id, $languages_id, $order, $order_total_modules, $currency, $sendto, $pphs_result, $pphs_key;
 
       $pphs_result = array();
@@ -386,11 +386,11 @@ EOD;
       return $confirmation;
     }
 
-    function process_button() {
+    public function process_button() {
       return false;
     }
 
-    function before_process() {
+    public function before_process() {
       global $cart_PayPal_Pro_HS_ID, $customer_id, $pphs_result, $order, $order_totals, $sendto, $billto, $languages_id, $payment, $currencies, $cart, $$payment;
 
       $result = false;
@@ -595,11 +595,11 @@ EOD;
       tep_redirect(tep_href_link('checkout_success.php', '', 'SSL'));
     }
 
-    function after_process() {
+    public function after_process() {
       return false;
     }
 
-    function get_error() {
+    public function get_error() {
       global $pphs_error_msg;
 
       $error = array('title' => $this->_app->getDef('module_hs_error_general_title'),
@@ -614,7 +614,7 @@ EOD;
       return $error;
     }
 
-    function check() {
+    public function check() {
       $check_query = tep_db_query("select configuration_value from configuration where configuration_key = 'OSCOM_APP_PAYPAL_HS_STATUS'");
       if ( tep_db_num_rows($check_query) ) {
         $check = tep_db_fetch_array($check_query);
@@ -625,19 +625,19 @@ EOD;
       return false;
     }
 
-    function install() {
+    public function install() {
       tep_redirect(tep_href_link('paypal.php', 'action=configure&subaction=install&module=HS'));
     }
 
-    function remove() {
+    public function remove() {
       tep_redirect(tep_href_link('paypal.php', 'action=configure&subaction=uninstall&module=HS'));
     }
 
-    function keys() {
+    public function keys() {
       return array('OSCOM_APP_PAYPAL_HS_SORT_ORDER');
     }
 
-    function verifyTransaction($is_ipn = false) {
+    public function verifyTransaction($is_ipn = false) {
       global $pphs_result, $currencies;
 
       $tx_order_id = $pphs_result['INVNUM'];
@@ -696,4 +696,3 @@ EOD;
       }
     }
   }
-?>

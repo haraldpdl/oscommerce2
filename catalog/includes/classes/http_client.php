@@ -35,22 +35,22 @@
 */
 
   class httpClient {
-    var $url; // array containg server URL, similar to parseurl() returned array
-    var $reply; // response code
-    var $replyString; // full response
-    var $protocolVersion = '1.1';
-    var $requestHeaders, $requestBody;
-    var $socket = false;
+    public $url; // array containg server URL, similar to parseurl() returned array
+    public $reply; // response code
+    public $replyString; // full response
+    public $protocolVersion = '1.1';
+    public $requestHeaders, $requestBody;
+    public $socket = false;
 // proxy stuff
-    var $useProxy = false;
-    var $proxyHost, $proxyPort;
+    public $useProxy = false;
+    public $proxyHost, $proxyPort;
 
 /**
  * httpClient constructor
  * Note: when host and port are defined, the connection is immediate
  * @seeAlso connect
  **/
-    function httpClient($host = '', $port = '') {
+    public function __construct($host = '', $port = '') {
       if (tep_not_null($host)) {
         $this->connect($host, $port);
       }
@@ -61,7 +61,7 @@
  * @param proxyHost proxy host address eg "proxy.mycorp.com"
  * @param proxyPort proxy port usually 80 or 8080
  **/
-    function setProxy($proxyHost, $proxyPort) {
+    public function setProxy($proxyHost, $proxyPort) {
       $this->useProxy = true;
       $this->proxyHost = $proxyHost;
       $this->proxyPort = $proxyPort;
@@ -74,7 +74,7 @@
  * when using 1.1, you MUST set the mandatory headers "Host"
  * @return boolean false if the version number is bad, true if ok
  **/
-    function setProtocolVersion($version) {
+    public function setProtocolVersion($version) {
       if ( ($version > 0) && ($version <= 1.1) ) {
         $this->protocolVersion = $version;
         return true;
@@ -89,7 +89,7 @@
  * @param username string - identifier
  * @param password string - clear password
  **/
-    function setCredentials($username, $password) {
+    public function setCredentials($username, $password) {
       $this->addHeader('Authorization', 'Basic ' . base64_encode($username . ':' . $password));
      }
 
@@ -98,7 +98,7 @@
  * header names are lowercased to avoid duplicated headers
  * @param headers hash array containing the headers as headerName => headerValue pairs
  **/
-    function setHeaders($headers) {
+    public function setHeaders($headers) {
       if (is_array($headers)) {
         reset($headers);
         while (list($name, $value) = each($headers)) {
@@ -113,7 +113,7 @@
  * @param headerName the header name
  * @param headerValue the header value, ( unencoded)
  **/
-    function addHeader($headerName, $headerValue) {
+    public function addHeader($headerName, $headerValue) {
       $this->requestHeaders[$headerName] = $headerValue;
     }
 
@@ -122,7 +122,7 @@
  * unset a request header
  * @param headerName the header name
  **/
-    function removeHeader($headerName) {
+    public function removeHeader($headerName) {
       unset($this->requestHeaders[$headerName]);
     }
 
@@ -133,7 +133,7 @@
  * @param port string server listening port - defaults to 80
  * @return boolean false is connection failed, true otherwise
  **/
-    function Connect($host, $port = '') {
+    public function Connect($host, $port = '') {
       $this->url['scheme'] = 'http';
       $this->url['host'] = $host;
       if (tep_not_null($port)) $this->url['port'] = $port;
@@ -145,7 +145,7 @@
  * Disconnect
  * close the connection to the  server
  **/
-    function Disconnect() {
+    public function Disconnect() {
       if ($this->socket) fclose($this->socket);
     }
 
@@ -156,7 +156,7 @@
  * @return string response status code (200 if ok)
  * @seeAlso getHeaders()
  **/
-    function Head($uri) {
+    public function Head($uri) {
       $this->responseHeaders = $this->responseBody = '';
 
       $uri = $this->makeUri($uri);
@@ -175,7 +175,7 @@
  * @return string response status code (200 if ok)
  * @seeAlso getHeaders(), getBody()
  **/
-    function Get($url) {
+    public function Get($url) {
       $this->responseHeaders = $this->responseBody = '';
 
       $uri = $this->makeUri($url);
@@ -193,11 +193,11 @@
  * @param uri string URI of the document
  * @param query_params array parameters to send in the form "parameter name" => value
  * @return string response status code (200 if ok)
- * @example 
+ * @example
  * $params = array( "login" => "tiger", "password" => "secret" );
  * $http->post( "/login.php", $params );
  **/
-    function Post($uri, $query_params = '') {
+    public function Post($uri, $query_params = '') {
       $uri = $this->makeUri($uri);
 
       if (is_array($query_params)) {
@@ -233,7 +233,7 @@
  * @return string response status code 201 (Created) if ok
  * @see RFC2518 "HTTP Extensions for Distributed Authoring WEBDAV"
  **/
-    function Put($uri, $filecontent) {
+    public function Put($uri, $filecontent) {
       $uri = $this->makeUri($uri);
       $this->requestBody = $filecontent;
 
@@ -251,7 +251,7 @@
  * @return array headers received from server in the form headername => value
  * @seeAlso get, head
  **/
-    function getHeaders() {
+    public function getHeaders() {
       return $this->responseHeaders;
     }
 
@@ -261,7 +261,7 @@
  * @param headername the name of the header
  * @return header value or NULL if no such header is defined
  **/
-    function getHeader($headername) {
+    public function getHeader($headername) {
       return $this->responseHeaders[$headername];
     }
 
@@ -272,7 +272,7 @@
  * @return string body content
  * @seeAlso get, head
  **/
-    function getBody() {
+    public function getBody() {
       return $this->responseBody;
     }
 
@@ -283,19 +283,19 @@
  *  - 20x : request processed OK
  *  - 30x : document moved
  *  - 40x : client error ( bad url, document not found, etc...)
- *  - 50x : server error 
+ *  - 50x : server error
  * @see RFC2616 "Hypertext Transfer Protocol -- HTTP/1.1"
  **/
-    function getStatus() {
+    public function getStatus() {
       return $this->reply;
     }
 
-/** 
+/**
  * getStatusMessage return the full response status, of the form "CODE Message"
  * eg. "404 Document not found"
- * @return string the message 
+ * @return string the message
  **/
-    function getStatusMessage() {
+    public function getStatusMessage() {
       return $this->replyString;
     }
 
@@ -303,7 +303,7 @@
  * @scope only protected or private methods below
  **/
 
-/** 
+/**
  * send a request
  * data sent are in order
  * a) the command
@@ -311,7 +311,7 @@
  * c) the request body if defined
  * @return string the server repsonse status code
  **/
-    function sendCommand($command) {
+    public function sendCommand($command) {
       $this->responseHeaders = array();
       $this->responseBody = '';
 
@@ -378,7 +378,7 @@
  * @scope protected
  * @return array of headers with header names as keys and header content as values
  **/
-    function processHeader($lastLine = "\r\n") {
+    public function processHeader($lastLine = "\r\n") {
       $headers = array();
       $finished = false;
 
@@ -387,7 +387,7 @@
         $finished = ($str == $lastLine);
         if (!$finished) {
           list($hdr, $value) = explode(': ', $str, 2);
-// nasty workaround broken multiple same headers (eg. Set-Cookie headers) @FIXME 
+// nasty workaround broken multiple same headers (eg. Set-Cookie headers) @FIXME
           if (isset($headers[$hdr])) {
             $headers[$hdr] .= '; ' . trim($value);
           } else {
@@ -402,10 +402,10 @@
 /**
  * processBody() reads the body from the socket
  * the body is the "real" content of the reply
- * @return string body content 
+ * @return string body content
  * @scope private
  **/
-    function processBody() {
+    public function processBody() {
       $data = '';
       $counter = 0;
 
@@ -436,7 +436,7 @@
  * @return URI to be used in the HTTP request
  * @scope private
  **/
-    function makeUri($uri) {
+    public function makeUri($uri) {
       $a = parse_url($uri);
 
       if ( (isset($a['scheme'])) && (isset($a['host'])) ) {
@@ -456,4 +456,3 @@
       return $requesturi;
     }
   }
-?>

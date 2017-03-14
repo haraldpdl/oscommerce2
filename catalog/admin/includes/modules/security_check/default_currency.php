@@ -11,20 +11,19 @@
 */
 
   class securityCheck_default_currency {
-    var $type = 'error';
+    public $type = 'error';
 
-    function securityCheck_default_currency() {
+    public function __construct() {
       global $language;
 
       include(DIR_FS_ADMIN . 'includes/languages/' . $language . '/modules/security_check/default_currency.php');
     }
 
-    function pass() {
+    public function pass() {
       return defined('DEFAULT_CURRENCY');
     }
 
-    function getMessage() {
+    public function getMessage() {
       return ERROR_NO_DEFAULT_CURRENCY_DEFINED;
     }
   }
-?>

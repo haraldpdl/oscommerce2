@@ -11,10 +11,10 @@
 */
 
   class item {
-    var $code, $title, $description, $icon, $enabled;
+    public $code, $title, $description, $icon, $enabled;
 
 // class constructor
-    function item() {
+    public function __construct() {
       global $order;
 
       $this->code = 'item';
@@ -45,7 +45,7 @@
     }
 
 // class methods
-    function quote($method = '') {
+    public function quote($method = '') {
       global $order;
 
       $number_of_items = $this->getNumberOfItems();
@@ -65,7 +65,7 @@
       return $this->quotes;
     }
 
-    function check() {
+    public function check() {
       if (!isset($this->_check)) {
         $check_query = tep_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_SHIPPING_ITEM_STATUS'");
         $this->_check = tep_db_num_rows($check_query);
@@ -73,7 +73,7 @@
       return $this->_check;
     }
 
-    function install() {
+    public function install() {
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable Item Shipping', 'MODULE_SHIPPING_ITEM_STATUS', 'True', 'Do you want to offer per item rate shipping?', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Shipping Cost', 'MODULE_SHIPPING_ITEM_COST', '2.50', 'The shipping cost will be multiplied by the number of items in an order that uses this shipping method.', '6', '0', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Handling Fee', 'MODULE_SHIPPING_ITEM_HANDLING', '0', 'Handling fee for this shipping method.', '6', '0', now())");
@@ -82,15 +82,15 @@
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort Order', 'MODULE_SHIPPING_ITEM_SORT_ORDER', '0', 'Sort order of display.', '6', '0', now())");
     }
 
-    function remove() {
+    public function remove() {
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
-    function keys() {
+    public function keys() {
       return array('MODULE_SHIPPING_ITEM_STATUS', 'MODULE_SHIPPING_ITEM_COST', 'MODULE_SHIPPING_ITEM_HANDLING', 'MODULE_SHIPPING_ITEM_TAX_CLASS', 'MODULE_SHIPPING_ITEM_ZONE', 'MODULE_SHIPPING_ITEM_SORT_ORDER');
     }
 
-    function getNumberOfItems() {
+    public function getNumberOfItems() {
       global $order, $total_count;
 
       $number_of_items = $total_count;
@@ -118,4 +118,3 @@
       return $number_of_items;
     }
   }
-?>

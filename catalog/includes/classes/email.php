@@ -18,17 +18,17 @@
 */
 
   class email {
-    var $html;
-    var $text;
-    var $output;
-    var $html_text;
-    var $html_images;
-    var $image_types;
-    var $build_params;
-    var $attachments;
-    var $headers;
+    public $html;
+    public $text;
+    public $output;
+    public $html_text;
+    public $html_images;
+    public $image_types;
+    public $build_params;
+    public $attachments;
+    public $headers;
 
-    function email($headers = '') {
+    public function __construct($headers = '') {
       if ($headers == '') $headers = array();
 
       $this->html_images = array();
@@ -84,7 +84,7 @@
  * add_html_image() or add_attachment().
  */
 
-    function get_file($filename) {
+    public function get_file($filename) {
       $return = '';
 
       if ($fp = fopen($filename, 'rb')) {
@@ -111,7 +111,7 @@
  * Function contributed by Dan Allen
  */
 
-    function find_html_images($images_dir) {
+    public function find_html_images($images_dir) {
 // Build the list of image extensions
       while (list($key, ) = each($this->image_types)) {
         $extensions[] = $key;
@@ -145,7 +145,7 @@
  * when NOT sending html email
  */
 
-    function add_text($text = '') {
+    public function add_text($text = '') {
       $this->text = tep_convert_linefeeds(array("\r\n", "\n", "\r"), $this->lf, $text);
     }
 
@@ -155,7 +155,7 @@
  * content-id's.
  */
 
-    function add_html($html, $text = NULL, $images_dir = NULL) {
+    public function add_html($html, $text = NULL, $images_dir = NULL) {
       $this->html = tep_convert_linefeeds(array("\r\n", "\n", "\r"), '<br />', $html);
       $this->html_text = tep_convert_linefeeds(array("\r\n", "\n", "\r"), $this->lf, $text);
 
@@ -167,7 +167,7 @@
  * images.
  */
 
-    function add_html_image($file, $name = '', $c_type='application/octet-stream') {
+    public function add_html_image($file, $name = '', $c_type='application/octet-stream') {
       $this->html_images[] = array('body' => $file,
                                    'name' => $name,
                                    'c_type' => $c_type,
@@ -178,7 +178,7 @@
  * Adds a file to the list of attachments.
  */
 
-    function add_attachment($file, $name = '', $c_type='application/octet-stream', $encoding = 'base64') {
+    public function add_attachment($file, $name = '', $c_type='application/octet-stream', $encoding = 'base64') {
       $this->attachments[] = array('body' => $file,
                                    'name' => $name,
                                    'c_type' => $c_type,
@@ -191,7 +191,7 @@
 
 /* HPDL PHP3 */
 //    function &add_text_part(&$obj, $text) {
-    function add_text_part(&$obj, $text) {
+    public function add_text_part(&$obj, $text) {
       $params['content_type'] = 'text/plain';
       $params['encoding'] = $this->build_params['text_encoding'];
       $params['charset'] = $this->build_params['text_charset'];
@@ -209,7 +209,7 @@
 
 /* HPDL PHP3 */
 //    function &add_html_part(&$obj) {
-    function add_html_part(&$obj) {
+    public function add_html_part(&$obj) {
       $params['content_type'] = 'text/html';
       $params['encoding'] = $this->build_params['html_encoding'];
       $params['charset'] = $this->build_params['html_charset'];
@@ -227,7 +227,7 @@
 
 /* HPDL PHP3 */
 //    function &add_mixed_part() {
-    function add_mixed_part() {
+    public function add_mixed_part() {
       $params['content_type'] = 'multipart/mixed';
 
       return new mime('', $params);
@@ -239,7 +239,7 @@
 
 /* HPDL PHP3 */
 //    function &add_alternative_part(&$obj) {
-    function add_alternative_part(&$obj) {
+    public function add_alternative_part(&$obj) {
       $params['content_type'] = 'multipart/alternative';
 
       if (is_object($obj)) {
@@ -255,7 +255,7 @@
 
 /* HPDL PHP3 */
 //    function &add_related_part(&$obj) {
-    function add_related_part(&$obj) {
+    public function add_related_part(&$obj) {
       $params['content_type'] = 'multipart/related';
 
       if (is_object($obj)) {
@@ -271,7 +271,7 @@
 
 /* HPDL PHP3 */
 //    function &add_html_image_part(&$obj, $value) {
-    function add_html_image_part(&$obj, $value) {
+    public function add_html_image_part(&$obj, $value) {
       $params['content_type'] = $value['c_type'];
       $params['encoding'] = 'base64';
       $params['disposition'] = 'inline';
@@ -287,7 +287,7 @@
 
 /* HPDL PHP3 */
 //    function &add_attachment_part(&$obj, $value) {
-    function add_attachment_part(&$obj, $value) {
+    public function add_attachment_part(&$obj, $value) {
       $params['content_type'] = $value['c_type'];
       $params['encoding'] = $value['encoding'];
       $params['disposition'] = 'attachment';
@@ -318,7 +318,7 @@
 
 /* HPDL PHP3 */
 //    function build_message($params = array()) {
-    function build_message($params = '') {
+    public function build_message($params = '') {
       if ($params == '') $params = array();
 
       if (count($params) > 0) {
@@ -470,7 +470,7 @@
  * Sends the mail.
  */
 
-    function send($to_name, $to_addr, $from_name, $from_addr, $subject = '', $headers = '') {
+    public function send($to_name, $to_addr, $from_name, $from_addr, $subject = '', $headers = '') {
       if ((strstr($to_name, "\n") != false) || (strstr($to_name, "\r") != false)) {
         return false;
       }
@@ -538,7 +538,7 @@
  *        string Extra headers])
  */
 
-    function get_rfc822($to_name, $to_addr, $from_name, $from_addr, $subject = '', $headers = '') {
+    public function get_rfc822($to_name, $to_addr, $from_name, $from_addr, $subject = '', $headers = '') {
 // Make up the date header as according to RFC822
       $date = 'Date: ' . date('D, d M y H:i:s');
       $to = (($to_name != '') ? 'To: "' . $to_name . '" <' . $to_addr . '>' : 'To: ' . $to_addr);
@@ -575,4 +575,3 @@
       return $date . $this->lf . $from . $this->lf . $to . $this->lf . $subject . $this->lf . implode($this->lf, $headers) . $this->lf . $this->lf . $this->output;
     }
   }
-?>

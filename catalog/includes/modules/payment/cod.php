@@ -11,9 +11,9 @@
 */
 
   class cod {
-    var $code, $title, $description, $enabled;
+    public $code, $title, $description, $enabled;
 
-    function cod() {
+    public function __construct() {
       global $order;
 
       $this->code = 'cod';
@@ -30,7 +30,7 @@
       }
     }
 
-    function update_status() {
+    public function update_status() {
       global $order;
 
       if ( ($this->enabled == true) && ((int)MODULE_PAYMENT_COD_ZONE > 0) ) {
@@ -59,40 +59,40 @@
       }
     }
 
-    function javascript_validation() {
+    public function javascript_validation() {
       return false;
     }
 
-    function selection() {
+    public function selection() {
       return array('id' => $this->code,
                    'module' => $this->title);
     }
 
-    function pre_confirmation_check() {
+    public function pre_confirmation_check() {
       return false;
     }
 
-    function confirmation() {
+    public function confirmation() {
       return false;
     }
 
-    function process_button() {
+    public function process_button() {
       return false;
     }
 
-    function before_process() {
+    public function before_process() {
       return false;
     }
 
-    function after_process() {
+    public function after_process() {
       return false;
     }
 
-    function get_error() {
+    public function get_error() {
       return false;
     }
 
-    function check() {
+    public function check() {
       if (!isset($this->_check)) {
         $check_query = tep_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_COD_STATUS'");
         $this->_check = tep_db_num_rows($check_query);
@@ -100,19 +100,18 @@
       return $this->_check;
     }
 
-    function install() {
+    public function install() {
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable Cash On Delivery Module', 'MODULE_PAYMENT_COD_STATUS', 'True', 'Do you want to accept Cash On Delevery payments?', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added) values ('Payment Zone', 'MODULE_PAYMENT_COD_ZONE', '0', 'If a zone is selected, only enable this payment method for that zone.', '6', '2', 'tep_get_zone_class_title', 'tep_cfg_pull_down_zone_classes(', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort order of display.', 'MODULE_PAYMENT_COD_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, use_function, date_added) values ('Set Order Status', 'MODULE_PAYMENT_COD_ORDER_STATUS_ID', '0', 'Set the status of orders made with this payment module to this value', '6', '0', 'tep_cfg_pull_down_order_statuses(', 'tep_get_order_status_name', now())");
-   }
+    }
 
-    function remove() {
+    public function remove() {
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
-    function keys() {
+    public function keys() {
       return array('MODULE_PAYMENT_COD_STATUS', 'MODULE_PAYMENT_COD_ZONE', 'MODULE_PAYMENT_COD_ORDER_STATUS_ID', 'MODULE_PAYMENT_COD_SORT_ORDER');
     }
   }
-?>

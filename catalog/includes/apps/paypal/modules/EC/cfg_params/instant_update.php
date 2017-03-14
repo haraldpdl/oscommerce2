@@ -11,19 +11,19 @@
 */
 
   class OSCOM_PayPal_EC_Cfg_instant_update {
-    var $default = '1';
-    var $title;
-    var $description;
-    var $sort_order = 400;
+    public $default = '1';
+    public $title;
+    public $description;
+    public $sort_order = 400;
 
-    function OSCOM_PayPal_EC_Cfg_instant_update() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->title = $OSCOM_PayPal->getDef('cfg_ec_instant_update_title');
       $this->description = $OSCOM_PayPal->getDef('cfg_ec_instant_update_desc');
     }
 
-    function getSetField() {
+    public function getSetField() {
       global $OSCOM_PayPal;
 
       $input = '<input type="radio" id="instantUpdateSelectionEnabled" name="instant_update" value="1"' . (OSCOM_APP_PAYPAL_EC_INSTANT_UPDATE == '1' ? ' checked="checked"' : '') . '><label for="instantUpdateSelectionEnabled">' . $OSCOM_PayPal->getDef('cfg_ec_instant_update_enabled') . '</label>' .
@@ -52,4 +52,3 @@ EOT;
       return $result;
     }
   }
-?>

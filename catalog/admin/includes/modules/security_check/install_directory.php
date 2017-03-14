@@ -11,20 +11,19 @@
 */
 
   class securityCheck_install_directory {
-    var $type = 'warning';
+    public $type = 'warning';
 
-    function securityCheck_install_directory() {
+    public function __construct() {
       global $language;
 
       include(DIR_FS_ADMIN . 'includes/languages/' . $language . '/modules/security_check/install_directory.php');
     }
 
-    function pass() {
+    public function pass() {
       return !file_exists(DIR_FS_CATALOG . 'install');
     }
 
-    function getMessage() {
+    public function getMessage() {
       return WARNING_INSTALL_DIRECTORY_EXISTS;
     }
   }
-?>

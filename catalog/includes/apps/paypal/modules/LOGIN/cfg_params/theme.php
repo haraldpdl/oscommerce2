@@ -11,19 +11,19 @@
 */
 
   class OSCOM_PayPal_LOGIN_Cfg_theme {
-    var $default = 'Blue';
-    var $title;
-    var $description;
-    var $sort_order = 600;
+    public $default = 'Blue';
+    public $title;
+    public $description;
+    public $sort_order = 600;
 
-    function OSCOM_PayPal_LOGIN_Cfg_theme() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->title = $OSCOM_PayPal->getDef('cfg_login_theme_title');
       $this->description = $OSCOM_PayPal->getDef('cfg_login_theme_desc');
     }
 
-    function getSetField() {
+    public function getSetField() {
       global $OSCOM_PayPal;
 
       $input = '<input type="radio" id="themeSelectionBlue" name="theme" value="Blue"' . (OSCOM_APP_PAYPAL_LOGIN_THEME == 'Blue' ? ' checked="checked"' : '') . '><label for="themeSelectionBlue">' . $OSCOM_PayPal->getDef('cfg_login_theme_blue') . '</label>' .
@@ -52,4 +52,3 @@ EOT;
       return $result;
     }
   }
-?>

@@ -11,12 +11,12 @@
 */
 
   class OSCOM_PayPal_PS_Cfg_ewp_openssl {
-    var $default = '/usr/bin/openssl';
-    var $title;
-    var $description;
-    var $sort_order = 1300;
+    public $default = '/usr/bin/openssl';
+    public $title;
+    public $description;
+    public $sort_order = 1300;
 
-    function OSCOM_PayPal_PS_Cfg_ewp_openssl() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->title = $OSCOM_PayPal->getDef('cfg_ps_ewp_openssl_title');
@@ -43,4 +43,3 @@ EOT;
       return $result;
     }
   }
-?>

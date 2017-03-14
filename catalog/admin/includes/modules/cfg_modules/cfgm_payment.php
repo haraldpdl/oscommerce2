@@ -11,16 +11,15 @@
 */
 
   class cfgm_payment {
-    var $code = 'payment';
-    var $directory;
-    var $language_directory = DIR_FS_CATALOG_LANGUAGES;
-    var $key = 'MODULE_PAYMENT_INSTALLED';
-    var $title;
-    var $template_integration = false;
+    public $code = 'payment';
+    public $directory;
+    public $language_directory = DIR_FS_CATALOG_LANGUAGES;
+    public $key = 'MODULE_PAYMENT_INSTALLED';
+    public $title;
+    public $template_integration = false;
 
-    function cfgm_payment() {
+    public function __construct() {
       $this->directory = DIR_FS_CATALOG_MODULES . 'payment/';
       $this->title = MODULE_CFG_MODULE_PAYMENT_TITLE;
     }
   }
-?>

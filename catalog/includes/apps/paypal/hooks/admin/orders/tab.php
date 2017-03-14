@@ -15,7 +15,7 @@
   }
 
   class paypal_hook_admin_orders_tab {
-    function paypal_hook_admin_orders_tab() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       if ( !isset($OSCOM_PayPal) || !is_object($OSCOM_PayPal) || (get_class($OSCOM_PayPal) != 'OSCOM_PayPal') ) {
@@ -27,7 +27,7 @@
       $this->_app->loadLanguageFile('hooks/admin/orders/tab.php');
     }
 
-    function execute() {
+    public function execute() {
       global $oID, $base_url;
 
       $output = '';
@@ -79,7 +79,7 @@ EOD;
       return $output;
     }
 
-    function getCaptureButton($status, $order) {
+    public function getCaptureButton($status, $order) {
       $output = '';
 
       if ( ($status['Pending Reason'] == 'authorization') || ($status['Payment Status'] == 'In-Progress') ) {
@@ -170,7 +170,7 @@ EOD;
       return $output;
     }
 
-    function getVoidButton($status, $order) {
+    public function getVoidButton($status, $order) {
       $output = '';
 
       if ( $status['Pending Reason'] == 'authorization' ) {
@@ -231,7 +231,7 @@ EOD;
       return $output;
     }
 
-    function getRefundButton($status, $order) {
+    public function getRefundButton($status, $order) {
       $output = '';
 
       $tids = array();
@@ -319,4 +319,3 @@ EOD;
       return $output;
     }
   }
-?>

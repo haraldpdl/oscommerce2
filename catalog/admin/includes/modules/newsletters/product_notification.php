@@ -11,15 +11,15 @@
 */
 
   class product_notification {
-    var $show_choose_audience, $title, $content;
+    public $show_choose_audience, $title, $content;
 
-    function product_notification($title, $content) {
+    public function __construct($title, $content) {
       $this->show_choose_audience = true;
       $this->title = $title;
       $this->content = $content;
     }
 
-    function choose_audience() {
+    public function choose_audience() {
       global $languages_id;
 
       $products_array = array();
@@ -88,7 +88,7 @@ function selectAll(FormName, SelectBox) {
       return $choose_audience_string;
     }
 
-    function confirm() {
+    public function confirm() {
       $audience = array();
 
       if (isset($_GET['global']) && ($_GET['global'] == 'true')) {
@@ -155,7 +155,7 @@ function selectAll(FormName, SelectBox) {
       return $confirm_string;
     }
 
-    function send($newsletter_id) {
+    public function send($newsletter_id) {
       $audience = array();
 
       if (isset($_POST['global']) && ($_POST['global'] == 'true')) {
@@ -213,4 +213,3 @@ function selectAll(FormName, SelectBox) {
       tep_db_query("update " . TABLE_NEWSLETTERS . " set date_sent = now(), status = '1' where newsletters_id = '" . tep_db_input($newsletter_id) . "'");
     }
   }
-?>

@@ -11,19 +11,19 @@
 */
 
   class OSCOM_PayPal_Cfg_verify_ssl {
-    var $default = '1';
-    var $title;
-    var $description;
-    var $sort_order = 300;
+    public $default = '1';
+    public $title;
+    public $description;
+    public $sort_order = 300;
 
-    function OSCOM_PayPal_Cfg_verify_ssl() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->title = $OSCOM_PayPal->getDef('cfg_verify_ssl_title');
       $this->description = $OSCOM_PayPal->getDef('cfg_verify_ssl_desc');
     }
 
-    function getSetField() {
+    public function getSetField() {
       global $OSCOM_PayPal;
 
       $input = '<input type="radio" id="verifySslSelectionTrue" name="verify_ssl" value="1"' . (OSCOM_APP_PAYPAL_VERIFY_SSL == '1' ? ' checked="checked"' : '') . '><label for="verifySslSelectionTrue">' . $OSCOM_PayPal->getDef('cfg_verify_ssl_true') . '</label>' .
@@ -52,4 +52,3 @@ EOT;
       return $result;
     }
   }
-?>

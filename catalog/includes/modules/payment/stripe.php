@@ -11,9 +11,9 @@
 */
 
   class stripe {
-    var $code, $title, $description, $enabled;
+    public $code, $title, $description, $enabled;
 
-    function stripe() {
+    public function __construct() {
       global $PHP_SELF, $order, $payment;
 
       $this->signature = 'stripe|stripe|1.1|2.3';
@@ -62,7 +62,7 @@
       }
     }
 
-    function update_status() {
+    public function update_status() {
       global $order;
 
       if ( ($this->enabled == true) && ((int)MODULE_PAYMENT_STRIPE_ZONE > 0) ) {
@@ -84,11 +84,11 @@
       }
     }
 
-    function javascript_validation() {
+    public function javascript_validation() {
       return false;
     }
 
-    function selection() {
+    public function selection() {
       global $customer_id, $payment;
 
       if ( (MODULE_PAYMENT_STRIPE_TOKENS == 'True') && !tep_session_is_registered('payment') ) {
@@ -104,7 +104,7 @@
                    'module' => $this->public_title);
     }
 
-    function pre_confirmation_check() {
+    public function pre_confirmation_check() {
       global $oscTemplate;
 
       if ( $this->templateClassExists() ) {
@@ -112,7 +112,7 @@
       }
     }
 
-    function confirmation() {
+    public function confirmation() {
       global $customer_id, $order, $currencies, $currency;
 
       $months_array = array();
@@ -122,7 +122,7 @@
                                 'text' => tep_output_string_protected(sprintf('%02d', $i)));
       }
 
-      $today = getdate(); 
+      $today = getdate();
       $years_array = array();
 
       for ($i=$today['year']; $i < $today['year']+10; $i++) {
@@ -215,11 +215,11 @@
       return $confirmation;
     }
 
-    function process_button() {
+    public function process_button() {
       return false;
     }
 
-    function before_process() {
+    public function before_process() {
       global $customer_id, $order, $currency, $stripe_result, $stripe_error;
 
       $stripe_result = null;
@@ -293,7 +293,7 @@
       tep_redirect(tep_href_link('checkout_payment.php', 'payment_error=' . $this->code, 'SSL'));
     }
 
-    function after_process() {
+    public function after_process() {
       global $insert_id, $customer_id, $stripe_result;
 
       $status_comment = array('Transaction ID: ' . $stripe_result['id'],
@@ -328,7 +328,7 @@
       }
     }
 
-    function get_error() {
+    public function get_error() {
       global $stripe_error;
 
       $message = MODULE_PAYMENT_STRIPE_ERROR_GENERAL;
@@ -353,7 +353,7 @@
       return $error;
     }
 
-    function check() {
+    public function check() {
       if (!isset($this->_check)) {
         $check_query = tep_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_STRIPE_STATUS'");
         $this->_check = tep_db_num_rows($check_query);
@@ -361,7 +361,7 @@
       return $this->_check;
     }
 
-    function install($parameter = null) {
+    public function install($parameter = null) {
       $params = $this->getParams();
 
       if (isset($parameter)) {
@@ -393,11 +393,11 @@
       }
     }
 
-    function remove() {
+    public function remove() {
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
-    function keys() {
+    public function keys() {
       $keys = array_keys($this->getParams());
 
       if ($this->check()) {
@@ -411,7 +411,7 @@
       return $keys;
     }
 
-    function getParams() {
+    public function getParams() {
       if ( tep_db_num_rows(tep_db_query("show tables like 'customers_stripe_tokens'")) != 1 ) {
         $sql = <<<EOD
 CREATE TABLE customers_stripe_tokens (
@@ -515,7 +515,7 @@ EOD;
       return $params;
     }
 
-    function sendTransactionToGateway($url, $parameters = null, $curl_opts = array()) {
+    public function sendTransactionToGateway($url, $parameters = null, $curl_opts = array()) {
       $server = parse_url($url);
 
       if (isset($server['port']) === false) {
@@ -586,7 +586,7 @@ EOD;
       return $result;
     }
 
-    function getTestLinkInfo() {
+    public function getTestLinkInfo() {
       $dialog_title = MODULE_PAYMENT_STRIPE_DIALOG_CONNECTION_TITLE;
       $dialog_button_close = MODULE_PAYMENT_STRIPE_DIALOG_CONNECTION_BUTTON_CLOSE;
       $dialog_success = MODULE_PAYMENT_STRIPE_DIALOG_CONNECTION_SUCCESS;
@@ -652,7 +652,7 @@ EOD;
       return $info;
     }
 
-    function getTestConnectionResult() {
+    public function getTestConnectionResult() {
       $stripe_result = json_decode($this->sendTransactionToGateway('https://api.stripe.com/v1/charges/oscommerce_connection_test'), true);
 
       if ( is_array($stripe_result) && !empty($stripe_result) && isset($stripe_result['error']) ) {
@@ -662,7 +662,7 @@ EOD;
       return -1;
     }
 
-    function format_raw($number, $currency_code = '', $currency_value = '') {
+    public function format_raw($number, $currency_code = '', $currency_value = '') {
       global $currencies, $currency;
 
       if (empty($currency_code) || !$currencies->is_set($currency_code)) {
@@ -676,11 +676,11 @@ EOD;
       return number_format(tep_round($number * $currency_value, $currencies->currencies[$currency_code]['decimal_places']), $currencies->currencies[$currency_code]['decimal_places'], '', '');
     }
 
-    function templateClassExists() {
+    public function templateClassExists() {
       return class_exists('oscTemplate') && isset($GLOBALS['oscTemplate']) && is_object($GLOBALS['oscTemplate']) && (get_class($GLOBALS['oscTemplate']) == 'oscTemplate');
     }
 
-    function getSubmitCardDetailsJavascript() {
+    public function getSubmitCardDetailsJavascript() {
       $stripe_publishable_key = MODULE_PAYMENT_STRIPE_PUBLISHABLE_KEY;
 
       $js = <<<EOD
@@ -786,7 +786,7 @@ EOD;
       return $js;
     }
 
-    function sendDebugEmail($response = array()) {
+    public function sendDebugEmail($response = array()) {
       if (tep_not_null(MODULE_PAYMENT_STRIPE_DEBUG_EMAIL)) {
         $email_body = '';
 
@@ -808,7 +808,7 @@ EOD;
       }
     }
 
-    function getCustomerID() {
+    public function getCustomerID() {
       global $customer_id;
 
       $token_check_query = tep_db_query("select stripe_token from customers_stripe_tokens where customers_id = '" . (int)$customer_id . "' limit 1");
@@ -824,7 +824,7 @@ EOD;
       return false;
     }
 
-    function createCustomer($token) {
+    public function createCustomer($token) {
       global $customer_id;
 
       $params = array('card' => $token);
@@ -855,7 +855,7 @@ EOD;
       return false;
     }
 
-    function addCard($token, $customer) {
+    public function addCard($token, $customer) {
       global $customer_id;
 
       $params = array('card' => $token);
@@ -885,7 +885,7 @@ EOD;
       return false;
     }
 
-    function deleteCard($card, $customer, $token_id) {
+    public function deleteCard($card, $customer, $token_id) {
       global $customer_id;
 
       $result = $this->sendTransactionToGateway('https://api.stripe.com/v1/customers/' . $customer . '/cards/' . $card, null, array(CURLOPT_CUSTOMREQUEST => 'DELETE'));
@@ -899,4 +899,3 @@ EOD;
       return (tep_db_affected_rows() === 1);
     }
   }
-?>

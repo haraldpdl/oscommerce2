@@ -15,13 +15,13 @@
   }
 
   class d_paypal_app {
-    var $code = 'd_paypal_app';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'd_paypal_app';
+    public $title;
+    public $description;
+    public $sort_order;
+    public $enabled = false;
 
-    function d_paypal_app() {
+    public function __construct() {
       $this->_app = new OSCOM_PayPal();
       $this->_app->loadLanguageFile('admin/balance.php');
       $this->_app->loadLanguageFile('admin/modules/dashboard/d_paypal_app.php');
@@ -35,7 +35,7 @@
       }
     }
 
-    function getOutput() {
+    public function getOutput() {
       $version = $this->_app->getVersion();
       $version_check_result = defined('OSCOM_APP_PAYPAL_VERSION_CHECK') ? '"' . OSCOM_APP_PAYPAL_VERSION_CHECK . '"' : 'undefined';
       $can_apply_online_updates = class_exists('ZipArchive') && function_exists('openssl_verify') ? 'true' : 'false';
@@ -314,24 +314,23 @@ EOD;
       return $output;
     }
 
-    function isEnabled() {
+    public function isEnabled() {
       return $this->enabled;
     }
 
-    function check() {
+    public function check() {
       return defined('MODULE_ADMIN_DASHBOARD_PAYPAL_APP_SORT_ORDER');
     }
 
-    function install() {
+    public function install() {
       tep_db_query("insert into configuration (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort Order', 'MODULE_ADMIN_DASHBOARD_PAYPAL_APP_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
     }
 
-    function remove() {
+    public function remove() {
       tep_db_query("delete from configuration where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
-    function keys() {
+    public function keys() {
       return array('MODULE_ADMIN_DASHBOARD_PAYPAL_APP_SORT_ORDER');
     }
   }
-?>

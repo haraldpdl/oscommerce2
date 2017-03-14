@@ -11,19 +11,19 @@
 */
 
   class OSCOM_PayPal_EC_Cfg_account_optional {
-    var $default = '0';
-    var $title;
-    var $description;
-    var $sort_order = 300;
+    public $default = '0';
+    public $title;
+    public $description;
+    public $sort_order = 300;
 
-    function OSCOM_PayPal_EC_Cfg_account_optional() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->title = $OSCOM_PayPal->getDef('cfg_ec_account_optional_title');
       $this->description = $OSCOM_PayPal->getDef('cfg_ec_account_optional_desc');
     }
 
-    function getSetField() {
+    public function getSetField() {
       global $OSCOM_PayPal;
 
       $input = '<input type="radio" id="accountOptionalSelectionTrue" name="account_optional" value="1"' . (OSCOM_APP_PAYPAL_EC_ACCOUNT_OPTIONAL == '1' ? ' checked="checked"' : '') . '><label for="accountOptionalSelectionTrue">' . $OSCOM_PayPal->getDef('cfg_ec_account_optional_true') . '</label>' .
@@ -52,4 +52,3 @@ EOT;
       return $result;
     }
   }
-?>

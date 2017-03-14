@@ -11,19 +11,19 @@
 */
 
   class OSCOM_PayPal_EC_Cfg_checkout_flow {
-    var $default = '1';
-    var $title;
-    var $description;
-    var $sort_order = 200;
+    public $default = '1';
+    public $title;
+    public $description;
+    public $sort_order = 200;
 
-    function OSCOM_PayPal_EC_Cfg_checkout_flow() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->title = $OSCOM_PayPal->getDef('cfg_ec_checkout_flow_title');
       $this->description = $OSCOM_PayPal->getDef('cfg_ec_checkout_flow_desc');
     }
 
-    function getSetField() {
+    public function getSetField() {
       global $OSCOM_PayPal;
 
       $input = '<input type="radio" id="checkoutFlowSelectionInContext" name="checkout_flow" value="1"' . (OSCOM_APP_PAYPAL_EC_CHECKOUT_FLOW == '1' ? ' checked="checked"' : '') . '><label for="checkoutFlowSelectionInContext">' . $OSCOM_PayPal->getDef('cfg_ec_checkout_flow_in_context') . '</label>' .
@@ -52,4 +52,3 @@ EOT;
       return $result;
     }
   }
-?>

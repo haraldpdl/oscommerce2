@@ -11,10 +11,10 @@
 */
 
   class splitPageResults {
-    var $sql_query, $number_of_rows, $current_page_number, $number_of_pages, $number_of_rows_per_page, $page_name;
+    public $sql_query, $number_of_rows, $current_page_number, $number_of_pages, $number_of_rows_per_page, $page_name;
 
 /* class constructor */
-    function splitPageResults($query, $max_rows, $count_key = '*', $page_holder = 'page') {
+    public function __construct($query, $max_rows, $count_key = '*', $page_holder = 'page') {
       $this->sql_query = $query;
       $this->page_name = $page_holder;
 
@@ -68,7 +68,7 @@
 /* class functions */
 
 // display split-page-number-links
-    function display_links($max_page_links, $parameters = '') {
+    public function display_links($max_page_links, $parameters = '') {
       global $PHP_SELF, $request_type;
 
       $display_links_string = '';
@@ -106,7 +106,7 @@
       if ($cur_window_num < $max_window_num) $display_links_string .= '<li><a href="' . tep_href_link($PHP_SELF, $parameters . $this->page_name . '=' . (($cur_window_num) * $max_page_links + 1), $request_type) . '" title=" ' . sprintf(PREVNEXT_TITLE_NEXT_SET_OF_NO_PAGE, $max_page_links) . ' ">...</a></li>';
 
 // next button
-      if (($this->current_page_number < $this->number_of_pages) && ($this->number_of_pages != 1)) { 
+      if (($this->current_page_number < $this->number_of_pages) && ($this->number_of_pages != 1)) {
         $display_links_string .= '<li><a href="' . tep_href_link($PHP_SELF, $parameters . 'page=' . ($this->current_page_number + 1), $request_type) . '" title=" ' . PREVNEXT_TITLE_NEXT_PAGE . ' ">&raquo;</a></li>';
       } else {
         $display_links_string .= '<li class="disabled"><span>&raquo;</span></li>';
@@ -116,7 +116,7 @@
     }
 
 // display number of total products found
-    function display_count($text_output) {
+    public function display_count($text_output) {
       $to_num = ($this->number_of_rows_per_page * $this->current_page_number);
       if ($to_num > $this->number_of_rows) $to_num = $this->number_of_rows;
 
@@ -131,4 +131,3 @@
       return sprintf($text_output, $from_num, $to_num, $this->number_of_rows);
     }
   }
-?>

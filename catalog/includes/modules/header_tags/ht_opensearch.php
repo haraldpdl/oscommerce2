@@ -11,14 +11,14 @@
 */
 
   class ht_opensearch {
-    var $code = 'ht_opensearch';
-    var $group = 'header_tags';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_opensearch';
+    public $group = 'header_tags';
+    public $title;
+    public $description;
+    public $sort_order;
+    public $enabled = false;
 
-    function ht_opensearch() {
+    public function __construct() {
       $this->title = MODULE_HEADER_TAGS_OPENSEARCH_TITLE;
       $this->description = MODULE_HEADER_TAGS_OPENSEARCH_DESCRIPTION;
 
@@ -28,21 +28,21 @@
       }
     }
 
-    function execute() {
+    public function execute() {
       global $oscTemplate;
 
       $oscTemplate->addBlock('<link rel="search" type="application/opensearchdescription+xml" href="' . tep_href_link('opensearch.php', '', 'NONSSL', false) . '" title="' . tep_output_string(STORE_NAME) . '" />', $this->group);
     }
 
-    function isEnabled() {
+    public function isEnabled() {
       return $this->enabled;
     }
 
-    function check() {
+    public function check() {
       return defined('MODULE_HEADER_TAGS_OPENSEARCH_STATUS');
     }
 
-    function install() {
+    public function install() {
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable OpenSearch Module', 'MODULE_HEADER_TAGS_OPENSEARCH_STATUS', 'True', 'Add shop search functionality to the browser?', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Short Name', 'MODULE_HEADER_TAGS_OPENSEARCH_SITE_SHORT_NAME', '" . tep_db_input(STORE_NAME) . "', 'Short name to describe the search engine.', '6', '0', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Description', 'MODULE_HEADER_TAGS_OPENSEARCH_SITE_DESCRIPTION', 'Search " . tep_db_input(STORE_NAME) . "', 'Description of the search engine.', '6', '0', now())");
@@ -55,12 +55,11 @@
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort Order', 'MODULE_HEADER_TAGS_OPENSEARCH_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
     }
 
-    function remove() {
+    public function remove() {
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
-    function keys() {
+    public function keys() {
       return array('MODULE_HEADER_TAGS_OPENSEARCH_STATUS', 'MODULE_HEADER_TAGS_OPENSEARCH_SITE_SHORT_NAME', 'MODULE_HEADER_TAGS_OPENSEARCH_SITE_DESCRIPTION', 'MODULE_HEADER_TAGS_OPENSEARCH_SITE_CONTACT', 'MODULE_HEADER_TAGS_OPENSEARCH_SITE_TAGS', 'MODULE_HEADER_TAGS_OPENSEARCH_SITE_ATTRIBUTION', 'MODULE_HEADER_TAGS_OPENSEARCH_SITE_ADULT_CONTENT', 'MODULE_HEADER_TAGS_OPENSEARCH_SITE_ICON', 'MODULE_HEADER_TAGS_OPENSEARCH_SITE_IMAGE', 'MODULE_HEADER_TAGS_OPENSEARCH_SORT_ORDER');
     }
   }
-?>

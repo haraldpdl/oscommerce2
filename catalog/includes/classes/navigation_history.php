@@ -11,18 +11,18 @@
 */
 
   class navigationHistory {
-    var $path, $snapshot;
+    public $path, $snapshot;
 
-    function navigationHistory() {
+    public function __construct() {
       $this->reset();
     }
 
-    function reset() {
+    public function reset() {
       $this->path = array();
       $this->snapshot = array();
     }
 
-    function add_current_page() {
+    public function add_current_page() {
       global $PHP_SELF, $request_type, $cPath;
 
       $set = 'true';
@@ -65,7 +65,7 @@
       }
     }
 
-    function remove_current_page() {
+    public function remove_current_page() {
       global $PHP_SELF;
 
       $last_entry_position = sizeof($this->path) - 1;
@@ -74,7 +74,7 @@
       }
     }
 
-    function set_snapshot($page = '') {
+    public function set_snapshot($page = '') {
       global $PHP_SELF, $request_type;
 
       if (is_array($page)) {
@@ -90,11 +90,11 @@
       }
     }
 
-    function clear_snapshot() {
+    public function clear_snapshot() {
       $this->snapshot = array();
     }
 
-    function set_path_as_snapshot($history = 0) {
+    public function set_path_as_snapshot($history = 0) {
       $pos = (sizeof($this->path)-1-$history);
       $this->snapshot = array('page' => $this->path[$pos]['page'],
                               'mode' => $this->path[$pos]['mode'],
@@ -102,7 +102,7 @@
                               'post' => $this->path[$pos]['post']);
     }
 
-    function debug() {
+    public function debug() {
       for ($i=0, $n=sizeof($this->path); $i<$n; $i++) {
         echo $this->path[$i]['page'] . '?';
         while (list($key, $value) = each($this->path[$i]['get'])) {
@@ -124,7 +124,7 @@
       }
     }
 
-    function filter_parameters($parameters) {
+    public function filter_parameters($parameters) {
       $clean = array();
 
       if (is_array($parameters)) {
@@ -139,7 +139,7 @@
       return $clean;
     }
 
-    function unserialize($broken) {
+    public function unserialize($broken) {
       for(reset($broken);$kv=each($broken);) {
         $key=$kv['key'];
         if (gettype($this->$key)!="user function")
@@ -147,4 +147,3 @@
       }
     }
   }
-?>

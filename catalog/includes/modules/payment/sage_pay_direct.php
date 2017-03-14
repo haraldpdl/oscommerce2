@@ -11,9 +11,9 @@
 */
 
   class sage_pay_direct {
-    var $code, $title, $description, $enabled;
+    public $code, $title, $description, $enabled;
 
-    function sage_pay_direct() {
+    public function __construct() {
       global $PHP_SELF, $order;
 
       $this->signature = 'sage_pay|sage_pay_direct|3.1|2.3';
@@ -62,7 +62,7 @@
       }
     }
 
-    function update_status() {
+    public function update_status() {
       global $order;
 
       if ( ($this->enabled == true) && ($this->hasCards() == false) ) {
@@ -88,11 +88,11 @@
       }
     }
 
-    function javascript_validation() {
+    public function javascript_validation() {
       return false;
     }
 
-    function selection() {
+    public function selection() {
       global $customer_id, $payment;
 
       if ( (MODULE_PAYMENT_SAGE_PAY_DIRECT_TOKENS == 'True') && !tep_session_is_registered('payment') ) {
@@ -108,13 +108,13 @@
                    'module' => $this->public_title);
     }
 
-    function pre_confirmation_check() {
+    public function pre_confirmation_check() {
       if ( $this->templateClassExists() ) {
         $GLOBALS['oscTemplate']->addBlock($this->getSubmitCardDetailsJavascript(), 'header_tags');
       }
     }
 
-    function confirmation() {
+    public function confirmation() {
       global $order, $customer_id;
 
       $card_types = array();
@@ -123,7 +123,7 @@
                               'text' => $value);
       }
 
-      $today = getdate(); 
+      $today = getdate();
 
       $months_array = array();
       for ($i=1; $i<13; $i++) {
@@ -149,7 +149,7 @@
           $content .= '<table id="sagepay_table" border="0" width="100%" cellspacing="0" cellpadding="2">';
 
           while ( $tokens = tep_db_fetch_array($tokens_query) ) {
-            $content .= '<tr class="moduleRow" id="sagepay_card_' . (int)$tokens['id'] . '">' . 
+            $content .= '<tr class="moduleRow" id="sagepay_card_' . (int)$tokens['id'] . '">' .
                         '  <td width="40" valign="top"><input type="radio" name="sagepay_card" value="' . (int)$tokens['id'] . '" /></td>' .
                         '  <td valign="top">' . tep_output_string_protected($tokens['number_filtered']) . '&nbsp;&nbsp;' . tep_output_string_protected(substr($tokens['expiry_date'], 0, 2)) . '/' . strftime('%Y', mktime(0, 0, 0, 1, 1, (2000 + substr($tokens['expiry_date'], 2)))) . '&nbsp;&nbsp;' . tep_output_string_protected($tokens['card_type']) . '</td>' .
                         '</tr>';
@@ -226,11 +226,11 @@
       return $confirmation;
     }
 
-    function process_button() {
+    public function process_button() {
       return false;
     }
 
-    function before_process() {
+    public function before_process() {
       global $customer_id, $order, $currency, $order_totals, $cartID, $sage_pay_response;
 
       $transaction_response = null;
@@ -309,7 +309,7 @@
             $cc_issue = isset($_POST['cc_issue_nh-dns']) ? substr($_POST['cc_issue_nh-dns'], 0, 2) : null;
             $cc_cvc = isset($_POST['cc_cvc_nh-dns']) ? substr($_POST['cc_cvc_nh-dns'], 0, 4) : null;
 
-            $today = getdate(); 
+            $today = getdate();
 
             $months_array = array();
             for ($i=1; $i<13; $i++) {
@@ -539,7 +539,7 @@
       }
     }
 
-    function after_process() {
+    public function after_process() {
       global $customer_id, $insert_id, $sage_pay_response;
 
       $result = array();
@@ -624,7 +624,7 @@
       $sage_pay_response = null;
     }
 
-    function get_error() {
+    public function get_error() {
       $message = MODULE_PAYMENT_SAGE_PAY_DIRECT_ERROR_GENERAL;
 
       if ( isset($_GET['error']) && tep_not_null($_GET['error']) ) {
@@ -669,7 +669,7 @@
       return $error;
     }
 
-    function check() {
+    public function check() {
       if (!isset($this->_check)) {
         $check_query = tep_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_SAGE_PAY_DIRECT_STATUS'");
         $this->_check = tep_db_num_rows($check_query);
@@ -677,7 +677,7 @@
       return $this->_check;
     }
 
-    function install($parameter = null) {
+    public function install($parameter = null) {
       $params = $this->getParams();
 
       if (isset($parameter)) {
@@ -709,11 +709,11 @@
       }
     }
 
-    function remove() {
+    public function remove() {
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
-    function keys() {
+    public function keys() {
       $keys = array_keys($this->getParams());
 
       if ($this->check()) {
@@ -727,7 +727,7 @@
       return $keys;
     }
 
-    function getParams() {
+    public function getParams() {
       if ( tep_db_num_rows(tep_db_query("show tables like 'customers_sagepay_tokens'")) != 1 ) {
         $sql = <<<EOD
 CREATE TABLE customers_sagepay_tokens (
@@ -872,7 +872,7 @@ EOD;
       return $params;
     }
 
-    function sendTransactionToGateway($url, $parameters) {
+    public function sendTransactionToGateway($url, $parameters) {
       $server = parse_url($url);
 
       if (isset($server['port']) === false) {
@@ -918,7 +918,7 @@ EOD;
     }
 
 // format prices without currency formatting
-    function format_raw($number, $currency_code = '', $currency_value = '') {
+    public function format_raw($number, $currency_code = '', $currency_value = '') {
       global $currencies, $currency;
 
       if (empty($currency_code) || !$currencies->is_set($currency_code)) {
@@ -932,7 +932,7 @@ EOD;
       return number_format(tep_round($number * $currency_value, $currencies->currencies[$currency_code]['decimal_places']), $currencies->currencies[$currency_code]['decimal_places'], '.', '');
     }
 
-    function getCardTypes() {
+    public function getCardTypes() {
       $this->_cards = array();
 
       if (MODULE_PAYMENT_SAGE_PAY_DIRECT_ALLOW_VISA == 'True') {
@@ -982,7 +982,7 @@ EOD;
       return $this->_cards;
     }
 
-    function hasCards() {
+    public function hasCards() {
       if (!isset($this->_cards)) {
         $this->getCardTypes();
       }
@@ -990,7 +990,7 @@ EOD;
       return !empty($this->_cards);
     }
 
-    function isCard($key) {
+    public function isCard($key) {
       if (!isset($this->_cards)) {
         $this->getCardTypes();
       }
@@ -998,7 +998,7 @@ EOD;
       return isset($this->_cards[$key]);
     }
 
-    function deleteCard($token, $token_id) {
+    public function deleteCard($token, $token_id) {
       global $customer_id;
 
       if ( MODULE_PAYMENT_SAGE_PAY_DIRECT_TRANSACTION_SERVER == 'Live' ) {
@@ -1035,7 +1035,7 @@ EOD;
       return (tep_db_affected_rows() === 1);
     }
 
-    function loadErrorMessages() {
+    public function loadErrorMessages() {
       $errors = array();
 
       if (file_exists(dirname(__FILE__) . '/../../../ext/modules/payment/sage_pay/errors.php')) {
@@ -1045,7 +1045,7 @@ EOD;
       $this->_error_messages = $errors;
     }
 
-    function getErrorMessageNumber($string) {
+    public function getErrorMessageNumber($string) {
       if (!isset($this->_error_messages)) {
         $this->loadErrorMessages();
       }
@@ -1059,7 +1059,7 @@ EOD;
       return false;
     }
 
-    function getErrorMessage($number) {
+    public function getErrorMessage($number) {
       if (!isset($this->_error_messages)) {
         $this->loadErrorMessages();
       }
@@ -1071,7 +1071,7 @@ EOD;
       return false;
     }
 
-    function errorMessageNumberExists($number) {
+    public function errorMessageNumberExists($number) {
       if (!isset($this->_error_messages)) {
         $this->loadErrorMessages();
       }
@@ -1079,7 +1079,7 @@ EOD;
       return (is_numeric($number) && isset($this->_error_messages[$number]));
     }
 
-    function getTestLinkInfo() {
+    public function getTestLinkInfo() {
       $dialog_title = MODULE_PAYMENT_SAGE_PAY_DIRECT_DIALOG_CONNECTION_TITLE;
       $dialog_button_close = MODULE_PAYMENT_SAGE_PAY_DIRECT_DIALOG_CONNECTION_BUTTON_CLOSE;
       $dialog_success = MODULE_PAYMENT_SAGE_PAY_DIRECT_DIALOG_CONNECTION_SUCCESS;
@@ -1153,7 +1153,7 @@ EOD;
       return $info;
     }
 
-    function getTestConnectionResult() {
+    public function getTestConnectionResult() {
       if ( MODULE_PAYMENT_SAGE_PAY_DIRECT_TRANSACTION_SERVER == 'Live' ) {
         $gateway_url = 'https://live.sagepay.com/gateway/service/vspdirect-register.vsp';
       } else {
@@ -1187,11 +1187,11 @@ EOD;
       return -1;
     }
 
-    function templateClassExists() {
+    public function templateClassExists() {
       return class_exists('oscTemplate') && isset($GLOBALS['oscTemplate']) && is_object($GLOBALS['oscTemplate']) && (get_class($GLOBALS['oscTemplate']) == 'oscTemplate');
     }
 
-    function getSubmitCardDetailsJavascript() {
+    public function getSubmitCardDetailsJavascript() {
       $js = <<<EOD
 <script>
 if ( typeof jQuery == 'undefined' ) {
@@ -1326,7 +1326,7 @@ EOD;
       return $js;
     }
 
-    function sendDebugEmail($response = array()) {
+    public function sendDebugEmail($response = array()) {
       if (tep_not_null(MODULE_PAYMENT_SAGE_PAY_DIRECT_DEBUG_EMAIL)) {
         $email_body = '';
 
@@ -1380,4 +1380,3 @@ EOD;
       }
     }
   }
-?>

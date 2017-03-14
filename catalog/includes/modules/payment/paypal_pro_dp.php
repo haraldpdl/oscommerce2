@@ -15,9 +15,9 @@
   }
 
   class paypal_pro_dp {
-    var $code, $title, $description, $enabled, $_app;
+    public $code, $title, $description, $enabled, $_app;
 
-    function paypal_pro_dp() {
+    public function __construct() {
       global $order;
 
       $this->_app = new OSCOM_PayPal();
@@ -82,7 +82,7 @@
                               'MAESTRO' => 'Maestro');
     }
 
-    function update_status() {
+    public function update_status() {
       global $order;
 
       if ( ($this->enabled == true) && ((int)OSCOM_APP_PAYPAL_DP_ZONE > 0) ) {
@@ -104,22 +104,22 @@
       }
     }
 
-    function javascript_validation() {
+    public function javascript_validation() {
       return false;
     }
 
-    function selection() {
+    public function selection() {
       return array('id' => $this->code,
                    'module' => $this->public_title);
     }
 
-    function pre_confirmation_check() {
+    public function pre_confirmation_check() {
       if ( $this->templateClassExists() ) {
         $GLOBALS['oscTemplate']->addBlock($this->getSubmitCardDetailsJavascript(), 'header_tags');
       }
     }
 
-    function confirmation() {
+    public function confirmation() {
       global $order;
 
       $types_array = array();
@@ -191,11 +191,11 @@
       return $confirmation;
     }
 
-    function process_button() {
+    public function process_button() {
       return false;
     }
 
-    function before_process() {
+    public function before_process() {
       if ( OSCOM_APP_PAYPAL_GATEWAY == '1' ) {
         $this->before_process_paypal();
       } else {
@@ -203,7 +203,7 @@
       }
     }
 
-    function before_process_paypal() {
+    public function before_process_paypal() {
       global $order, $order_totals, $sendto, $response_array;
 
       if ( isset($_POST['cc_owner']) && !empty($_POST['cc_owner']) && isset($_POST['cc_type']) && $this->isCardAccepted($_POST['cc_type']) && isset($_POST['cc_number_nh-dns']) && !empty($_POST['cc_number_nh-dns']) ) {
@@ -283,7 +283,7 @@
       }
     }
 
-    function before_process_payflow() {
+    public function before_process_payflow() {
       global $cartID, $order, $order_totals, $sendto, $response_array;
 
       if ( isset($_POST['cc_owner']) && !empty($_POST['cc_owner']) && isset($_POST['cc_type']) && $this->isCardAccepted($_POST['cc_type']) && isset($_POST['cc_number_nh-dns']) && !empty($_POST['cc_number_nh-dns']) ) {
@@ -386,7 +386,7 @@
       }
     }
 
-    function after_process() {
+    public function after_process() {
       if ( OSCOM_APP_PAYPAL_GATEWAY == '1' ) {
         $this->after_process_paypal();
       } else {
@@ -394,7 +394,7 @@
       }
     }
 
-    function after_process_paypal() {
+    public function after_process_paypal() {
       global $response_array, $insert_id;
 
       $details = $this->_app->getApiResult('APP', 'GetTransactionDetails', array('TRANSACTIONID' => $response_array['TRANSACTIONID']), (OSCOM_APP_PAYPAL_DP_STATUS == '1') ? 'live' : 'sandbox');
@@ -421,7 +421,7 @@
       tep_db_perform('orders_status_history', $sql_data_array);
     }
 
-    function after_process_payflow() {
+    public function after_process_payflow() {
       global $insert_id, $response_array;
 
       $details = $this->_app->getApiResult('APP', 'PayflowInquiry', array('ORIGID' => $response_array['PNREF']), (OSCOM_APP_PAYPAL_DP_STATUS == '1') ? 'live' : 'sandbox');
@@ -514,11 +514,11 @@
       tep_db_perform('orders_status_history', $sql_data_array);
     }
 
-    function get_error() {
+    public function get_error() {
       return false;
     }
 
-    function check() {
+    public function check() {
       $check_query = tep_db_query("select configuration_value from configuration where configuration_key = 'OSCOM_APP_PAYPAL_DP_STATUS'");
       if ( tep_db_num_rows($check_query) ) {
         $check = tep_db_fetch_array($check_query);
@@ -529,19 +529,19 @@
       return false;
     }
 
-    function install() {
+    public function install() {
       tep_redirect(tep_href_link('paypal.php', 'action=configure&subaction=install&module=DP'));
     }
 
-    function remove() {
+    public function remove() {
       tep_redirect(tep_href_link('paypal.php', 'action=configure&subaction=uninstall&module=DP'));
     }
 
-    function keys() {
+    public function keys() {
       return array('OSCOM_APP_PAYPAL_DP_SORT_ORDER');
     }
 
-    function isCardAccepted($card) {
+    public function isCardAccepted($card) {
       static $cards;
 
       if ( !isset($cards) ) {
@@ -551,11 +551,11 @@
       return isset($this->cc_types[$card]) && in_array(strtolower($card), $cards);
     }
 
-    function templateClassExists() {
+    public function templateClassExists() {
       return class_exists('oscTemplate') && isset($GLOBALS['oscTemplate']) && is_object($GLOBALS['oscTemplate']) && (get_class($GLOBALS['oscTemplate']) == 'oscTemplate');
     }
 
-    function getSubmitCardDetailsJavascript() {
+    public function getSubmitCardDetailsJavascript() {
       $js = <<<EOD
 <script>
 if ( typeof jQuery == 'undefined' ) {
@@ -615,4 +615,3 @@ EOD;
       return $js;
     }
   }
-?>

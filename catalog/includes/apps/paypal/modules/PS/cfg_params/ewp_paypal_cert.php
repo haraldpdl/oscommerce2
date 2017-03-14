@@ -11,19 +11,19 @@
 */
 
   class OSCOM_PayPal_PS_Cfg_ewp_paypal_cert {
-    var $default = '';
-    var $title;
-    var $description;
-    var $sort_order = 1100;
+    public $default = '';
+    public $title;
+    public $description;
+    public $sort_order = 1100;
 
-    function OSCOM_PayPal_PS_Cfg_ewp_paypal_cert() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->title = $OSCOM_PayPal->getDef('cfg_ps_ewp_paypal_cert_title');
       $this->description = $OSCOM_PayPal->getDef('cfg_ps_ewp_paypal_cert_desc');
     }
 
-    function getSetField() {
+    public function getSetField() {
       $input = tep_draw_input_field('ewp_paypal_cert', OSCOM_APP_PAYPAL_PS_EWP_PAYPAL_CERT, 'id="inputPsEwpPayPalCert"');
 
       $result = <<<EOT
@@ -43,4 +43,3 @@ EOT;
       return $result;
     }
   }
-?>

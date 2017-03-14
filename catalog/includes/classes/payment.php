@@ -11,10 +11,10 @@
 */
 
   class payment {
-    var $modules, $selected_module;
+    public $modules, $selected_module;
 
 // class constructor
-    function payment($module = '') {
+    public function __construct($module = '') {
       global $payment, $language, $PHP_SELF;
 
       if (defined('MODULE_PAYMENT_INSTALLED') && tep_not_null(MODULE_PAYMENT_INSTALLED)) {
@@ -62,8 +62,8 @@
    The following method is a work-around to implementing the method in all
    payment modules available which would break the modules in the contributions
    section. This should be looked into again post 2.2.
-*/   
-    function update_status() {
+*/
+    public function update_status() {
       if (is_array($this->modules)) {
         if (is_object($GLOBALS[$this->selected_module])) {
           if (method_exists($GLOBALS[$this->selected_module], 'update_status')) {
@@ -73,7 +73,7 @@
       }
     }
 
-    function javascript_validation() {
+    public function javascript_validation() {
       $js = '';
       if (is_array($this->modules)) {
         $js = '<script><!-- ' . "\n" .
@@ -118,7 +118,7 @@
       return $js;
     }
 
-    function checkout_initialization_method() {
+    public function checkout_initialization_method() {
       $initialize_array = array();
 
       if (is_array($this->modules)) {
@@ -134,7 +134,7 @@
       return $initialize_array;
     }
 
-    function selection() {
+    public function selection() {
       $selection_array = array();
 
       if (is_array($this->modules)) {
@@ -151,7 +151,7 @@
       return $selection_array;
     }
 
-    function pre_confirmation_check() {
+    public function pre_confirmation_check() {
       if (is_array($this->modules)) {
         if (is_object($GLOBALS[$this->selected_module]) && ($GLOBALS[$this->selected_module]->enabled) ) {
           $GLOBALS[$this->selected_module]->pre_confirmation_check();
@@ -159,7 +159,7 @@
       }
     }
 
-    function confirmation() {
+    public function confirmation() {
       if (is_array($this->modules)) {
         if (is_object($GLOBALS[$this->selected_module]) && ($GLOBALS[$this->selected_module]->enabled) ) {
           return $GLOBALS[$this->selected_module]->confirmation();
@@ -167,7 +167,7 @@
       }
     }
 
-    function process_button() {
+    public function process_button() {
       if (is_array($this->modules)) {
         if (is_object($GLOBALS[$this->selected_module]) && ($GLOBALS[$this->selected_module]->enabled) ) {
           return $GLOBALS[$this->selected_module]->process_button();
@@ -175,7 +175,7 @@
       }
     }
 
-    function before_process() {
+    public function before_process() {
       if (is_array($this->modules)) {
         if (is_object($GLOBALS[$this->selected_module]) && ($GLOBALS[$this->selected_module]->enabled) ) {
           return $GLOBALS[$this->selected_module]->before_process();
@@ -183,7 +183,7 @@
       }
     }
 
-    function after_process() {
+    public function after_process() {
       if (is_array($this->modules)) {
         if (is_object($GLOBALS[$this->selected_module]) && ($GLOBALS[$this->selected_module]->enabled) ) {
           return $GLOBALS[$this->selected_module]->after_process();
@@ -191,7 +191,7 @@
       }
     }
 
-    function get_error() {
+    public function get_error() {
       if (is_array($this->modules)) {
         if (is_object($GLOBALS[$this->selected_module]) && ($GLOBALS[$this->selected_module]->enabled) ) {
           return $GLOBALS[$this->selected_module]->get_error();
@@ -199,4 +199,3 @@
       }
     }
   }
-?>

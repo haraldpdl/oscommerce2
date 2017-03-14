@@ -11,14 +11,14 @@
 */
 
   class logger {
-    var $timer_start, $timer_stop, $timer_total;
+    public $timer_start, $timer_stop, $timer_total;
 
 // class constructor
-    function logger() {
+    public function __construct() {
       $this->timer_start();
     }
 
-    function timer_start() {
+    public function timer_start() {
       if (defined("PAGE_PARSE_START_TIME")) {
         $this->timer_start = PAGE_PARSE_START_TIME;
       } else {
@@ -26,7 +26,7 @@
       }
     }
 
-    function timer_stop($display = 'false') {
+    public function timer_stop($display = 'false') {
       $this->timer_stop = microtime();
 
       $time_start = explode(' ', $this->timer_start);
@@ -41,12 +41,11 @@
       }
     }
 
-    function timer_display() {
+    public function timer_display() {
       return '<span class="smallText">Parse Time: ' . $this->timer_total . 's</span>';
     }
 
-    function write($message, $type) {
+    public function write($message, $type) {
       error_log(strftime(STORE_PARSE_DATE_TIME_FORMAT) . ' [' . $type . '] ' . $message . "\n", 3, STORE_PAGE_PARSE_TIME_LOG);
     }
   }
-?>

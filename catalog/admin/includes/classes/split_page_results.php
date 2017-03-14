@@ -11,7 +11,7 @@
 */
 
   class splitPageResults {
-    function splitPageResults(&$current_page_number, $max_rows_per_page, &$sql_query, &$query_num_rows) {
+    public function __construct(&$current_page_number, $max_rows_per_page, &$sql_query, &$query_num_rows) {
       if (empty($current_page_number)) $current_page_number = 1;
 
       $pos_to = strlen($sql_query);
@@ -38,7 +38,7 @@
       $sql_query .= " limit " . max($offset, 0) . ", " . $max_rows_per_page;
     }
 
-    function display_links($query_numrows, $max_rows_per_page, $max_page_links, $current_page_number, $parameters = '', $page_name = 'page') {
+    public function display_links($query_numrows, $max_rows_per_page, $max_page_links, $current_page_number, $parameters = '', $page_name = 'page') {
       global $PHP_SELF;
 
       if ( tep_not_null($parameters) && (substr($parameters, -1) != '&') ) $parameters .= '&';
@@ -85,7 +85,7 @@
       return $display_links;
     }
 
-    function display_count($query_numrows, $max_rows_per_page, $current_page_number, $text_output) {
+    public function display_count($query_numrows, $max_rows_per_page, $current_page_number, $text_output) {
       $to_num = ($max_rows_per_page * $current_page_number);
       if ($to_num > $query_numrows) $to_num = $query_numrows;
       $from_num = ($max_rows_per_page * ($current_page_number - 1));
@@ -98,4 +98,3 @@
       return sprintf($text_output, $from_num, $to_num, $query_numrows);
     }
   }
-?>

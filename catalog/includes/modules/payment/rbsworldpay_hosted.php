@@ -11,9 +11,9 @@
 */
 
   class rbsworldpay_hosted {
-    var $code, $title, $description, $enabled;
+    public $code, $title, $description, $enabled;
 
-    function rbsworldpay_hosted() {
+    public function __construct() {
       global $order;
 
       $this->signature = 'rbs|worldpay_hosted|2.2|2.3';
@@ -55,7 +55,7 @@
       }
     }
 
-    function update_status() {
+    public function update_status() {
       global $order;
 
       if ( ($this->enabled == true) && ((int)MODULE_PAYMENT_RBSWORLDPAY_HOSTED_ZONE > 0) ) {
@@ -77,11 +77,11 @@
       }
     }
 
-    function javascript_validation() {
+    public function javascript_validation() {
       return false;
     }
 
-    function selection() {
+    public function selection() {
       global $cart_RBS_Worldpay_Hosted_ID;
 
       if (tep_session_is_registered('cart_RBS_Worldpay_Hosted_ID')) {
@@ -105,7 +105,7 @@
                    'module' => $this->public_title);
     }
 
-    function pre_confirmation_check() {
+    public function pre_confirmation_check() {
       global $cartID, $cart;
 
       if (empty($cart->cartID)) {
@@ -117,7 +117,7 @@
       }
     }
 
-    function confirmation() {
+    public function confirmation() {
       global $cartID, $cart_RBS_Worldpay_Hosted_ID, $customer_id, $languages_id, $order, $order_total_modules;
 
       $insert_order = false;
@@ -286,7 +286,7 @@
       return false;
     }
 
-    function process_button() {
+    public function process_button() {
       global $order, $currency, $languages_id, $language, $customer_id, $cart_RBS_Worldpay_Hosted_ID;
 
       $order_id = substr($cart_RBS_Worldpay_Hosted_ID, strpos($cart_RBS_Worldpay_Hosted_ID, '-')+1);
@@ -329,7 +329,7 @@
       return $process_button_string;
     }
 
-    function before_process() {
+    public function before_process() {
       global $customer_id, $language, $order, $order_totals, $sendto, $billto, $languages_id, $payment, $currencies, $cart, $cart_RBS_Worldpay_Hosted_ID;
       global $$payment;
 
@@ -531,15 +531,15 @@
       tep_redirect(tep_href_link('checkout_success.php', '', 'SSL'));
     }
 
-    function after_process() {
+    public function after_process() {
       return false;
     }
 
-    function get_error() {
+    public function get_error() {
       return false;
     }
 
-    function check() {
+    public function check() {
       if (!isset($this->_check)) {
         $check_query = tep_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_RBSWORLDPAY_HOSTED_STATUS'");
         $this->_check = tep_db_num_rows($check_query);
@@ -547,7 +547,7 @@
       return $this->_check;
     }
 
-    function install($parameter = null) {
+    public function install($parameter = null) {
       $params = $this->getParams();
 
       if (isset($parameter)) {
@@ -579,11 +579,11 @@
       }
     }
 
-    function remove() {
+    public function remove() {
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
-    function keys() {
+    public function keys() {
       $keys = array_keys($this->getParams());
 
       if ($this->check()) {
@@ -597,7 +597,7 @@
       return $keys;
     }
 
-    function getParams() {
+    public function getParams() {
       if (!defined('MODULE_PAYMENT_RBSWORLDPAY_HOSTED_PREPARE_ORDER_STATUS_ID')) {
         $check_query = tep_db_query("select orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name = 'Preparing [WorldPay]' limit 1");
 
@@ -702,7 +702,7 @@
     }
 
 // format prices without currency formatting
-    function format_raw($number, $currency_code = '', $currency_value = '') {
+    public function format_raw($number, $currency_code = '', $currency_value = '') {
       global $currencies, $currency;
 
       if (empty($currency_code) || !$this->is_set($currency_code)) {
@@ -716,7 +716,7 @@
       return number_format(tep_round($number * $currency_value, $currencies->currencies[$currency_code]['decimal_places']), $currencies->currencies[$currency_code]['decimal_places'], '.', '');
     }
 
-    function sendDebugEmail($response = array()) {
+    public function sendDebugEmail($response = array()) {
       if (tep_not_null(MODULE_PAYMENT_RBSWORLDPAY_HOSTED_DEBUG_EMAIL)) {
         $email_body = '';
 
@@ -738,4 +738,3 @@
       }
     }
   }
-?>

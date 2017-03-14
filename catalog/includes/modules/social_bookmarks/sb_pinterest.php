@@ -11,14 +11,14 @@
 */
 
   class sb_pinterest {
-    var $code = 'sb_pinterest';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $icon;
-    var $enabled = false;
+    public $code = 'sb_pinterest';
+    public $title;
+    public $description;
+    public $sort_order;
+    public $icon;
+    public $enabled = false;
 
-    function sb_pinterest() {
+    public function __construct() {
       $this->title = MODULE_SOCIAL_BOOKMARKS_PINTEREST_TITLE;
       $this->public_title = MODULE_SOCIAL_BOOKMARKS_PINTEREST_PUBLIC_TITLE;
       $this->description = MODULE_SOCIAL_BOOKMARKS_PINTEREST_DESCRIPTION;
@@ -29,7 +29,7 @@
       }
     }
 
-    function getOutput() {
+    public function getOutput() {
       global $oscTemplate;
 
 // add the js in the footer
@@ -77,30 +77,29 @@
       return $output;
     }
 
-    function isEnabled() {
+    public function isEnabled() {
       return $this->enabled;
     }
 
-    function getPublicTitle() {
+    public function getPublicTitle() {
       return $this->public_title;
     }
 
-    function check() {
+    public function check() {
       return defined('MODULE_SOCIAL_BOOKMARKS_PINTEREST_STATUS');
     }
 
-    function install() {
+    public function install() {
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable Pinterest Module', 'MODULE_SOCIAL_BOOKMARKS_PINTEREST_STATUS', 'True', 'Do you want to allow Pinterest Button?', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Layout Position', 'MODULE_SOCIAL_BOOKMARKS_PINTEREST_BUTTON_COUNT_POSITION', 'None', 'Horizontal or Vertical or None', '6', '2', 'tep_cfg_select_option(array(\'Horizontal\', \'Vertical\', \'None\'), ', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort Order', 'MODULE_SOCIAL_BOOKMARKS_PINTEREST_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
     }
 
-    function remove() {
+    public function remove() {
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
-    function keys() {
+    public function keys() {
       return array('MODULE_SOCIAL_BOOKMARKS_PINTEREST_STATUS', 'MODULE_SOCIAL_BOOKMARKS_PINTEREST_BUTTON_COUNT_POSITION', 'MODULE_SOCIAL_BOOKMARKS_PINTEREST_SORT_ORDER');
     }
   }
-?>

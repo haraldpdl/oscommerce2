@@ -11,19 +11,19 @@
 */
 
   class OSCOM_PayPal_EC_Cfg_incontext_button_color {
-    var $default = '1';
-    var $title;
-    var $description;
-    var $sort_order = 210;
+    public $default = '1';
+    public $title;
+    public $description;
+    public $sort_order = 210;
 
-    function OSCOM_PayPal_EC_Cfg_incontext_button_color() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->title = $OSCOM_PayPal->getDef('cfg_ec_incontext_button_color_title');
       $this->description = $OSCOM_PayPal->getDef('cfg_ec_incontext_button_color_desc');
     }
 
-    function getSetField() {
+    public function getSetField() {
       global $OSCOM_PayPal;
 
       $input = '<input type="radio" id="incontextButtonColorSelectionGold" name="incontext_button_color" value="1"' . (OSCOM_APP_PAYPAL_EC_INCONTEXT_BUTTON_COLOR == '1' ? ' checked="checked"' : '') . '><label for="incontextButtonColorSelectionGold">' . $OSCOM_PayPal->getDef('cfg_ec_incontext_button_color_gold') . '</label>' .
@@ -53,4 +53,3 @@ EOT;
       return $result;
     }
   }
-?>

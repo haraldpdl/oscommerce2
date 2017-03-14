@@ -11,9 +11,9 @@
 */
 
   class sage_pay_form {
-    var $code, $title, $description, $enabled;
+    public $code, $title, $description, $enabled;
 
-    function sage_pay_form() {
+    public function __construct() {
       global $order;
 
       $this->signature = 'sage_pay|sage_pay_form|2.0|2.3';
@@ -61,7 +61,7 @@
       }
     }
 
-    function update_status() {
+    public function update_status() {
       global $order;
 
       if ( ($this->enabled == true) && ((int)MODULE_PAYMENT_SAGE_PAY_FORM_ZONE > 0) ) {
@@ -83,24 +83,24 @@
       }
     }
 
-    function javascript_validation() {
+    public function javascript_validation() {
       return false;
     }
 
-    function selection() {
+    public function selection() {
       return array('id' => $this->code,
                    'module' => $this->public_title);
     }
 
-    function pre_confirmation_check() {
+    public function pre_confirmation_check() {
       return false;
     }
 
-    function confirmation() {
+    public function confirmation() {
       return false;
     }
 
-    function process_button() {
+    public function process_button() {
       global $customer_id, $order, $currency, $cartID;
 
       $process_button_string = '';
@@ -208,7 +208,7 @@
       return $process_button_string;
     }
 
-    function before_process() {
+    public function before_process() {
       global $sage_pay_response;
 
       if (isset($_GET['crypt']) && tep_not_null($_GET['crypt'])) {
@@ -236,7 +236,7 @@
       }
     }
 
-    function after_process() {
+    public function after_process() {
       global $insert_id, $sage_pay_response;
 
       $result = array();
@@ -292,7 +292,7 @@
       tep_db_perform(TABLE_ORDERS_STATUS_HISTORY, $sql_data_array);
     }
 
-    function get_error() {
+    public function get_error() {
       $message = MODULE_PAYMENT_SAGE_PAY_FORM_ERROR_GENERAL;
 
       $error_number = null;
@@ -334,7 +334,7 @@
       return $error;
     }
 
-    function check() {
+    public function check() {
       if (!isset($this->_check)) {
         $check_query = tep_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_SAGE_PAY_FORM_STATUS'");
         $this->_check = tep_db_num_rows($check_query);
@@ -342,7 +342,7 @@
       return $this->_check;
     }
 
-    function install($parameter = null) {
+    public function install($parameter = null) {
       $params = $this->getParams();
 
       if (isset($parameter)) {
@@ -374,11 +374,11 @@
       }
     }
 
-    function remove() {
+    public function remove() {
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
-    function keys() {
+    public function keys() {
       $keys = array_keys($this->getParams());
 
       if ($this->check()) {
@@ -392,7 +392,7 @@
       return $keys;
     }
 
-    function getParams() {
+    public function getParams() {
       if (!defined('MODULE_PAYMENT_SAGE_PAY_FORM_TRANSACTION_ORDER_STATUS_ID')) {
         $check_query = tep_db_query("select orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name = 'Sage Pay [Transactions]' limit 1");
 
@@ -472,7 +472,7 @@
     }
 
 // format prices without currency formatting
-    function format_raw($number, $currency_code = '', $currency_value = '') {
+    public function format_raw($number, $currency_code = '', $currency_value = '') {
       global $currencies, $currency;
 
       if (empty($currency_code) || !$currencies->is_set($currency_code)) {
@@ -486,7 +486,7 @@
       return number_format(tep_round($number * $currency_value, $currencies->currencies[$currency_code]['decimal_places']), $currencies->currencies[$currency_code]['decimal_places'], '.', '');
     }
 
-    function getOrderTotalsSummary() {
+    public function getOrderTotalsSummary() {
       global $order_total_modules;
 
       $order_total_array = array();
@@ -511,7 +511,7 @@
       return $order_total_array;
     }
 
-    function encryptParams($string) {
+    public function encryptParams($string) {
 // pad pkcs5
       $blocksize = 16;
 
@@ -523,7 +523,7 @@
       return '@' . strtoupper(bin2hex(mcrypt_encrypt(MCRYPT_RIJNDAEL_128, MODULE_PAYMENT_SAGE_PAY_FORM_ENCRYPTION_PASSWORD, $string, MCRYPT_MODE_CBC, MODULE_PAYMENT_SAGE_PAY_FORM_ENCRYPTION_PASSWORD)));
 	}
 
-    function decryptParams($string) {
+    public function decryptParams($string) {
       if ( substr($string, 0, 1) == '@' ) {
         $string = substr($string, 1);
       }
@@ -533,7 +533,7 @@
       return mcrypt_decrypt(MCRYPT_RIJNDAEL_128, MODULE_PAYMENT_SAGE_PAY_FORM_ENCRYPTION_PASSWORD, $string, MCRYPT_MODE_CBC, MODULE_PAYMENT_SAGE_PAY_FORM_ENCRYPTION_PASSWORD);
     }
 
-    function loadErrorMessages() {
+    public function loadErrorMessages() {
       $errors = array();
 
       if (file_exists(dirname(__FILE__) . '/../../../ext/modules/payment/sage_pay/errors.php')) {
@@ -543,7 +543,7 @@
       $this->_error_messages = $errors;
     }
 
-    function getErrorMessageNumber($string) {
+    public function getErrorMessageNumber($string) {
       if (!isset($this->_error_messages)) {
         $this->loadErrorMessages();
       }
@@ -557,7 +557,7 @@
       return false;
     }
 
-    function getErrorMessage($number) {
+    public function getErrorMessage($number) {
       if (!isset($this->_error_messages)) {
         $this->loadErrorMessages();
       }
@@ -569,7 +569,7 @@
       return false;
     }
 
-    function errorMessageNumberExists($number) {
+    public function errorMessageNumberExists($number) {
       if (!isset($this->_error_messages)) {
         $this->loadErrorMessages();
       }
@@ -577,7 +577,7 @@
       return (is_numeric($number) && isset($this->_error_messages[$number]));
     }
 
-    function sendDebugEmail($response = array()) {
+    public function sendDebugEmail($response = array()) {
       if (tep_not_null(MODULE_PAYMENT_SAGE_PAY_FORM_DEBUG_EMAIL)) {
         $email_body = '';
 
@@ -611,4 +611,3 @@
   function sage_pay_form_textarea_field($value = '', $key = '') {
     return tep_draw_textarea_field('configuration[' . $key . ']', 'soft', 60, 5, $value);
   }
-?>

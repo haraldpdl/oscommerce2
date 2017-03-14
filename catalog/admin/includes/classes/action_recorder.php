@@ -13,7 +13,7 @@
   require(DIR_FS_CATALOG . 'includes/classes/action_recorder.php');
 
   class actionRecorderAdmin extends actionRecorder {
-    function actionRecorderAdmin($module, $user_id = null, $user_name = null) {
+    public function __construct($module, $user_id = null, $user_name = null) {
       global $language, $PHP_SELF;
 
       $module = tep_sanitize_string(str_replace(' ', '', $module));
@@ -49,4 +49,3 @@
       $GLOBALS[$this->_module]->setIdentifier();
     }
   }
-?>

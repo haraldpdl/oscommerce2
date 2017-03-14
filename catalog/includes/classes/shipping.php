@@ -11,10 +11,10 @@
 */
 
   class shipping {
-    var $modules;
+    public $modules;
 
 // class constructor
-    function shipping($module = '') {
+    public function __construct($module = '') {
       global $language, $PHP_SELF;
 
       if (defined('MODULE_SHIPPING_INSTALLED') && tep_not_null(MODULE_SHIPPING_INSTALLED)) {
@@ -41,7 +41,7 @@
       }
     }
 
-    function quote($method = '', $module = '') {
+    public function quote($method = '', $module = '') {
       global $total_weight, $shipping_weight, $shipping_quoted, $shipping_num_boxes;
 
       $quotes_array = array();
@@ -86,7 +86,7 @@
       return $quotes_array;
     }
 
-    function get_first() {
+    public function get_first() {
       foreach ($this->modules as $value) {
         $class = substr($value, 0, strrpos($value, '.'));
         if ($GLOBALS[$class]->enabled) {
@@ -101,7 +101,7 @@
       }
     }
 
-    function cheapest() {
+    public function cheapest() {
       if (is_array($this->modules)) {
         $rates = array();
 
@@ -135,4 +135,3 @@
       }
     }
   }
-?>

@@ -11,19 +11,19 @@
 */
 
   class securityCheck_session_storage {
-    var $type = 'warning';
+    public $type = 'warning';
 
-    function securityCheck_session_storage() {
+    public function __construct() {
       global $language;
 
       include(DIR_FS_ADMIN . 'includes/languages/' . $language . '/modules/security_check/session_storage.php');
     }
 
-    function pass() {
+    public function pass() {
       return ((STORE_SESSIONS != '') || (is_dir(tep_session_save_path()) && tep_is_writable(tep_session_save_path())));
     }
 
-    function getMessage() {
+    public function getMessage() {
       if (STORE_SESSIONS == '') {
         if (!is_dir(tep_session_save_path())) {
           return WARNING_SESSION_DIRECTORY_NON_EXISTENT;
@@ -33,4 +33,3 @@
       }
     }
   }
-?>

@@ -11,65 +11,65 @@
 */
 
   class oscTemplate {
-    var $_title;
-    var $_blocks = array();
-    var $_content = array();
-    var $_grid_container_width = 12;
-    var $_grid_content_width = BOOTSTRAP_CONTENT;
-    var $_grid_column_width = 0; // deprecated
-    var $_data = array();
+    public $_title;
+    public $_blocks = array();
+    public $_content = array();
+    public $_grid_container_width = 12;
+    public $_grid_content_width = BOOTSTRAP_CONTENT;
+    public $_grid_column_width = 0; // deprecated
+    public $_data = array();
 
-    function oscTemplate() {
+    public function __construct() {
       $this->_title = TITLE;
     }
 
-    function setGridContainerWidth($width) {
+    public function setGridContainerWidth($width) {
       $this->_grid_container_width = $width;
     }
 
-    function getGridContainerWidth() {
+    public function getGridContainerWidth() {
       return $this->_grid_container_width;
     }
 
-    function setGridContentWidth($width) {
+    public function setGridContentWidth($width) {
       $this->_grid_content_width = $width;
     }
 
-    function getGridContentWidth() {
+    public function getGridContentWidth() {
       return $this->_grid_content_width;
     }
 
-    function setGridColumnWidth($width) {
+    public function setGridColumnWidth($width) {
       $this->_grid_column_width = $width;
     }
 
-    function getGridColumnWidth() {
+    public function getGridColumnWidth() {
       return (12 - BOOTSTRAP_CONTENT) / 2;
     }
 
-    function setTitle($title) {
+    public function setTitle($title) {
       $this->_title = $title;
     }
 
-    function getTitle() {
+    public function getTitle() {
       return $this->_title;
     }
 
-    function addBlock($block, $group) {
+    public function addBlock($block, $group) {
       $this->_blocks[$group][] = $block;
     }
 
-    function hasBlocks($group) {
+    public function hasBlocks($group) {
       return (isset($this->_blocks[$group]) && !empty($this->_blocks[$group]));
     }
 
-    function getBlocks($group) {
+    public function getBlocks($group) {
       if ($this->hasBlocks($group)) {
         return implode("\n", $this->_blocks[$group]);
       }
     }
 
-    function buildBlocks() {
+    public function buildBlocks() {
       global $language;
 
       if ( defined('TEMPLATE_BLOCK_GROUPS') && tep_not_null(TEMPLATE_BLOCK_GROUPS) ) {
@@ -107,15 +107,15 @@
       }
     }
 
-    function addContent($content, $group) {
+    public function addContent($content, $group) {
       $this->_content[$group][] = $content;
     }
 
-    function hasContent($group) {
+    public function hasContent($group) {
       return (isset($this->_content[$group]) && !empty($this->_content[$group]));
     }
 
-    function getContent($group) {
+    public function getContent($group) {
       global $language;
 
       if ( !class_exists('tp_' . $group) && file_exists('includes/modules/pages/tp_' . $group . '.php') ) {
@@ -157,7 +157,7 @@
       }
     }
 
-    function getContentModules($group) {
+    public function getContentModules($group) {
       $result = array();
 
       foreach ( explode(';', MODULE_CONTENT_INSTALLED) as $m ) {
@@ -171,4 +171,3 @@
       return $result;
     }
   }
-?>

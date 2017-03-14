@@ -11,19 +11,19 @@
 */
 
   class OSCOM_PayPal_HS_Cfg_transaction_method {
-    var $default = '1';
-    var $title;
-    var $description;
-    var $sort_order = 200;
+    public $default = '1';
+    public $title;
+    public $description;
+    public $sort_order = 200;
 
-    function OSCOM_PayPal_HS_Cfg_transaction_method() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->title = $OSCOM_PayPal->getDef('cfg_hs_transaction_method_title');
       $this->description = $OSCOM_PayPal->getDef('cfg_hs_transaction_method_desc');
     }
 
-    function getSetField() {
+    public function getSetField() {
       global $OSCOM_PayPal;
 
       $input = '<input type="radio" id="transactionMethodSelectionAuthorize" name="transaction_method" value="0"' . (OSCOM_APP_PAYPAL_HS_TRANSACTION_METHOD == '0' ? ' checked="checked"' : '') . '><label for="transactionMethodSelectionAuthorize">' . $OSCOM_PayPal->getDef('cfg_hs_transaction_method_authorize') . '</label>' .
@@ -52,4 +52,3 @@ EOT;
       return $result;
     }
   }
-?>

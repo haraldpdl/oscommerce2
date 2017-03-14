@@ -11,11 +11,11 @@
 */
 
   class actionRecorder {
-    var $_module;
-    var $_user_id;
-    var $_user_name;
+    public $_module;
+    public $_user_id;
+    public $_user_name;
 
-    function actionRecorder($module, $user_id = null, $user_name = null) {
+    public function __construct($module, $user_id = null, $user_name = null) {
       global $language, $PHP_SELF;
 
       $module = tep_sanitize_string(str_replace(' ', '', $module));
@@ -51,7 +51,7 @@
       $GLOBALS[$this->_module]->setIdentifier();
     }
 
-    function canPerform() {
+    public function canPerform() {
       if (tep_not_null($this->_module)) {
         return $GLOBALS[$this->_module]->canPerform($this->_user_id, $this->_user_name);
       }
@@ -59,28 +59,27 @@
       return false;
     }
 
-    function getTitle() {
+    public function getTitle() {
       if (tep_not_null($this->_module)) {
         return $GLOBALS[$this->_module]->title;
       }
     }
 
-    function getIdentifier() {
+    public function getIdentifier() {
       if (tep_not_null($this->_module)) {
         return $GLOBALS[$this->_module]->identifier;
       }
     }
 
-    function record($success = true) {
+    public function record($success = true) {
       if (tep_not_null($this->_module)) {
         tep_db_query("insert into " . TABLE_ACTION_RECORDER . " (module, user_id, user_name, identifier, success, date_added) values ('" . tep_db_input($this->_module) . "', '" . (int)$this->_user_id . "', '" . tep_db_input($this->_user_name) . "', '" . tep_db_input($this->getIdentifier()) . "', '" . ($success == true ? 1 : 0) . "', now())");
       }
     }
 
-    function expireEntries() {
+    public function expireEntries() {
       if (tep_not_null($this->_module)) {
         return $GLOBALS[$this->_module]->expireEntries();
       }
     }
   }
-?>

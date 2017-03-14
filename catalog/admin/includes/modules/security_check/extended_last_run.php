@@ -11,15 +11,15 @@
 */
 
   class securityCheck_extended_last_run {
-    var $type = 'warning';
+    public $type = 'warning';
 
-    function securityCheck_extended_last_run() {
+    public function __construct() {
       global $language;
 
       include(DIR_FS_ADMIN . 'includes/languages/' . $language . '/modules/security_check/extended_last_run.php');
     }
 
-    function pass() {
+    public function pass() {
       global $PHP_SELF;
 
       if ( $PHP_SELF == 'security_checks.php' ) {
@@ -35,8 +35,7 @@
       return defined('MODULE_SECURITY_CHECK_EXTENDED_LAST_RUN_DATETIME') && (MODULE_SECURITY_CHECK_EXTENDED_LAST_RUN_DATETIME > strtotime('-30 days'));
     }
 
-    function getMessage() {
+    public function getMessage() {
       return '<a href="' . tep_href_link('security_checks.php') . '">' . MODULE_SECURITY_CHECK_EXTENDED_LAST_RUN_OLD . '</a>';
     }
   }
-?>

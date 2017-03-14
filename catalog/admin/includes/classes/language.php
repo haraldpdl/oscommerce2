@@ -14,9 +14,9 @@
 */
 
   class language {
-    var $languages, $catalog_languages, $browser_languages, $language;
+    public $languages, $catalog_languages, $browser_languages, $language;
 
-    function language($lng = '') {
+    public function __construct($lng = '') {
       $this->languages = array('af' => 'af|afrikaans',
                                'ar' => 'ar([-_][[:alpha:]]{2})?|arabic',
                                'be' => 'be|belarusian',
@@ -90,7 +90,7 @@
       $this->set_language($lng);
     }
 
-    function set_language($language) {
+    public function set_language($language) {
       if ( (tep_not_null($language)) && (isset($this->catalog_languages[$language])) ) {
         $this->language = $this->catalog_languages[$language];
       } else {
@@ -98,7 +98,7 @@
       }
     }
 
-    function get_browser_language() {
+    public function get_browser_language() {
       $this->browser_languages = explode(',', getenv('HTTP_ACCEPT_LANGUAGE'));
 
       for ($i=0, $n=sizeof($this->browser_languages); $i<$n; $i++) {
@@ -112,4 +112,3 @@
       }
     }
   }
-?>

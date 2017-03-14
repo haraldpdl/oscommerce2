@@ -11,12 +11,12 @@
 */
 
   class OSCOM_PayPal_LOGIN_Cfg_attributes {
-    var $default = ''; // set in classs constructor
-    var $title;
-    var $description;
-    var $sort_order = 700;
+    public $default = ''; // set in classs constructor
+    public $title;
+    public $description;
+    public $sort_order = 700;
 
-    var $attributes = array(
+    public $attributes = array(
                         'personal' => array(
                           'full_name' => 'profile',
                           'date_of_birth' => 'profile',
@@ -45,7 +45,7 @@
                         )
                       );
 
-    var $required = array(
+    public $required = array(
                       'full_name',
                       'email_address',
                       'street_address',
@@ -55,7 +55,7 @@
                       'zip_code'
                     );
 
-    function OSCOM_PayPal_LOGIN_Cfg_attributes() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->default = implode(';', $this->getAttributes());
@@ -64,7 +64,7 @@
       $this->description = $OSCOM_PayPal->getDef('cfg_login_attributes_desc');
     }
 
-    function getSetField() {
+    public function getSetField() {
       global $OSCOM_PayPal;
 
       $values_array = explode(';', OSCOM_APP_PAYPAL_LOGIN_ATTRIBUTES);
@@ -142,7 +142,7 @@ EOT;
       return $result;
     }
 
-    function getAttributes() {
+    public function getAttributes() {
       $data = array();
 
       foreach ( $this->attributes as $group => $attributes ) {
@@ -154,4 +154,3 @@ EOT;
       return $data;
     }
   }
-?>

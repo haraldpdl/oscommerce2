@@ -11,9 +11,9 @@
 */
 
   class sage_pay_server {
-    var $code, $title, $description, $enabled;
+    public $code, $title, $description, $enabled;
 
-    function sage_pay_server() {
+    public function __construct() {
       global $PHP_SELF, $order;
 
       $this->signature = 'sage_pay|sage_pay_server|2.1|2.3';
@@ -62,7 +62,7 @@
       }
     }
 
-    function update_status() {
+    public function update_status() {
       global $order;
 
       if ( ($this->enabled == true) && ((int)MODULE_PAYMENT_SAGE_PAY_SERVER_ZONE > 0) ) {
@@ -84,28 +84,28 @@
       }
     }
 
-    function javascript_validation() {
+    public function javascript_validation() {
       return false;
     }
 
-    function selection() {
+    public function selection() {
       return array('id' => $this->code,
                    'module' => $this->public_title);
     }
 
-    function pre_confirmation_check() {
+    public function pre_confirmation_check() {
       return false;
     }
 
-    function confirmation() {
+    public function confirmation() {
       return false;
     }
 
-    function process_button() {
+    public function process_button() {
       return false;
     }
 
-    function before_process() {
+    public function before_process() {
       global $sagepay_server_skey_code, $sagepay_server_transaction_details, $sage_pay_server_nexturl, $customer_id, $order, $currency, $order_totals, $cartID;
 
       $sagepay_server_transaction_details = null;
@@ -266,7 +266,7 @@
       tep_redirect(tep_href_link('checkout_payment.php', 'payment_error=' . $this->code . (tep_not_null($error) ? '&error=' . $error : ''), 'SSL'));
     }
 
-    function after_process() {
+    public function after_process() {
       global $insert_id, $sagepay_server_transaction_details;
 
       $sql_data_array = array('orders_id' => $insert_id,
@@ -295,7 +295,7 @@
       }
     }
 
-    function get_error() {
+    public function get_error() {
       $message = MODULE_PAYMENT_SAGE_PAY_SERVER_ERROR_GENERAL;
 
       $error_number = null;
@@ -319,7 +319,7 @@
       return $error;
     }
 
-    function check() {
+    public function check() {
       if (!isset($this->_check)) {
         $check_query = tep_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_SAGE_PAY_SERVER_STATUS'");
         $this->_check = tep_db_num_rows($check_query);
@@ -327,7 +327,7 @@
       return $this->_check;
     }
 
-    function install($parameter = null) {
+    public function install($parameter = null) {
       $params = $this->getParams();
 
       if (isset($parameter)) {
@@ -359,11 +359,11 @@
       }
     }
 
-    function remove() {
+    public function remove() {
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
-    function keys() {
+    public function keys() {
       $keys = array_keys($this->getParams());
 
       if ($this->check()) {
@@ -377,7 +377,7 @@
       return $keys;
     }
 
-    function getParams() {
+    public function getParams() {
       if ( tep_db_num_rows(tep_db_query("show tables like 'sagepay_server_securitykeys'")) != 1 ) {
         $sql = <<<EOD
 CREATE TABLE sagepay_server_securitykeys (
@@ -472,7 +472,7 @@ EOD;
       return $params;
     }
 
-    function sendTransactionToGateway($url, $parameters) {
+    public function sendTransactionToGateway($url, $parameters) {
       $server = parse_url($url);
 
       if (isset($server['port']) === false) {
@@ -518,7 +518,7 @@ EOD;
     }
 
 // format prices without currency formatting
-    function format_raw($number, $currency_code = '', $currency_value = '') {
+    public function format_raw($number, $currency_code = '', $currency_value = '') {
       global $currencies, $currency;
 
       if (empty($currency_code) || !$currencies->is_set($currency_code)) {
@@ -532,7 +532,7 @@ EOD;
       return number_format(tep_round($number * $currency_value, $currencies->currencies[$currency_code]['decimal_places']), $currencies->currencies[$currency_code]['decimal_places'], '.', '');
     }
 
-    function loadErrorMessages() {
+    public function loadErrorMessages() {
       $errors = array();
 
       if (file_exists(dirname(__FILE__) . '/../../../ext/modules/payment/sage_pay/errors.php')) {
@@ -542,7 +542,7 @@ EOD;
       $this->_error_messages = $errors;
     }
 
-    function getErrorMessageNumber($string) {
+    public function getErrorMessageNumber($string) {
       if (!isset($this->_error_messages)) {
         $this->loadErrorMessages();
       }
@@ -556,7 +556,7 @@ EOD;
       return false;
     }
 
-    function getErrorMessage($number) {
+    public function getErrorMessage($number) {
       if (!isset($this->_error_messages)) {
         $this->loadErrorMessages();
       }
@@ -568,7 +568,7 @@ EOD;
       return false;
     }
 
-    function errorMessageNumberExists($number) {
+    public function errorMessageNumberExists($number) {
       if (!isset($this->_error_messages)) {
         $this->loadErrorMessages();
       }
@@ -576,11 +576,11 @@ EOD;
       return (is_numeric($number) && isset($this->_error_messages[$number]));
     }
 
-    function formatURL($url) {
+    public function formatURL($url) {
       return str_replace('&amp;', '&', $url);
     }
 
-    function getTestLinkInfo() {
+    public function getTestLinkInfo() {
       $dialog_title = MODULE_PAYMENT_SAGE_PAY_SERVER_DIALOG_CONNECTION_TITLE;
       $dialog_button_close = MODULE_PAYMENT_SAGE_PAY_SERVER_DIALOG_CONNECTION_BUTTON_CLOSE;
       $dialog_success = MODULE_PAYMENT_SAGE_PAY_SERVER_DIALOG_CONNECTION_SUCCESS;
@@ -654,7 +654,7 @@ EOD;
       return $info;
     }
 
-    function getTestConnectionResult() {
+    public function getTestConnectionResult() {
       if ( MODULE_PAYMENT_SAGE_PAY_SERVER_TRANSACTION_SERVER == 'Live' ) {
         $gateway_url = 'https://live.sagepay.com/gateway/service/vspserver-register.vsp';
       } else {
@@ -688,7 +688,7 @@ EOD;
       return -1;
     }
 
-    function sendDebugEmail($response = array()) {
+    public function sendDebugEmail($response = array()) {
       if (tep_not_null(MODULE_PAYMENT_SAGE_PAY_SERVER_DEBUG_EMAIL)) {
         $email_body = '';
 
@@ -710,4 +710,3 @@ EOD;
       }
     }
   }
-?>

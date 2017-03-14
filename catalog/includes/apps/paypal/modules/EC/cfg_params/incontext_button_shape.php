@@ -11,19 +11,19 @@
 */
 
   class OSCOM_PayPal_EC_Cfg_incontext_button_shape {
-    var $default = '1';
-    var $title;
-    var $description;
-    var $sort_order = 230;
+    public $default = '1';
+    public $title;
+    public $description;
+    public $sort_order = 230;
 
-    function OSCOM_PayPal_EC_Cfg_incontext_button_shape() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->title = $OSCOM_PayPal->getDef('cfg_ec_incontext_button_shape_title');
       $this->description = $OSCOM_PayPal->getDef('cfg_ec_incontext_button_shape_desc');
     }
 
-    function getSetField() {
+    public function getSetField() {
       global $OSCOM_PayPal;
 
       $input = '<input type="radio" id="incontextButtonShapePill" name="incontext_button_shape" value="1"' . (OSCOM_APP_PAYPAL_EC_INCONTEXT_BUTTON_SHAPE == '1' ? ' checked="checked"' : '') . '><label for="incontextButtonShapePill">' . $OSCOM_PayPal->getDef('cfg_ec_incontext_button_shape_pill') . '</label>' .
@@ -52,4 +52,3 @@ EOT;
       return $result;
     }
   }
-?>

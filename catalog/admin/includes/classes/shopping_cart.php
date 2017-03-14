@@ -11,13 +11,13 @@
 */
 
   class shoppingCart {
-    var $contents, $total, $weight;
+    public $contents, $total, $weight;
 
-    function shoppingCart() {
+    public function __construct() {
       $this->reset();
     }
 
-    function restore_contents() {
+    public function restore_contents() {
       global $customer_id;
 
       if (!$customer_id) return 0;
@@ -58,7 +58,7 @@
       $this->cleanup();
     }
 
-    function reset($reset_database = FALSE) {
+    public function reset($reset_database = FALSE) {
       global $customer_id;
 
       $this->contents = array();
@@ -70,7 +70,7 @@
       }
     }
 
-    function add_cart($products_id, $qty = '', $attributes = '') {
+    public function add_cart($products_id, $qty = '', $attributes = '') {
       global $new_products_id_in_cart, $customer_id;
 
       $products_id = tep_get_uprid($products_id, $attributes);
@@ -99,7 +99,7 @@
       $this->cleanup();
     }
 
-    function update_quantity($products_id, $quantity = '', $attributes = '') {
+    public function update_quantity($products_id, $quantity = '', $attributes = '') {
       global $customer_id;
 
       if ($quantity == '') return true; // nothing needs to be updated if theres no quantity, so we return true..
@@ -118,7 +118,7 @@
       }
     }
 
-    function cleanup() {
+    public function cleanup() {
       global $customer_id;
 
       reset($this->contents);
@@ -134,7 +134,7 @@
       }
     }
 
-    function count_contents() {  // get total number of items in cart 
+    public function count_contents() {  // get total number of items in cart
         $total_items = 0;
         if (is_array($this->contents)) {
             reset($this->contents);
@@ -145,7 +145,7 @@
         return $total_items;
     }
 
-    function get_quantity($products_id) {
+    public function get_quantity($products_id) {
       if ($this->contents[$products_id]) {
         return $this->contents[$products_id]['qty'];
       } else {
@@ -153,7 +153,7 @@
       }
     }
 
-    function in_cart($products_id) {
+    public function in_cart($products_id) {
       if ($this->contents[$products_id]) {
         return true;
       } else {
@@ -161,7 +161,7 @@
       }
     }
 
-    function remove($products_id) {
+    public function remove($products_id) {
       global $customer_id;
 
       unset($this->contents[$products_id]);
@@ -172,11 +172,11 @@
       }
     }
 
-    function remove_all() {
+    public function remove_all() {
       $this->reset();
     }
 
-    function get_product_id_list() {
+    public function get_product_id_list() {
       $product_id_list = '';
       if (is_array($this->contents))
       {
@@ -188,7 +188,7 @@
       return substr($product_id_list, 2);
     }
 
-    function calculate() {
+    public function calculate() {
       $this->total = 0;
       $this->weight = 0;
       if (!is_array($this->contents)) return 0;
@@ -231,7 +231,7 @@
       }
     }
 
-    function attributes_price($products_id) {
+    public function attributes_price($products_id) {
       $attributes_price = 0;
 
       if (isset($this->contents[$products_id]['attributes'])) {
@@ -250,7 +250,7 @@
       return $attributes_price;
     }
 
-    function get_products() {
+    public function get_products() {
       global $languages_id;
 
       if (!is_array($this->contents)) return 0;
@@ -282,19 +282,19 @@
       return $products_array;
     }
 
-    function show_total() {
+    public function show_total() {
       $this->calculate();
 
       return $this->total;
     }
 
-    function show_weight() {
+    public function show_weight() {
       $this->calculate();
 
       return $this->weight;
     }
 
-    function unserialize($broken) {
+    public function unserialize($broken) {
       for(reset($broken);$kv=each($broken);) {
         $key=$kv['key'];
         if (gettype($this->$key)!="user function")
@@ -303,4 +303,3 @@
     }
 
   }
-?>

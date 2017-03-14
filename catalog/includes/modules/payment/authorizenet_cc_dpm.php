@@ -11,9 +11,9 @@
 */
 
   class authorizenet_cc_dpm {
-    var $code, $title, $description, $enabled;
+    public $code, $title, $description, $enabled;
 
-    function authorizenet_cc_dpm() {
+    public function __construct() {
       global $order;
 
       $this->signature = 'authorizenet|authorizenet_cc_dpm|1.1|2.3';
@@ -55,7 +55,7 @@
       }
     }
 
-    function update_status() {
+    public function update_status() {
       global $order;
 
       if ( ($this->enabled == true) && ((int)MODULE_PAYMENT_AUTHORIZENET_CC_DPM_ZONE > 0) ) {
@@ -77,20 +77,20 @@
       }
     }
 
-    function javascript_validation() {
+    public function javascript_validation() {
       return false;
     }
 
-    function selection() {
+    public function selection() {
       return array('id' => $this->code,
                    'module' => $this->public_title);
     }
 
-    function pre_confirmation_check() {
+    public function pre_confirmation_check() {
       return false;
     }
 
-    function confirmation() {
+    public function confirmation() {
       global $order;
 
       $expiry_field = '<select id="cc_expires_month">';
@@ -101,7 +101,7 @@
 
       $expiry_field .= '</select>&nbsp;<select id="cc_expires_year">';
 
-      $today = getdate(); 
+      $today = getdate();
       for ($i=$today['year']; $i < $today['year']+10; $i++) {
         $expiry_field .= '<option value="' . strftime('%y',mktime(0,0,0,1,1,$i)) . '">' . strftime('%Y',mktime(0,0,0,1,1,$i)) . '</option>';
       }
@@ -140,7 +140,7 @@ EOD;
       return $confirmation;
     }
 
-    function process_button() {
+    public function process_button() {
       global $customer_id, $order, $sendto, $currency;
 
       $tstamp = time();
@@ -216,7 +216,7 @@ EOD;
       return $process_button_string;
     }
 
-    function before_process() {
+    public function before_process() {
       global $order, $authorizenet_cc_dpm_error;
 
       $error = false;
@@ -268,7 +268,7 @@ EOD;
       }
     }
 
-    function after_process() {
+    public function after_process() {
       global $insert_id;
 
       $response = array('Response: ' . tep_db_prepare_input($_POST['x_response_reason_text']) . ' (' . tep_db_prepare_input($_POST['x_response_reason_code']) . ')',
@@ -348,7 +348,7 @@ EOD;
       }
     }
 
-    function get_error() {
+    public function get_error() {
       global $authorizenet_cc_dpm_error;
 
       $error_message = MODULE_PAYMENT_AUTHORIZENET_CC_DPM_ERROR_GENERAL;
@@ -379,7 +379,7 @@ EOD;
       return $error;
     }
 
-    function check() {
+    public function check() {
       if (!isset($this->_check)) {
         $check_query = tep_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_AUTHORIZENET_CC_DPM_STATUS'");
         $this->_check = tep_db_num_rows($check_query);
@@ -387,7 +387,7 @@ EOD;
       return $this->_check;
     }
 
-    function install($parameter = null) {
+    public function install($parameter = null) {
       $params = $this->getParams();
 
       if (isset($parameter)) {
@@ -419,11 +419,11 @@ EOD;
       }
     }
 
-    function remove() {
+    public function remove() {
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
-    function keys() {
+    public function keys() {
       $keys = array_keys($this->getParams());
 
       if ($this->check()) {
@@ -437,7 +437,7 @@ EOD;
       return $keys;
     }
 
-    function getParams() {
+    public function getParams() {
       if (!defined('MODULE_PAYMENT_AUTHORIZENET_CC_DPM_TRANSACTION_ORDER_STATUS_ID')) {
         $check_query = tep_db_query("select orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name = 'Authorize.net [Transactions]' limit 1");
 
@@ -517,7 +517,7 @@ EOD;
       return $params;
     }
 
-    function _hmac($key, $data) {
+    public function _hmac($key, $data) {
       if (function_exists('hash_hmac')) {
         return hash_hmac('md5', $data, $key);
       } elseif (function_exists('mhash') && defined('MHASH_MD5')) {
@@ -544,7 +544,7 @@ EOD;
     }
 
 // format prices without currency formatting
-    function format_raw($number, $currency_code = '', $currency_value = '') {
+    public function format_raw($number, $currency_code = '', $currency_value = '') {
       global $currencies, $currency;
 
       if (empty($currency_code) || !$this->is_set($currency_code)) {
@@ -558,7 +558,7 @@ EOD;
       return number_format(tep_round($number * $currency_value, $currencies->currencies[$currency_code]['decimal_places']), $currencies->currencies[$currency_code]['decimal_places'], '.', '');
     }
 
-    function sendDebugEmail($response = array()) {
+    public function sendDebugEmail($response = array()) {
       if (tep_not_null(MODULE_PAYMENT_AUTHORIZENET_CC_DPM_DEBUG_EMAIL)) {
         $email_body = '';
 
@@ -580,4 +580,3 @@ EOD;
       }
     }
   }
-?>

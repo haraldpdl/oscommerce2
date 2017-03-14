@@ -15,9 +15,9 @@
   }
 
   class paypal_standard {
-    var $code, $title, $description, $enabled, $_app;
+    public $code, $title, $description, $enabled, $_app;
 
-    function paypal_standard() {
+    public function __construct() {
       global $PHP_SELF, $payment, $order;
 
       $this->_app = new OSCOM_PayPal();
@@ -86,7 +86,7 @@
       }
     }
 
-    function update_status() {
+    public function update_status() {
       global $order;
 
       if ( ($this->enabled == true) && ((int)OSCOM_APP_PAYPAL_PS_ZONE > 0) ) {
@@ -108,11 +108,11 @@
       }
     }
 
-    function javascript_validation() {
+    public function javascript_validation() {
       return false;
     }
 
-    function selection() {
+    public function selection() {
       global $cart_PayPal_Standard_ID;
 
       if (tep_session_is_registered('cart_PayPal_Standard_ID')) {
@@ -136,7 +136,7 @@
                    'module' => $this->public_title);
     }
 
-    function pre_confirmation_check() {
+    public function pre_confirmation_check() {
       global $cartID, $cart, $order;
 
       if (empty($cart->cartID)) {
@@ -151,7 +151,7 @@
       $order->info['payment_method'] = '<img src="https://www.paypalobjects.com/webstatic/mktg/Logo/pp-logo-100px.png" border="0" alt="PayPal Logo" style="padding: 3px;" />';
     }
 
-    function confirmation() {
+    public function confirmation() {
       global $cartID, $cart_PayPal_Standard_ID, $customer_id, $languages_id, $order, $order_total_modules;
 
       if (tep_session_is_registered('cartID')) {
@@ -326,7 +326,7 @@
       return false;
     }
 
-    function process_button() {
+    public function process_button() {
       global $language, $customer_id, $order, $sendto, $currency, $cart_PayPal_Standard_ID, $shipping, $order_total_modules;
 
       $total_tax = $order->info['tax'];
@@ -529,7 +529,7 @@
       return $process_button_string;
     }
 
-    function pre_before_check() {
+    public function pre_before_check() {
       global $messageStack, $order_id, $cart_PayPal_Standard_ID, $customer_id, $comments;
 
       $result = false;
@@ -667,7 +667,7 @@
       }
     }
 
-    function before_process() {
+    public function before_process() {
       global $order_id, $order, $languages_id, $currencies, $order_totals, $customer_id, $sendto, $billto, $payment;
 
       $new_order_status = DEFAULT_ORDERS_STATUS_ID;
@@ -808,7 +808,7 @@
       $this->after_process();
     }
 
-    function after_process() {
+    public function after_process() {
       global $cart;
 
       $cart->reset(true);
@@ -825,11 +825,11 @@
       tep_redirect(tep_href_link('checkout_success.php', '', 'SSL'));
     }
 
-    function get_error() {
+    public function get_error() {
       return false;
     }
 
-    function check() {
+    public function check() {
       $check_query = tep_db_query("select configuration_value from configuration where configuration_key = 'OSCOM_APP_PAYPAL_PS_STATUS'");
       if ( tep_db_num_rows($check_query) ) {
         $check = tep_db_fetch_array($check_query);
@@ -840,19 +840,19 @@
       return false;
     }
 
-    function install() {
+    public function install() {
       tep_redirect(tep_href_link('paypal.php', 'action=configure&subaction=install&module=PS'));
     }
 
-    function remove() {
+    public function remove() {
       tep_redirect(tep_href_link('paypal.php', 'action=configure&subaction=uninstall&module=PS'));
     }
 
-    function keys() {
+    public function keys() {
       return array('OSCOM_APP_PAYPAL_PS_SORT_ORDER');
     }
 
-    function verifyTransaction($pptx_params, $is_ipn = false) {
+    public function verifyTransaction($pptx_params, $is_ipn = false) {
       global $currencies;
 
       if ( isset($pptx_params['invoice']) && is_numeric($pptx_params['invoice']) && ($pptx_params['invoice'] > 0) && isset($pptx_params['custom']) && is_numeric($pptx_params['custom']) && ($pptx_params['custom'] > 0) ) {
@@ -890,4 +890,3 @@
       }
     }
   }
-?>

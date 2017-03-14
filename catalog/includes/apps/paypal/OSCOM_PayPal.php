@@ -11,14 +11,14 @@
 */
 
   class OSCOM_PayPal {
-    var $_code = 'paypal';
-    var $_title = 'PayPal App';
-    var $_version;
-    var $_api_version = '204';
-    var $_identifier = 'osCommerce_PPapp_v5';
-    var $_definitions = array();
+    public $_code = 'paypal';
+    public $_title = 'PayPal App';
+    public $_version;
+    public $_api_version = '204';
+    public $_identifier = 'osCommerce_PPapp_v5';
+    public $_definitions = array();
 
-    function log($module, $action, $result, $request, $response, $server, $is_ipn = false) {
+    public function log($module, $action, $result, $request, $response, $server, $is_ipn = false) {
       global $customer_id;
 
       $do_log = false;
@@ -80,7 +80,7 @@
       tep_db_perform('oscom_app_paypal_log', $data);
     }
 
-    function migrate() {
+    public function migrate() {
       $migrated = false;
 
       foreach ( $this->getModules() as $module ) {
@@ -110,7 +110,7 @@
       return $migrated;
     }
 
-    function getModules() {
+    public function getModules() {
       static $result;
 
       if ( !isset($result) ) {
@@ -148,7 +148,7 @@
       return $result;
     }
 
-    function isInstalled($module) {
+    public function isInstalled($module) {
       if ( file_exists(DIR_FS_CATALOG . 'includes/apps/paypal/modules/' . basename($module) . '/' . basename($module) . '.php') ) {
         return defined('OSCOM_APP_PAYPAL_' . basename($module) . '_STATUS') && tep_not_null(constant('OSCOM_APP_PAYPAL_' . basename($module) . '_STATUS'));
       }
@@ -156,7 +156,7 @@
       return false;
     }
 
-    function getModuleInfo($module, $info) {
+    public function getModuleInfo($module, $info) {
       $class = 'OSCOM_PayPal_' . $module;
 
       if ( !class_exists($class) ) {
@@ -170,7 +170,7 @@
       return $m->{'_' . $info};
     }
 
-    function hasCredentials($module, $type = null) {
+    public function hasCredentials($module, $type = null) {
       if ( !defined('OSCOM_APP_PAYPAL_' . $module . '_STATUS') ) {
         return false;
       }
@@ -208,7 +208,7 @@
       return true;
     }
 
-    function getCredentials($module, $type) {
+    public function getCredentials($module, $type) {
       if ( constant('OSCOM_APP_PAYPAL_' . $module . '_STATUS') == '1' ) {
         if ( $type == 'email') {
           return constant('OSCOM_APP_PAYPAL_LIVE_SELLER_EMAIL');
@@ -232,7 +232,7 @@
       }
     }
 
-    function hasApiCredentials($server, $type = null) {
+    public function hasApiCredentials($server, $type = null) {
       $server = ($server == 'live') ? 'LIVE' : 'SANDBOX';
 
       if ( $type == 'email') {
@@ -254,7 +254,7 @@
       return true;
     }
 
-    function getApiCredentials($server, $type) {
+    public function getApiCredentials($server, $type) {
       if ( ($server == 'live') && defined('OSCOM_APP_PAYPAL_LIVE_API_' . strtoupper($type)) ) {
         return constant('OSCOM_APP_PAYPAL_LIVE_API_' . strtoupper($type));
       } elseif ( defined('OSCOM_APP_PAYPAL_SANDBOX_API_' . strtoupper($type)) ) {
@@ -262,7 +262,7 @@
       }
     }
 
-    function getParameters($module) {
+    public function getParameters($module) {
       $result = array();
 
       if ( $module == 'G' ) {
@@ -286,7 +286,7 @@
       return $result;
     }
 
-    function getInputParameters($module) {
+    public function getInputParameters($module) {
       $result = array();
 
       if ( $module == 'G' ) {
@@ -355,7 +355,7 @@
     }
 
 // APP calls require $server to be "live" or "sandbox"
-    function getApiResult($module, $call, $extra_params = null, $server = null, $is_ipn = false) {
+    public function getApiResult($module, $call, $extra_params = null, $server = null, $is_ipn = false) {
       if ( $module == 'APP' ) {
         $function = 'OSCOM_PayPal_Api_' . $call;
 
@@ -381,7 +381,7 @@
       return $result['res'];
     }
 
-    function makeApiCall($url, $parameters = null, $headers = null, $opts = null) {
+    public function makeApiCall($url, $parameters = null, $headers = null, $opts = null) {
       $server = parse_url($url);
 
       if ( !isset($server['port']) ) {
@@ -463,7 +463,7 @@
       return $result;
     }
 
-    function drawButton($title = null, $link = null, $type = null, $params = null, $force_css = false) {
+    public function drawButton($title = null, $link = null, $type = null, $params = null, $force_css = false) {
       $colours = array('success' => '#1cb841',
                        'error' => '#ca3c3c',
                        'warning' => '#ebaa16',
@@ -519,7 +519,7 @@
       return $button;
     }
 
-    function createRandomValue($length, $type = 'mixed') {
+    public function createRandomValue($length, $type = 'mixed') {
       if ( ($type != 'mixed') && ($type != 'chars') && ($type != 'digits')) $type = 'mixed';
 
       $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -581,7 +581,7 @@
       return $value;
     }
 
-    function saveParameter($key, $value, $title = null, $description = null, $set_func = null) {
+    public function saveParameter($key, $value, $title = null, $description = null, $set_func = null) {
       if ( !defined($key) ) {
         if ( !isset($title) ) {
           $title = 'PayPal App Parameter';
@@ -603,11 +603,11 @@
       }
     }
 
-    function deleteParameter($key) {
+    public function deleteParameter($key) {
       tep_db_query("delete from configuration where configuration_key = '" . tep_db_input($key) . "'");
     }
 
-    function formatCurrencyRaw($total, $currency_code = null, $currency_value = null) {
+    public function formatCurrencyRaw($total, $currency_code = null, $currency_value = null) {
       global $currencies, $currency;
 
       if ( !isset($currency_code) ) {
@@ -621,15 +621,15 @@
       return number_format(tep_round($total * $currency_value, $currencies->currencies[$currency_code]['decimal_places']), $currencies->currencies[$currency_code]['decimal_places'], '.', '');
     }
 
-    function getCode() {
+    public function getCode() {
       return $this->_code;
     }
 
-    function getTitle() {
+    public function getTitle() {
       return $this->_title;
     }
 
-    function getVersion() {
+    public function getVersion() {
       if ( !isset($this->_version) ) {
         $version = trim(file_get_contents(DIR_FS_CATALOG . 'includes/apps/paypal/version.txt'));
 
@@ -643,19 +643,19 @@
       return $this->_version;
     }
 
-    function getApiVersion() {
+    public function getApiVersion() {
       return $this->_api_version;
     }
 
-    function getIdentifier() {
+    public function getIdentifier() {
       return $this->_identifier;
     }
 
-    function hasAlert() {
+    public function hasAlert() {
       return tep_session_is_registered('OSCOM_PayPal_Alerts');
     }
 
-    function addAlert($message, $type) {
+    public function addAlert($message, $type) {
       global $OSCOM_PayPal_Alerts;
 
       if ( in_array($type, array('error', 'warning', 'success')) ) {
@@ -668,7 +668,7 @@
       }
     }
 
-    function getAlerts() {
+    public function getAlerts() {
       global $OSCOM_PayPal_Alerts;
 
       $output = '';
@@ -700,7 +700,7 @@
       return $output;
     }
 
-    function install($module) {
+    public function install($module) {
       $cut_length = strlen('OSCOM_APP_PAYPAL_' . $module . '_');
 
       foreach ( $this->getParameters($module) as $key ) {
@@ -734,7 +734,7 @@
       }
     }
 
-    function uninstall($module) {
+    public function uninstall($module) {
       tep_db_query("delete from configuration where configuration_key like 'OSCOM_APP_PAYPAL_" . tep_db_input($module) . "_%'");
 
       $m_class = 'OSCOM_PayPal_' . $module;
@@ -752,7 +752,7 @@
       }
     }
 
-    function logUpdate($message, $version) {
+    public function logUpdate($message, $version) {
       if ( is_writable(DIR_FS_CATALOG . 'includes/apps/paypal/work') ) {
         file_put_contents(DIR_FS_CATALOG . 'includes/apps/paypal/work/update_log-' . $version . '.php', '[' . date('d-M-Y H:i:s') . '] ' . $message . "\n", FILE_APPEND);
       }
@@ -799,7 +799,7 @@
       }
     }
 
-    function getDef($key, $values = null) {
+    public function getDef($key, $values = null) {
       $def = isset($this->_definitions[$key]) ? $this->_definitions[$key] : $key;
 
       if ( is_array($values) ) {
@@ -815,7 +815,7 @@
       return $def;
     }
 
-    function getDirectoryContents($base, &$result = array()) {
+    public function getDirectoryContents($base, &$result = array()) {
       foreach ( scandir($base) as $file ) {
         if ( ($file == '.') || ($file == '..') ) {
           continue;
@@ -833,7 +833,7 @@
       return $result;
     }
 
-    function isWritable($location) {
+    public function isWritable($location) {
       if ( !file_exists($location) ) {
         while ( true ) {
           $location = dirname($location);
@@ -847,7 +847,7 @@
       return is_writable($location);
     }
 
-    function rmdir($dir) {
+    public function rmdir($dir) {
       foreach ( scandir($dir) as $file ) {
         if ( !in_array($file, array('.', '..')) ) {
           if ( is_dir($dir . '/' . $file) ) {
@@ -861,7 +861,7 @@
       return rmdir($dir);
     }
 
-    function displayPath($pathname) {
+    public function displayPath($pathname) {
       if ( DIRECTORY_SEPARATOR == '/' ) {
         return $pathname;
       }
@@ -869,12 +869,11 @@
       return str_replace('/', DIRECTORY_SEPARATOR, $pathname);
     }
 
-    function getIpAddress() {
+    public function getIpAddress() {
       return tep_get_ip_address();
     }
 
-    function isValidIpAddress($ip_address) {
+    public function isValidIpAddress($ip_address) {
       return tep_validate_ip_address($ip_address);
     }
   }
-?>

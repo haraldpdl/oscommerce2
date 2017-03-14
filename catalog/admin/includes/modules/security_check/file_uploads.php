@@ -11,20 +11,19 @@
 */
 
   class securityCheck_file_uploads {
-    var $type = 'warning';
+    public $type = 'warning';
 
-    function securityCheck_file_uploads() {
+    public function __construct() {
       global $language;
 
       include(DIR_FS_ADMIN . 'includes/languages/' . $language . '/modules/security_check/file_uploads.php');
     }
 
-    function pass() {
+    public function pass() {
       return (bool)ini_get('file_uploads');
     }
 
-    function getMessage() {
+    public function getMessage() {
       return WARNING_FILE_UPLOADS_DISABLED;
     }
   }
-?>

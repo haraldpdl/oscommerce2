@@ -11,10 +11,10 @@
 */
 
   class securityCheckExtended_admin_backup_file {
-    var $type = 'error';
-    var $has_doc = true;
+    public $type = 'error';
+    public $has_doc = true;
 
-    function securityCheckExtended_admin_backup_file() {
+    public function __construct() {
       global $language;
 
       include(DIR_FS_ADMIN . 'includes/languages/' . $language . '/modules/security_check/extended/admin_backup_file.php');
@@ -22,7 +22,7 @@
       $this->title = MODULE_SECURITY_CHECK_EXTENDED_ADMIN_BACKUP_FILE_TITLE;
     }
 
-    function pass() {
+    public function pass() {
       $backup_file = null;
 
       if ( is_dir(DIR_FS_BACKUP) ) {
@@ -62,11 +62,11 @@
       return $result;
     }
 
-    function getMessage() {
+    public function getMessage() {
       return MODULE_SECURITY_CHECK_EXTENDED_ADMIN_BACKUP_FILE_HTTP_200;
     }
 
-    function getHttpRequest($url) {
+    public function getHttpRequest($url) {
       $server = parse_url($url);
 
       if (isset($server['port']) === false) {
@@ -101,4 +101,3 @@
       return $info;
     }
   }
-?>

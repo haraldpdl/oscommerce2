@@ -11,10 +11,10 @@
 */
 
   class pm2checkout {
-    var $code, $title, $description, $enabled;
+    public $code, $title, $description, $enabled;
 
 // class constructor
-    function pm2checkout() {
+    public function __construct() {
       global $order;
 
       $this->signature = '2checkout|pm2checkout|1.2|2.2';
@@ -36,7 +36,7 @@
     }
 
 // class methods
-    function update_status() {
+    public function update_status() {
       global $order;
 
       if ( ($this->enabled == true) && ((int)MODULE_PAYMENT_2CHECKOUT_ZONE > 0) ) {
@@ -58,26 +58,26 @@
       }
     }
 
-    function javascript_validation() {
+    public function javascript_validation() {
       return false;
     }
 
-    function selection() {
+    public function selection() {
       return array('id' => $this->code,
                    'module' => $this->public_title . (strlen(MODULE_PAYMENT_2CHECKOUT_TEXT_PUBLIC_DESCRIPTION) > 0 ? ' (' . MODULE_PAYMENT_2CHECKOUT_TEXT_PUBLIC_DESCRIPTION . ')' : ''));
     }
 
-    function pre_confirmation_check() {
+    public function pre_confirmation_check() {
       if (MODULE_PAYMENT_2CHECKOUT_ROUTINE == 'Single-Page') {
         $this->form_action_url = 'https://www.2checkout.com/checkout/spurchase';
       }
     }
 
-    function confirmation() {
+    public function confirmation() {
       return false;
     }
 
-    function process_button() {
+    public function process_button() {
       global $customer_id, $currencies, $currency, $order, $languages_id, $cartID;
 
       $process_button_string = tep_draw_hidden_field('sid', MODULE_PAYMENT_2CHECKOUT_LOGIN) .
@@ -131,19 +131,19 @@
       return $process_button_string;
     }
 
-    function before_process() {
+    public function before_process() {
       if ( ($_POST['credit_card_processed'] != 'Y') && ($_POST['credit_card_processed'] != 'K') ){
         tep_redirect(tep_href_link('checkout_payment.php', 'payment_error=' . $this->code, 'SSL', true, false));
       }
     }
 
-    function after_process() {
+    public function after_process() {
       global $order, $insert_id;
 
       if (MODULE_PAYMENT_2CHECKOUT_TESTMODE == 'Test') {
-        $sql_data_array = array('orders_id' => (int)$insert_id, 
-                                'orders_status_id' => (int)$order->info['order_status'], 
-                                'date_added' => 'now()', 
+        $sql_data_array = array('orders_id' => (int)$insert_id,
+                                'orders_status_id' => (int)$order->info['order_status'],
+                                'date_added' => 'now()',
                                 'customer_notified' => '0',
                                 'comments' => MODULE_PAYMENT_2CHECKOUT_TEXT_WARNING_DEMO_MODE);
 
@@ -153,9 +153,9 @@
 // The KEY value returned from the gateway is intentionally broken for Test transactions so it is only checked in Production mode
       if (tep_not_null(MODULE_PAYMENT_2CHECKOUT_SECRET_WORD) && (MODULE_PAYMENT_2CHECKOUT_TESTMODE == 'Production')) {
         if (strtoupper(md5(MODULE_PAYMENT_2CHECKOUT_SECRET_WORD . MODULE_PAYMENT_2CHECKOUT_LOGIN . $_POST['order_number'] . $this->order_format($order->info['total'], MODULE_PAYMENT_2CHECKOUT_CURRENCY))) != strtoupper($_POST['key'])) {
-          $sql_data_array = array('orders_id' => (int)$insert_id, 
-                                  'orders_status_id' => (int)$order->info['order_status'], 
-                                  'date_added' => 'now()', 
+          $sql_data_array = array('orders_id' => (int)$insert_id,
+                                  'orders_status_id' => (int)$order->info['order_status'],
+                                  'date_added' => 'now()',
                                   'customer_notified' => '0',
                                   'comments' => MODULE_PAYMENT_2CHECKOUT_TEXT_WARNING_TRANSACTION_ORDER);
 
@@ -164,14 +164,14 @@
       }
     }
 
-    function get_error() {
+    public function get_error() {
       $error = array('title' => '',
                      'error' => MODULE_PAYMENT_2CHECKOUT_TEXT_ERROR_MESSAGE);
 
       return $error;
     }
 
-    function check() {
+    public function check() {
       if (!isset($this->_check)) {
         $check_query = tep_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_2CHECKOUT_STATUS'");
         $this->_check = tep_db_num_rows($check_query);
@@ -179,7 +179,7 @@
       return $this->_check;
     }
 
-    function install() {
+    public function install() {
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable 2Checkout', 'MODULE_PAYMENT_2CHECKOUT_STATUS', 'False', 'Do you want to accept 2CheckOut payments?', '6', '0', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Vendor Account', 'MODULE_PAYMENT_2CHECKOUT_LOGIN', '', 'The vendor account number for the 2Checkout gateway.', '6', '0', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Transaction Mode', 'MODULE_PAYMENT_2CHECKOUT_TESTMODE', 'Test', 'Transaction mode used for the 2Checkout gateway.', '6', '0', 'tep_cfg_select_option(array(\'Test\', \'Production\'), ', now())");
@@ -191,16 +191,16 @@
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, use_function, date_added) values ('Set Order Status', 'MODULE_PAYMENT_2CHECKOUT_ORDER_STATUS_ID', '0', 'Set the status of orders made with this payment module to this value.', '6', '0', 'tep_cfg_pull_down_order_statuses(', 'tep_get_order_status_name', now())");
     }
 
-    function remove() {
+    public function remove() {
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
-    function keys() {
+    public function keys() {
       return array('MODULE_PAYMENT_2CHECKOUT_STATUS', 'MODULE_PAYMENT_2CHECKOUT_LOGIN', 'MODULE_PAYMENT_2CHECKOUT_TESTMODE', 'MODULE_PAYMENT_2CHECKOUT_SECRET_WORD', 'MODULE_PAYMENT_2CHECKOUT_ROUTINE', 'MODULE_PAYMENT_2CHECKOUT_CURRENCY', 'MODULE_PAYMENT_2CHECKOUT_ZONE', 'MODULE_PAYMENT_2CHECKOUT_ORDER_STATUS_ID', 'MODULE_PAYMENT_2CHECKOUT_SORT_ORDER');
     }
 
 // format prices without currency formatting
-    function format_raw($number, $currency_code = '', $currency_value = '') {
+    public function format_raw($number, $currency_code = '', $currency_value = '') {
       global $currencies, $currency;
 
       if (empty($currency_code) || !$currencies->is_set($currency_code)) {
@@ -214,7 +214,7 @@
       return number_format(tep_round($number * $currency_value, $currencies->currencies[$currency_code]['decimal_places']), $currencies->currencies[$currency_code]['decimal_places'], '.', '');
     }
 
-    function getCurrencies($value, $key = '') {
+    public function getCurrencies($value, $key = '') {
       $name = (($key) ? 'configuration[' . $key . ']' : 'configuration_value');
 
       $currencies_array = array();
@@ -228,4 +228,3 @@
       return tep_draw_pull_down_menu($name, $currencies_array, $value);
     }
   }
-?>

@@ -11,19 +11,19 @@
 */
 
   class newsletter {
-    var $show_choose_audience, $title, $content;
+    public $show_choose_audience, $title, $content;
 
-    function newsletter($title, $content) {
+    public function __construct($title, $content) {
       $this->show_choose_audience = false;
       $this->title = $title;
       $this->content = $content;
     }
 
-    function choose_audience() {
+    public function choose_audience() {
       return false;
     }
 
-    function confirm() {
+    public function confirm() {
       $mail_query = tep_db_query("select count(*) as count from " . TABLE_CUSTOMERS . " where customers_newsletter = '1'");
       $mail = tep_db_fetch_array($mail_query);
 
@@ -54,7 +54,7 @@
       return $confirm_string;
     }
 
-    function send($newsletter_id) {
+    public function send($newsletter_id) {
       $mail_query = tep_db_query("select customers_firstname, customers_lastname, customers_email_address from " . TABLE_CUSTOMERS . " where customers_newsletter = '1'");
 
       $mimemessage = new email(array('X-Mailer: osCommerce'));
@@ -76,4 +76,3 @@
       tep_db_query("update " . TABLE_NEWSLETTERS . " set date_sent = now(), status = '1' where newsletters_id = '" . tep_db_input($newsletter_id) . "'");
     }
   }
-?>

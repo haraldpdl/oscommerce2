@@ -11,20 +11,20 @@
 */
 
   class OSCOM_PayPal_DP_Cfg_cards {
-    var $default = 'visa;mastercard;discover;amex;maestro';
-    var $title;
-    var $description;
-    var $sort_order = 200;
-    var $cards = array('visa' => 'Visa', 'mastercard' => 'MasterCard', 'discover' => 'Discover Card', 'amex' => 'American Express', 'maestro' => 'Maestro');
+    public $default = 'visa;mastercard;discover;amex;maestro';
+    public $title;
+    public $description;
+    public $sort_order = 200;
+    public $cards = array('visa' => 'Visa', 'mastercard' => 'MasterCard', 'discover' => 'Discover Card', 'amex' => 'American Express', 'maestro' => 'Maestro');
 
-    function OSCOM_PayPal_DP_Cfg_cards() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->title = $OSCOM_PayPal->getDef('cfg_dp_cards_title');
       $this->description = $OSCOM_PayPal->getDef('cfg_dp_cards_desc');
     }
 
-    function getSetField() {
+    public function getSetField() {
       $active = explode(';', OSCOM_APP_PAYPAL_DP_CARDS);
 
       $input = '';
@@ -63,4 +63,3 @@ EOT;
       return $result;
     }
   }
-?>

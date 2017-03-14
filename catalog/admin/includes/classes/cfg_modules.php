@@ -11,9 +11,9 @@
 */
 
   class cfg_modules {
-    var $_modules = array();
+    public $_modules = array();
 
-    function cfg_modules() {
+    public function __construct() {
       global $PHP_SELF, $language;
 
       $file_extension = substr($PHP_SELF, strrpos($PHP_SELF, '.'));
@@ -42,11 +42,11 @@
       }
     }
 
-    function getAll() {
+    public function getAll() {
       return $this->_modules;
     }
 
-    function get($code, $key) {
+    public function get($code, $key) {
       foreach ($this->_modules as $m) {
         if ($m['code'] == $code) {
           return $m[$key];
@@ -54,7 +54,7 @@
       }
     }
 
-    function exists($code) {
+    public function exists($code) {
       foreach ($this->_modules as $m) {
         if ($m['code'] == $code) {
           return true;
@@ -64,4 +64,3 @@
       return false;
     }
   }
-?>

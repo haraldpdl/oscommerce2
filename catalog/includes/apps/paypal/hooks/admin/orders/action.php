@@ -15,7 +15,7 @@
   }
 
   class paypal_hook_admin_orders_action {
-    function paypal_hook_admin_orders_action() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       if ( !isset($OSCOM_PayPal) || !is_object($OSCOM_PayPal) || (get_class($OSCOM_PayPal) != 'OSCOM_PayPal') ) {
@@ -27,7 +27,7 @@
       $this->_app->loadLanguageFile('hooks/admin/orders/action.php');
     }
 
-    function execute() {
+    public function execute() {
       if ( isset($_GET['tabaction']) ) {
         $ppstatus_query = tep_db_query("select comments from orders_status_history where orders_id = '" . (int)$_GET['oID'] . "' and orders_status_id = '" . (int)OSCOM_APP_PAYPAL_TRANSACTIONS_ORDER_STATUS_ID . "' and comments like '%Transaction ID:%' order by date_added limit 1");
         if ( tep_db_num_rows($ppstatus_query) ) {
@@ -71,7 +71,7 @@
       }
     }
 
-    function getTransactionDetails($comments, $order) {
+    public function getTransactionDetails($comments, $order) {
       global $messageStack;
 
       $result = null;
@@ -183,7 +183,7 @@
       }
     }
 
-    function doCapture($comments, $order) {
+    public function doCapture($comments, $order) {
       global $messageStack;
 
       $pass = false;
@@ -246,7 +246,7 @@
       }
     }
 
-    function doVoid($comments, $order) {
+    public function doVoid($comments, $order) {
       global $messageStack;
 
       $pass = false;
@@ -291,7 +291,7 @@
       }
     }
 
-    function refundTransaction($comments, $order) {
+    public function refundTransaction($comments, $order) {
       global $messageStack;
 
       if ( isset($_POST['ppRefund']) ) {
@@ -364,4 +364,3 @@
       }
     }
   }
-?>

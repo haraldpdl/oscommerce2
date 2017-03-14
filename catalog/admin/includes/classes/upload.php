@@ -11,9 +11,9 @@
 */
 
   class upload {
-    var $file, $filename, $destination, $permissions, $extensions, $tmp_filename, $message_location;
+    public $file, $filename, $destination, $permissions, $extensions, $tmp_filename, $message_location;
 
-    function upload($file = '', $destination = '', $permissions = '777', $extensions = '') {
+    public function __construct($file = '', $destination = '', $permissions = '777', $extensions = '') {
       $this->set_file($file);
       $this->set_destination($destination);
       $this->set_permissions($permissions);
@@ -32,7 +32,7 @@
       }
     }
 
-    function parse() {
+    public function parse() {
       global $messageStack;
 
       $file = array();
@@ -78,7 +78,7 @@
       }
     }
 
-    function save() {
+    public function save() {
       global $messageStack;
 
       if (substr($this->destination, -1) != '/') $this->destination .= '/';
@@ -104,27 +104,27 @@
       }
     }
 
-    function set_file($file) {
+    public function set_file($file) {
       $this->file = $file;
     }
 
-    function set_destination($destination) {
+    public function set_destination($destination) {
       $this->destination = $destination;
     }
 
-    function set_permissions($permissions) {
+    public function set_permissions($permissions) {
       $this->permissions = octdec($permissions);
     }
 
-    function set_filename($filename) {
+    public function set_filename($filename) {
       $this->filename = $filename;
     }
 
-    function set_tmp_filename($filename) {
+    public function set_tmp_filename($filename) {
       $this->tmp_filename = $filename;
     }
 
-    function set_extensions($extensions) {
+    public function set_extensions($extensions) {
       if (tep_not_null($extensions)) {
         if (is_array($extensions)) {
           $this->extensions = $extensions;
@@ -136,7 +136,7 @@
       }
     }
 
-    function check_destination() {
+    public function check_destination() {
       global $messageStack;
 
       if (!tep_is_writable($this->destination)) {
@@ -160,7 +160,7 @@
       }
     }
 
-    function set_output_messages($location) {
+    public function set_output_messages($location) {
       switch ($location) {
         case 'session':
           $this->message_location = 'session';
@@ -172,4 +172,3 @@
       }
     }
   }
-?>

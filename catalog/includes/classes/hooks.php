@@ -11,16 +11,16 @@
 */
 
   class hooks {
-    var $_site;
-    var $_hooks = array();
+    public $_site;
+    public $_hooks = array();
 
-    function __construct($site) {
+    public function __construct($site) {
       $this->_site = basename($site);
 
       $this->register('global');
     }
 
-    function register($group) {
+    public function register($group) {
       $group = basename($group);
 
       $directory = DIR_FS_CATALOG . 'includes/hooks/' . $this->_site . '/' . $group;
@@ -50,7 +50,7 @@
       }
     }
 
-    function call($group, $action) {
+    public function call($group, $action) {
       $result = '';
 
       if (isset($this->_hooks[$this->_site][$group][$action])) {

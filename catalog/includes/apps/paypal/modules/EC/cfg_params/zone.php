@@ -11,19 +11,19 @@
 */
 
   class OSCOM_PayPal_EC_Cfg_zone {
-    var $default = '0';
-    var $title;
-    var $description;
-    var $sort_order = 900;
+    public $default = '0';
+    public $title;
+    public $description;
+    public $sort_order = 900;
 
-    function OSCOM_PayPal_EC_Cfg_zone() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->title = $OSCOM_PayPal->getDef('cfg_ec_zone_title');
       $this->description = $OSCOM_PayPal->getDef('cfg_ec_zone_desc');
     }
 
-    function getSetField() {
+    public function getSetField() {
       global $OSCOM_PayPal;
 
       $zone_class_array = array(array('id' => '0', 'text' => $OSCOM_PayPal->getDef('cfg_ec_zone_global')));
@@ -53,4 +53,3 @@ EOT;
       return $result;
     }
   }
-?>

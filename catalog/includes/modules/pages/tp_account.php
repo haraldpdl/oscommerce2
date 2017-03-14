@@ -11,9 +11,9 @@
 */
 
   class tp_account {
-    var $group = 'account';
+    public $group = 'account';
 
-    function prepare() {
+    public function prepare() {
       global $oscTemplate;
 
       $oscTemplate->_data[$this->group] = array('account' => array('title' => MY_ACCOUNT_TITLE,
@@ -42,9 +42,9 @@
                                                                                                               'icon' => 'fa fa-send'))));
     }
 
-    function build() {
+    public function build() {
       global $oscTemplate;
-      
+
       foreach ( $oscTemplate->_data[$this->group] as $key => $row ) {
         $arr[$key] = $row['sort_order'];
       }
@@ -65,7 +65,7 @@
           }
 
           $output .= (tep_not_null($entry['link'])) ? '<a href="' . $entry['link'] . '">' . $entry['title'] . '</a>' : $entry['title'];
-          
+
           $output .= '    </li>';
         }
 
@@ -74,8 +74,7 @@
       }
 
       $output .= '</div>';
-      
+
       $oscTemplate->addContent($output, $this->group);
     }
   }
-?>

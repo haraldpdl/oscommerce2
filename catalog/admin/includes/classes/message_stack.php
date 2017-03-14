@@ -18,9 +18,9 @@
 */
 
   class messageStack extends tableBlock {
-    var $size = 0;
+    public $size = 0;
 
-    function messageStack() {
+    public function __construct() {
       global $messageToStack;
 
       $this->errors = array();
@@ -33,7 +33,7 @@
       }
     }
 
-    function add($message, $type = 'error') {
+    public function add($message, $type = 'error') {
       if ($type == 'error') {
         $this->errors[] = array('params' => 'class="messageStackError"', 'text' => tep_image('images/icons/error.gif', ICON_ERROR) . '&nbsp;' . $message);
       } elseif ($type == 'warning') {
@@ -47,7 +47,7 @@
       $this->size++;
     }
 
-    function add_session($message, $type = 'error') {
+    public function add_session($message, $type = 'error') {
       global $messageToStack;
 
       if (!tep_session_is_registered('messageToStack')) {
@@ -58,14 +58,13 @@
       $messageToStack[] = array('text' => $message, 'type' => $type);
     }
 
-    function reset() {
+    public function reset() {
       $this->errors = array();
       $this->size = 0;
     }
 
-    function output() {
+    public function output() {
       $this->table_data_parameters = 'class="messageBox"';
       return $this->tableBlock($this->errors);
     }
   }
-?>

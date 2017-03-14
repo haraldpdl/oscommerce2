@@ -19,7 +19,7 @@
   class messageStack extends alertBlock {
 
 // class constructor
-    function messageStack() {
+    public function __construct() {
       $this->messages = array();
 
       if (isset($_SESSION['messageToStack'])) {
@@ -31,7 +31,7 @@
     }
 
 // class methods
-    function add($class, $message, $type = 'error') {
+    public function add($class, $message, $type = 'error') {
       if ($type == 'error') {
         $this->messages[] = array('params' => 'class="alert alert-danger alert-dismissible"', 'class' => $class, 'text' => $message);
       } elseif ($type == 'warning') {
@@ -43,7 +43,7 @@
       }
     }
 
-    function add_session($class, $message, $type = 'error') {
+    public function add_session($class, $message, $type = 'error') {
       if (!isset($_SESSION['messageToStack'])) {
         $_SESSION['messageToStack'] = array();
       }
@@ -51,11 +51,11 @@
       $_SESSION['messageToStack'][] = array('class' => $class, 'text' => $message, 'type' => $type);
     }
 
-    function reset() {
+    public function reset() {
       $this->messages = array();
     }
 
-    function output($class) {
+    public function output($class) {
       $output = array();
       for ($i=0, $n=sizeof($this->messages); $i<$n; $i++) {
         if ($this->messages[$i]['class'] == $class) {
@@ -66,7 +66,7 @@
       return $this->alertBlock($output);
     }
 
-    function size($class) {
+    public function size($class) {
       $count = 0;
 
       for ($i=0, $n=sizeof($this->messages); $i<$n; $i++) {
@@ -78,4 +78,3 @@
       return $count;
     }
   }
-?>

@@ -11,19 +11,19 @@
 */
 
   class OSCOM_PayPal_EC_Cfg_incontext_button_size {
-    var $default = '2';
-    var $title;
-    var $description;
-    var $sort_order = 220;
+    public $default = '2';
+    public $title;
+    public $description;
+    public $sort_order = 220;
 
-    function OSCOM_PayPal_EC_Cfg_incontext_button_size() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->title = $OSCOM_PayPal->getDef('cfg_ec_incontext_button_size_title');
       $this->description = $OSCOM_PayPal->getDef('cfg_ec_incontext_button_size_desc');
     }
 
-    function getSetField() {
+    public function getSetField() {
       global $OSCOM_PayPal;
 
       $input = '<input type="radio" id="incontextButtonSizeSmall" name="incontext_button_size" value="2"' . (OSCOM_APP_PAYPAL_EC_INCONTEXT_BUTTON_SIZE == '2' ? ' checked="checked"' : '') . '><label for="incontextButtonSizeSmall">' . $OSCOM_PayPal->getDef('cfg_ec_incontext_button_size_small') . '</label>' .
@@ -53,4 +53,3 @@ EOT;
       return $result;
     }
   }
-?>

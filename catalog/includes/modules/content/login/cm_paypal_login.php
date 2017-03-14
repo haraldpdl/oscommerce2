@@ -15,15 +15,15 @@
   }
 
   class cm_paypal_login {
-    var $code;
-    var $group;
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
-    var $_app;
+    public $code;
+    public $group;
+    public $title;
+    public $description;
+    public $sort_order;
+    public $enabled = false;
+    public $_app;
 
-    function cm_paypal_login() {
+    public function __construct() {
       global $PHP_SELF;
 
       $this->_app = new OSCOM_PayPal();
@@ -61,7 +61,7 @@
       }
     }
 
-    function execute() {
+    public function execute() {
       global $oscTemplate;
 
       if ( isset($_GET['action']) ) {
@@ -96,7 +96,7 @@
       $oscTemplate->addContent($template, $this->group);
     }
 
-    function preLogin() {
+    public function preLogin() {
       global $paypal_login_access_token, $paypal_login_customer_id, $sendto, $billto;
 
       $return_url = tep_href_link('login.php', '', 'SSL');
@@ -261,7 +261,7 @@
       exit;
     }
 
-    function postLogin() {
+    public function postLogin() {
       global $paypal_login_customer_id, $login_customer_id, $language, $payment;
 
       if ( tep_session_is_registered('paypal_login_customer_id') ) {
@@ -291,31 +291,31 @@
       }
     }
 
-    function isEnabled() {
+    public function isEnabled() {
       return $this->enabled;
     }
 
-    function check() {
+    public function check() {
       return defined('OSCOM_APP_PAYPAL_LOGIN_STATUS');
     }
 
-    function install() {
+    public function install() {
       tep_redirect(tep_href_link('paypal.php', 'action=configure&subaction=install&module=LOGIN'));
     }
 
-    function remove() {
+    public function remove() {
       tep_redirect(tep_href_link('paypal.php', 'action=configure&subaction=uninstall&module=LOGIN'));
     }
 
-    function keys() {
+    public function keys() {
       return array('OSCOM_APP_PAYPAL_LOGIN_CONTENT_WIDTH', 'OSCOM_APP_PAYPAL_LOGIN_SORT_ORDER');
     }
 
-    function hasAttribute($attribute) {
+    public function hasAttribute($attribute) {
       return in_array($attribute, explode(';', OSCOM_APP_PAYPAL_LOGIN_ATTRIBUTES));
     }
 
-    function get_default_attributes() {
+    public function get_default_attributes() {
       $data = array();
 
       foreach ( cm_paypal_login_get_attributes() as $group => $attributes ) {
@@ -348,4 +348,3 @@
                                     'language' => 'profile'),
                  'checkout' => array('seamless_checkout' => 'https://uri.paypal.com/services/expresscheckout'));
   }
-?>

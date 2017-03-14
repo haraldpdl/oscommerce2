@@ -11,15 +11,15 @@
 */
 
   class OSCOM_PayPal_EC {
-    var $_title;
-    var $_short_title;
-    var $_introduction;
-    var $_req_notes;
-    var $_pm_code = 'paypal_express';
-    var $_pm_pf_code = 'paypal_pro_payflow_ec';
-    var $_sort_order = 100;
+    public $_title;
+    public $_short_title;
+    public $_introduction;
+    public $_req_notes;
+    public $_pm_code = 'paypal_express';
+    public $_pm_pf_code = 'paypal_pro_payflow_ec';
+    public $_sort_order = 100;
 
-    function OSCOM_PayPal_EC() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->_title = $OSCOM_PayPal->getDef('module_ec_title');
@@ -41,22 +41,22 @@
       }
     }
 
-    function getTitle() {
+    public function getTitle() {
       return $this->_title;
     }
 
-    function getShortTitle() {
+    public function getShortTitle() {
       return $this->_short_title;
     }
 
-    function install($OSCOM_PayPal) {
+    public function install($OSCOM_PayPal) {
       $installed = explode(';', MODULE_PAYMENT_INSTALLED);
       $installed[] = $this->_pm_code . '.php';
 
       $OSCOM_PayPal->saveParameter('MODULE_PAYMENT_INSTALLED', implode(';', $installed));
     }
 
-    function uninstall($OSCOM_PayPal) {
+    public function uninstall($OSCOM_PayPal) {
       $installed = explode(';', MODULE_PAYMENT_INSTALLED);
       $installed_pos = array_search($this->_pm_code . '.php', $installed);
 
@@ -67,11 +67,11 @@
       }
     }
 
-    function canMigrate() {
+    public function canMigrate() {
       return $this->doMigrationCheck($this->_pm_code) || $this->doMigrationCheck($this->_pm_pf_code);
     }
 
-    function doMigrationCheck($class) {
+    public function doMigrationCheck($class) {
       if ( file_exists(DIR_FS_CATALOG . 'includes/modules/payment/' . $class . '.php') ) {
         if ( !class_exists($class) ) {
           include(DIR_FS_CATALOG . 'includes/modules/payment/' . $class . '.php');
@@ -91,7 +91,7 @@
       return false;
     }
 
-    function migrate($OSCOM_PayPal) {
+    public function migrate($OSCOM_PayPal) {
       $is_payflow = false;
 
       if ( defined('MODULE_PAYMENT_PAYPAL_EXPRESS_TRANSACTION_SERVER') ) {
@@ -321,4 +321,3 @@
       }
     }
   }
-?>

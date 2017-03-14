@@ -11,9 +11,9 @@
 */
 
   class order {
-    var $info, $totals, $products, $customer, $delivery;
+    public $info, $totals, $products, $customer, $delivery;
 
-    function order($order_id) {
+    public function __construct($order_id) {
       $this->info = array();
       $this->totals = array();
       $this->products = array();
@@ -23,7 +23,7 @@
       $this->query($order_id);
     }
 
-    function query($order_id) {
+    public function query($order_id) {
       global $languages_id;
 
       $order_query = tep_db_query("select o.*, s.orders_status_name from " . TABLE_ORDERS . " o, " . TABLE_ORDERS_STATUS . " s where o.orders_id = '" . (int)$order_id . "' and o.orders_status = s.orders_status_id and s.language_id = '" . (int)$languages_id . "'");
@@ -114,4 +114,3 @@
       }
     }
   }
-?>

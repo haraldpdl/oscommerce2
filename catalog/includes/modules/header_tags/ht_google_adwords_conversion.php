@@ -11,14 +11,14 @@
 */
 
   class ht_google_adwords_conversion {
-    var $code = 'ht_google_adwords_conversion';
-    var $group = 'footer_scripts';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_google_adwords_conversion';
+    public $group = 'footer_scripts';
+    public $title;
+    public $description;
+    public $sort_order;
+    public $enabled = false;
 
-    function ht_google_adwords_conversion() {
+    public function __construct() {
       $this->title = MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_TITLE;
       $this->description = MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_DESCRIPTION;
 
@@ -28,7 +28,7 @@
       }
     }
 
-    function execute() {
+    public function execute() {
       global $PHP_SELF, $oscTemplate, $customer_id, $lng, $languages_id;
 
       if (MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_JS_PLACEMENT != 'Footer') {
@@ -89,7 +89,7 @@ EOD;
       }
     }
 
-    function format_raw($number, $currency_code = '', $currency_value = '') {
+    public function format_raw($number, $currency_code = '', $currency_value = '') {
       global $currencies, $currency;
 
       if (empty($currency_code) || !$currencies->is_set($currency_code)) {
@@ -102,16 +102,16 @@ EOD;
 
       return number_format(tep_round($number * $currency_value, $currencies->currencies[$currency_code]['decimal_places']), $currencies->currencies[$currency_code]['decimal_places'], '.', '');
     }
-    
-    function isEnabled() {
+
+    public function isEnabled() {
       return $this->enabled;
     }
 
-    function check() {
+    public function check() {
       return defined('MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_STATUS');
     }
 
-    function install() {
+    public function install() {
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable Google AdWords Conversion Module', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_STATUS', 'True', 'Do you want to allow the Google AdWords Conversion Module on your checkout success page?', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Conversion ID', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_ID', '', 'The Google AdWords Conversion ID', '6', '0', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, use_function, date_added) values ('Tracking Notification Layout', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_FORMAT', '1', 'A small message will appear on your site telling customers that their visits on your site are being tracked. We recommend you use it.', '6', '0', 'tep_cfg_google_adwords_conversion_set_format(', 'tep_cfg_google_adwords_conversion_get_format', now())");
@@ -121,11 +121,11 @@ EOD;
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort Order', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
     }
 
-    function remove() {
+    public function remove() {
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
-    function keys() {
+    public function keys() {
       return array('MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_STATUS', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_ID', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_FORMAT', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_COLOR', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_LABEL', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_JS_PLACEMENT', 'MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_SORT_ORDER');
     }
   }
@@ -151,4 +151,3 @@ EOD;
 
     return $format[$value];
   }
-?>

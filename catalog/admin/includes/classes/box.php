@@ -24,12 +24,12 @@
 */
 
   class box extends tableBlock {
-    function box() {
+    public function __construct() {
       $this->heading = array();
       $this->contents = array();
     }
 
-    function infoBox($heading, $contents) {
+    public function infoBox($heading, $contents) {
       $this->table_row_parameters = 'class="infoBoxHeading"';
       $this->table_data_parameters = 'class="infoBoxHeading"';
       $this->heading = $this->tableBlock($heading);
@@ -41,7 +41,7 @@
       return $this->heading . $this->contents;
     }
 
-    function menuBox($heading, $contents) {
+    public function menuBox($heading, $contents) {
       $this->table_data_parameters = 'class="menuBoxHeading"';
       if (isset($heading[0]['link'])) {
         $this->table_data_parameters .= ' onmouseover="this.style.cursor=\'hand\'" onclick="document.location.href=\'' . $heading[0]['link'] . '\'"';
@@ -57,4 +57,3 @@
       return $this->heading . $this->contents;
     }
   }
-?>

@@ -11,13 +11,13 @@
 */
 
   class shoppingCart {
-    var $contents, $total, $weight, $cartID, $content_type;
+    public $contents, $total, $weight, $cartID, $content_type;
 
-    function shoppingCart() {
+    public function __construct() {
       $this->reset();
     }
 
-    function restore_contents() {
+    public function restore_contents() {
       global $customer_id;
 
       if (!tep_session_is_registered('customer_id')) return false;
@@ -61,7 +61,7 @@
       $this->cartID = $this->generate_cart_id();
     }
 
-    function reset($reset_database = false) {
+    public function reset($reset_database = false) {
       global $customer_id;
 
       $this->contents = array();
@@ -78,7 +78,7 @@
       if (tep_session_is_registered('cartID')) tep_session_unregister('cartID');
     }
 
-    function add_cart($products_id, $qty = '1', $attributes = '', $notify = true) {
+    public function add_cart($products_id, $qty = '1', $attributes = '', $notify = true) {
       global $new_products_id_in_cart, $customer_id;
 
       $products_id_string = tep_get_uprid($products_id, $attributes);
@@ -143,7 +143,7 @@
       }
     }
 
-    function update_quantity($products_id, $quantity = '', $attributes = '') {
+    public function update_quantity($products_id, $quantity = '', $attributes = '') {
       global $customer_id;
 
       $products_id_string = tep_get_uprid($products_id, $attributes);
@@ -184,7 +184,7 @@
       }
     }
 
-    function cleanup() {
+    public function cleanup() {
       global $customer_id;
 
       reset($this->contents);
@@ -200,7 +200,7 @@
       }
     }
 
-    function count_contents() {  // get total number of items in cart 
+    public function count_contents() {  // get total number of items in cart
       $total_items = 0;
       if (is_array($this->contents)) {
         reset($this->contents);
@@ -212,7 +212,7 @@
       return $total_items;
     }
 
-    function get_quantity($products_id) {
+    public function get_quantity($products_id) {
       if (isset($this->contents[$products_id])) {
         return $this->contents[$products_id]['qty'];
       } else {
@@ -220,7 +220,7 @@
       }
     }
 
-    function in_cart($products_id) {
+    public function in_cart($products_id) {
       if (isset($this->contents[$products_id])) {
         return true;
       } else {
@@ -228,7 +228,7 @@
       }
     }
 
-    function remove($products_id) {
+    public function remove($products_id) {
       global $customer_id;
 
       unset($this->contents[$products_id]);
@@ -242,11 +242,11 @@
       $this->cartID = $this->generate_cart_id();
     }
 
-    function remove_all() {
+    public function remove_all() {
       $this->reset();
     }
 
-    function get_product_id_list() {
+    public function get_product_id_list() {
       $product_id_list = '';
       if (is_array($this->contents)) {
         reset($this->contents);
@@ -258,7 +258,7 @@
       return substr($product_id_list, 2);
     }
 
-    function calculate() {
+    public function calculate() {
       global $currencies;
 
       $this->total = 0;
@@ -303,7 +303,7 @@
       }
     }
 
-    function attributes_price($products_id) {
+    public function attributes_price($products_id) {
       $attributes_price = 0;
 
       if (isset($this->contents[$products_id]['attributes'])) {
@@ -322,7 +322,7 @@
       return $attributes_price;
     }
 
-    function get_products() {
+    public function get_products() {
       global $languages_id;
 
       if (!is_array($this->contents)) return false;
@@ -357,23 +357,23 @@
       return $products_array;
     }
 
-    function show_total() {
+    public function show_total() {
       $this->calculate();
 
       return $this->total;
     }
 
-    function show_weight() {
+    public function show_weight() {
       $this->calculate();
 
       return $this->weight;
     }
 
-    function generate_cart_id($length = 5) {
+    public function generate_cart_id($length = 5) {
       return tep_create_random_value($length, 'digits');
     }
 
-    function get_content_type() {
+    public function get_content_type() {
       $this->content_type = false;
 
       if ( (DOWNLOAD_ENABLED == 'true') && ($this->count_contents() > 0) ) {
@@ -429,7 +429,7 @@
       return $this->content_type;
     }
 
-    function unserialize($broken) {
+    public function unserialize($broken) {
       for(reset($broken);$kv=each($broken);) {
         $key=$kv['key'];
         if (gettype($this->$key)!="user function")
@@ -438,4 +438,3 @@
     }
 
   }
-?>

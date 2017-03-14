@@ -11,19 +11,19 @@
 */
 
   class OSCOM_PayPal_Cfg_ssl_version {
-    var $default = '0';
-    var $title;
-    var $description;
-    var $sort_order = 350;
+    public $default = '0';
+    public $title;
+    public $description;
+    public $sort_order = 350;
 
-    function OSCOM_PayPal_Cfg_ssl_version() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->title = $OSCOM_PayPal->getDef('cfg_ssl_version_title');
       $this->description = $OSCOM_PayPal->getDef('cfg_ssl_version_desc');
     }
 
-    function getSetField() {
+    public function getSetField() {
       global $OSCOM_PayPal;
 
       $info_url = 'https://library.oscommerce.com/Package&paypal&oscom23&ssl_version';
@@ -131,4 +131,3 @@ EOT;
       return $result;
     }
   }
-?>

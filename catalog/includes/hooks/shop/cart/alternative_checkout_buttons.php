@@ -11,7 +11,7 @@
 */
 
   class hook_shop_cart_alternative_checkout_buttons {
-    function listen_displayAlternativeCheckoutButtons() {
+    public function listen_displayAlternativeCheckoutButtons() {
       global $payment_modules;
 
       $initialize_checkout_methods = $payment_modules->checkout_initialization_method();

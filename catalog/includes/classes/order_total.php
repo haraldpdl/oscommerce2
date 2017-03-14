@@ -11,10 +11,10 @@
 */
 
   class order_total {
-    var $modules;
+    public $modules;
 
 // class constructor
-    function order_total() {
+    public function __construct() {
       global $language;
 
       if (defined('MODULE_ORDER_TOTAL_INSTALLED') && tep_not_null(MODULE_ORDER_TOTAL_INSTALLED)) {
@@ -31,7 +31,7 @@
       }
     }
 
-    function process() {
+    public function process() {
       $order_total_array = array();
       if (is_array($this->modules)) {
         reset($this->modules);
@@ -57,7 +57,7 @@
       return $order_total_array;
     }
 
-    function output() {
+    public function output() {
       $output_string = '';
       if (is_array($this->modules)) {
         reset($this->modules);
@@ -78,4 +78,3 @@
       return $output_string;
     }
   }
-?>

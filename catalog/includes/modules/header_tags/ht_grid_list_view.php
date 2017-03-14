@@ -11,14 +11,14 @@
 */
 
   class ht_grid_list_view {
-    var $code = 'ht_grid_list_view';
-    var $group = 'footer_scripts';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_grid_list_view';
+    public $group = 'footer_scripts';
+    public $title;
+    public $description;
+    public $sort_order;
+    public $enabled = false;
 
-    function ht_grid_list_view() {
+    public function __construct() {
       $this->title = MODULE_HEADER_TAGS_GRID_LIST_VIEW_TITLE;
       $this->description = MODULE_HEADER_TAGS_GRID_LIST_VIEW_DESCRIPTION;
 
@@ -28,7 +28,7 @@
       }
     }
 
-    function execute() {
+    public function execute() {
       global $PHP_SELF, $oscTemplate;
 
       if (tep_not_null(MODULE_HEADER_TAGS_GRID_LIST_VIEW_PAGES)) {
@@ -49,29 +49,29 @@
       }
     }
 
-    function isEnabled() {
+    public function isEnabled() {
       return $this->enabled;
     }
 
-    function check() {
+    public function check() {
       return defined('MODULE_HEADER_TAGS_GRID_LIST_VIEW_STATUS');
     }
 
-    function install() {
+    public function install() {
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable Grid List javascript', 'MODULE_HEADER_TAGS_GRID_LIST_VIEW_STATUS', 'True', 'Do you want to enable the Grid/List Javascript module?', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
 	    tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added) values ('Pages', 'MODULE_HEADER_TAGS_GRID_LIST_VIEW_PAGES', '" . implode(';', $this->get_default_pages()) . "', 'The pages to add the Grid List JS Scripts to.', '6', '4', 'ht_grid_list_view_show_pages', 'ht_grid_list_view_edit_pages(', now())");
 	    tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort Order', 'MODULE_HEADER_TAGS_GRID_LIST_VIEW_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '5', now())");
     }
 
-    function remove() {
+    public function remove() {
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
-    function keys() {
+    public function keys() {
       return array('MODULE_HEADER_TAGS_GRID_LIST_VIEW_STATUS', 'MODULE_HEADER_TAGS_GRID_LIST_VIEW_PAGES', 'MODULE_HEADER_TAGS_GRID_LIST_VIEW_SORT_ORDER');
     }
 
-    function get_default_pages() {
+    public function get_default_pages() {
       return array('advanced_search_result.php',
                    'index.php',
                    'products_new.php',
@@ -143,4 +143,3 @@
 
     return $output;
   }
-  

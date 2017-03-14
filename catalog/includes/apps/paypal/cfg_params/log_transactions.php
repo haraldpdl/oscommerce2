@@ -11,17 +11,17 @@
 */
 
   class OSCOM_PayPal_Cfg_log_transactions {
-    var $default = '1';
-    var $sort_order = 500;
+    public $default = '1';
+    public $sort_order = 500;
 
-    function OSCOM_PayPal_Cfg_log_transactions() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->title = $OSCOM_PayPal->getDef('cfg_log_transactions_title');
       $this->description = $OSCOM_PayPal->getDef('cfg_log_transactions_desc');
     }
 
-    function getSetField() {
+    public function getSetField() {
       global $OSCOM_PayPal;
 
       $input = '<input type="radio" id="logTransactionsSelectionAll" name="log_transactions" value="1"' . (OSCOM_APP_PAYPAL_LOG_TRANSACTIONS == '1' ? ' checked="checked"' : '') . '><label for="logTransactionsSelectionAll">' . $OSCOM_PayPal->getDef('cfg_log_transactions_all') . '</label>' .
@@ -51,4 +51,3 @@ EOT;
       return $result;
     }
   }
-?>

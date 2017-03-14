@@ -11,7 +11,7 @@
 */
 
   class hook_admin_orders_paypal {
-    function listen_orderAction() {
+    public function listen_orderAction() {
       if ( !class_exists('paypal_hook_admin_orders_action') ) {
         include(DIR_FS_CATALOG . 'includes/apps/paypal/hooks/admin/orders/action.php');
       }
@@ -21,7 +21,7 @@
       return $hook->execute();
     }
 
-    function listen_orderTab() {
+    public function listen_orderTab() {
       if ( !class_exists('paypal_hook_admin_orders_tab') ) {
         include(DIR_FS_CATALOG . 'includes/apps/paypal/hooks/admin/orders/tab.php');
       }
@@ -31,4 +31,3 @@
       return $hook->execute();
     }
   }
-?>

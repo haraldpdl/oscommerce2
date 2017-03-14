@@ -11,14 +11,14 @@
 */
 
   class OSCOM_PayPal_HS {
-    var $_title;
-    var $_short_title;
-    var $_introduction;
-    var $_req_notes;
-    var $_pm_code = 'paypal_pro_hs';
-    var $_sort_order = 300;
+    public $_title;
+    public $_short_title;
+    public $_introduction;
+    public $_req_notes;
+    public $_pm_code = 'paypal_pro_hs';
+    public $_sort_order = 300;
 
-    function OSCOM_PayPal_HS() {
+    public function __construct() {
       global $OSCOM_PayPal;
 
       $this->_title = $OSCOM_PayPal->getDef('module_hs_title');
@@ -40,22 +40,22 @@
       }
     }
 
-    function getTitle() {
+    public function getTitle() {
       return $this->_title;
     }
 
-    function getShortTitle() {
+    public function getShortTitle() {
       return $this->_short_title;
     }
 
-    function install($OSCOM_PayPal) {
+    public function install($OSCOM_PayPal) {
       $installed = explode(';', MODULE_PAYMENT_INSTALLED);
       $installed[] = $this->_pm_code . '.php';
 
       $OSCOM_PayPal->saveParameter('MODULE_PAYMENT_INSTALLED', implode(';', $installed));
     }
 
-    function uninstall($OSCOM_PayPal) {
+    public function uninstall($OSCOM_PayPal) {
       $installed = explode(';', MODULE_PAYMENT_INSTALLED);
       $installed_pos = array_search($this->_pm_code . '.php', $installed);
 
@@ -66,7 +66,7 @@
       }
     }
 
-    function canMigrate() {
+    public function canMigrate() {
       $class = $this->_pm_code;
 
       if ( file_exists(DIR_FS_CATALOG . 'includes/modules/payment/' . $class . '.php') ) {
@@ -88,7 +88,7 @@
       return false;
     }
 
-    function migrate($OSCOM_PayPal) {
+    public function migrate($OSCOM_PayPal) {
       if ( defined('MODULE_PAYMENT_PAYPAL_PRO_HS_GATEWAY_SERVER') ) {
         $server = (MODULE_PAYMENT_PAYPAL_PRO_HS_GATEWAY_SERVER == 'Live') ? 'LIVE' : 'SANDBOX';
 
@@ -200,4 +200,3 @@
       }
     }
   }
-?>

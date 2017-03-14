@@ -11,14 +11,14 @@
 */
 
   class ht_noscript {
-    var $code = 'ht_noscript';
-    var $group = 'header_tags';
-    var $title;
-    var $description;
-    var $sort_order;
-    var $enabled = false;
+    public $code = 'ht_noscript';
+    public $group = 'header_tags';
+    public $title;
+    public $description;
+    public $sort_order;
+    public $enabled = false;
 
-    function ht_noscript() {
+    public function __construct() {
       $this->title = MODULE_HEADER_TAGS_NOSCRIPT_TITLE;
       $this->description = MODULE_HEADER_TAGS_NOSCRIPT_DESCRIPTION;
 
@@ -28,32 +28,31 @@
       }
     }
 
-    function execute() {
+    public function execute() {
       global $oscTemplate;
 
       $oscTemplate->addBlock('<noscript><div class="no-script"><div class="no-script-inner">' . tep_output_string(MODULE_HEADER_TAGS_NOSCRIPT_TEXT) . '</div></div></noscript>', $this->group);
       $oscTemplate->addBlock('<style>.no-script { border: 1px solid #ddd; border-width: 0 0 1px; background: #ffff90; font: 14px verdana; line-height: 2; text-align: center; color: #2f2f2f; } .no-script .no-script-inner { margin: 0 auto; padding: 5px; } .no-script p { margin: 0; }</style>', $this->group);
     }
 
-    function isEnabled() {
+    public function isEnabled() {
       return $this->enabled;
     }
 
-    function check() {
+    public function check() {
       return defined('MODULE_HEADER_TAGS_NOSCRIPT_STATUS');
     }
 
-    function install() {
+    public function install() {
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable No Script Module', 'MODULE_HEADER_TAGS_NOSCRIPT_STATUS', 'True', 'Add message for people with .js turned off?', '6', '1', 'tep_cfg_select_option(array(\'True\', \'False\'), ', now())");
       tep_db_query("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort Order', 'MODULE_HEADER_TAGS_NOSCRIPT_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
     }
 
-    function remove() {
+    public function remove() {
       tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
-    function keys() {
+    public function keys() {
       return array('MODULE_HEADER_TAGS_NOSCRIPT_STATUS', 'MODULE_HEADER_TAGS_NOSCRIPT_SORT_ORDER');
     }
   }
-?>

@@ -11,9 +11,9 @@
 */
 
   class order {
-    var $info, $totals, $products, $customer, $delivery, $content_type;
+    public $info, $totals, $products, $customer, $delivery, $content_type;
 
-    function order($order_id = '') {
+    public function __construct($order_id = '') {
       $this->info = array();
       $this->totals = array();
       $this->products = array();
@@ -27,7 +27,7 @@
       }
     }
 
-    function query($order_id) {
+    public function query($order_id) {
       global $languages_id;
 
       $order_id = tep_db_prepare_input($order_id);
@@ -130,7 +130,7 @@
       }
     }
 
-    function cart() {
+    public function cart() {
       global $customer_id, $sendto, $billto, $cart, $languages_id, $currency, $currencies, $shipping, $payment, $comments, $customer_default_address_id;
 
       $this->content_type = $cart->get_content_type();
@@ -340,4 +340,3 @@
       }
     }
   }
-?>

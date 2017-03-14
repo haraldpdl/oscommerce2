@@ -16,15 +16,15 @@
 */
 
   class mime {
-    var $_encoding;
-    var $_subparts;
-    var $_encoded;
-    var $_headers;
-    var $_body;
+    public $_encoding;
+    public $_subparts;
+    public $_encoded;
+    public $_headers;
+    public $_body;
 
 /**
  * Constructor.
- * 
+ *
  * Sets up the object.
  *
  * @param $body   - The body of the mime part if any.
@@ -38,7 +38,7 @@
  * @access public
  */
 
-    function mime($body, $params = '') {
+    public function mime($body, $params = '') {
       if ($params == '') $params = array();
 
 // Make sure we use the correct linfeed sequence
@@ -99,7 +99,7 @@
 
 /**
  * encode()
- * 
+ *
  * Encodes and returns the email. Also stores
  * it in the encoded member variable
  *
@@ -109,7 +109,7 @@
  * @access public
  */
 
-    function encode() {
+    public function encode() {
 /* HPDL PHP3 */
 //      $encoded =& $this->_encoded;
       $encoded = $this->_encoded;
@@ -149,7 +149,7 @@
 
 /**
  * &addSubPart()
- * 
+ *
  * Adds a subpart to current mime part and returns
  * a reference to it
  *
@@ -165,7 +165,7 @@
 
 /* HPDL PHP3 */
 //    function &addSubPart($body, $params) {
-    function addSubPart($body, $params) {
+    public function addSubPart($body, $params) {
       $this->_subparts[] = new mime($body, $params);
 
       return $this->_subparts[count($this->_subparts) - 1];
@@ -173,7 +173,7 @@
 
 /**
  * _getEncodedData()
- * 
+ *
  * Returns encoded data based upon encoding passed to it
  *
  * @param $data     The data to encode.
@@ -182,7 +182,7 @@
  * @access private
  */
 
-    function _getEncodedData($data, $encoding) {
+    public function _getEncodedData($data, $encoding) {
       switch ($encoding) {
        case '7bit':
          return $data;
@@ -198,17 +198,17 @@
 
 /**
  * quoteadPrintableEncode()
- * 
+ *
  * Encodes data to quoted-printable standard.
  *
  * @param $input    The data to encode
- * @param $line_max Optional max line length. Should 
+ * @param $line_max Optional max line length. Should
  *                  not be more than 76 chars
  *
  * @access private
  */
 
-    function _quotedPrintableEncode($input , $line_max = 76) {
+    public function _quotedPrintableEncode($input , $line_max = 76) {
       $lines = preg_split("/\r\n|\r|\n/", $input);
       $eol = $this->lf;
       $escape = '=';
@@ -247,4 +247,3 @@
       return $output;
     }
   }
-?>

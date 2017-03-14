@@ -11,15 +11,15 @@
 */
 
   class tableBlock {
-    var $table_border = '0';
-    var $table_width = '100%';
-    var $table_cellspacing = '0';
-    var $table_cellpadding = '2';
-    var $table_parameters = '';
-    var $table_row_parameters = '';
-    var $table_data_parameters = '';
+    public $table_border = '0';
+    public $table_width = '100%';
+    public $table_cellspacing = '0';
+    public $table_cellpadding = '2';
+    public $table_parameters = '';
+    public $table_row_parameters = '';
+    public $table_data_parameters = '';
 
-    function tableBlock($contents) {
+    public function __construct($contents) {
       $tableBox_string = '';
 
       $form_set = false;
@@ -77,4 +77,3 @@
       return $tableBox_string;
     }
   }
-?>

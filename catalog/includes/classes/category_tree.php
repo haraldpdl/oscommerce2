@@ -1,7 +1,7 @@
 <?php
 /**
  * osCommerce Online Merchant
- * 
+ *
  * @copyright Copyright (c) 2014 osCommerce; http://www.oscommerce.com
  * @license GNU General Public License; http://www.oscommerce.com/gpllicense.txt
  */
@@ -9,7 +9,7 @@
   class category_tree {
     protected $_data = array();
 
-    var $root_category_id = 0,
+    public $root_category_id = 0,
         $max_level = 0,
         $root_start_string = '',
         $root_end_string = '',
@@ -99,8 +99,8 @@
               $result .= $this->_buildBranch($category_id, $level+1);
             }
           }
-          
-          $result .= $this->child_end_string;          
+
+          $result .= $this->child_end_string;
         }
       }
 
@@ -109,7 +109,7 @@
       return $result;
     }
 
-    function buildBranchArray($parent_id, $level = 0, $result = '') {
+    public function buildBranchArray($parent_id, $level = 0, $result = '') {
       if (empty($result)) {
         $result = array();
       }
@@ -140,7 +140,7 @@
       return $result;
     }
 
-    function buildBreadcrumb($category_id, $level = 0) {
+    public function buildBreadcrumb($category_id, $level = 0) {
       $breadcrumb = '';
 
       foreach ($this->_data as $parent => $categories) {
@@ -188,11 +188,11 @@
       return $this->getTree();
     }
 
-    function getArray($parent_id = '') {
+    public function getArray($parent_id = '') {
       return $this->buildBranchArray((empty($parent_id) ? $this->root_category_id : $parent_id));
     }
 
-    function exists($id) {
+    public function exists($id) {
       foreach ($this->_data as $parent => $categories) {
         foreach ($categories as $category_id => $info) {
           if ($id == $category_id) {
@@ -204,7 +204,7 @@
       return false;
     }
 
-    function getChildren($category_id, &$array = array()) {
+    public function getChildren($category_id, &$array = array()) {
       foreach ($this->_data as $parent => $categories) {
         if ($parent == $category_id) {
           foreach ($categories as $id => $info) {
@@ -255,40 +255,40 @@
       return $this->getData($id, 'parent_id');
     }
 
-    function setRootCategoryID($root_category_id) {
+    public function setRootCategoryID($root_category_id) {
       $this->root_category_id = $root_category_id;
     }
 
-    function setMaximumLevel($max_level) {
+    public function setMaximumLevel($max_level) {
       $this->max_level = $max_level;
     }
 
-    function setRootString($root_start_string, $root_end_string) {
+    public function setRootString($root_start_string, $root_end_string) {
       $this->root_start_string = $root_start_string;
       $this->root_end_string = $root_end_string;
     }
 
-    function setParentString($parent_start_string, $parent_end_string) {
+    public function setParentString($parent_start_string, $parent_end_string) {
       $this->parent_start_string = $parent_start_string;
       $this->parent_end_string = $parent_end_string;
     }
 
-    function setParentGroupString($parent_group_start_string, $parent_group_end_string, $apply_to_root = false) {
+    public function setParentGroupString($parent_group_start_string, $parent_group_end_string, $apply_to_root = false) {
       $this->parent_group_start_string = $parent_group_start_string;
       $this->parent_group_end_string = $parent_group_end_string;
       $this->parent_group_apply_to_root = $apply_to_root;
     }
 
-    function setChildString($child_start_string, $child_end_string) {
+    public function setChildString($child_start_string, $child_end_string) {
       $this->child_start_string = $child_start_string;
       $this->child_end_string = $child_end_string;
     }
 
-    function setBreadcrumbSeparator($breadcrumb_separator) {
+    public function setBreadcrumbSeparator($breadcrumb_separator) {
       $this->breadcrumb_separator = $breadcrumb_separator;
     }
 
-    function setBreadcrumbUsage($breadcrumb_usage) {
+    public function setBreadcrumbUsage($breadcrumb_usage) {
       if ($breadcrumb_usage === true) {
         $this->breadcrumb_usage = true;
       } else {
@@ -296,19 +296,19 @@
       }
     }
 
-    function setSpacerString($spacer_string, $spacer_multiplier = 2) {
+    public function setSpacerString($spacer_string, $spacer_multiplier = 2) {
       $this->spacer_string = $spacer_string;
       $this->spacer_multiplier = $spacer_multiplier;
     }
 
-    function setCategoryPath($cpath, $cpath_start_string = '', $cpath_end_string = '') {
+    public function setCategoryPath($cpath, $cpath_start_string = '', $cpath_end_string = '') {
       $this->follow_cpath = true;
       $this->cpath_array = explode($this->breadcrumb_separator, $cpath);
       $this->cpath_start_string = $cpath_start_string;
       $this->cpath_end_string = $cpath_end_string;
     }
 
-    function setFollowCategoryPath($follow_cpath) {
+    public function setFollowCategoryPath($follow_cpath) {
       if ($follow_cpath === true) {
         $this->follow_cpath = true;
       } else {
@@ -316,9 +316,8 @@
       }
     }
 
-    function setCategoryPathString($cpath_start_string, $cpath_end_string) {
+    public function setCategoryPathString($cpath_start_string, $cpath_end_string) {
       $this->cpath_start_string = $cpath_start_string;
       $this->cpath_end_string = $cpath_end_string;
     }
   }
-
