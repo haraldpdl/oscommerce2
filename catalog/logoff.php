@@ -33,8 +33,8 @@ if ( tep_session_is_registered('shipping') ) {
   tep_session_unregister('shipping');
 }
 
-if ( tep_session_is_registered('payment') ) {
-  tep_session_unregister('payment');
+if ( isset($_SESSION['payment']) ) {
+  unset($_SESSION['payment']);
 }
 
 if ( tep_session_is_registered('comments') ) {

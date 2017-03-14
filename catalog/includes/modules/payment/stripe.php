@@ -14,7 +14,7 @@
     public $code, $title, $description, $enabled;
 
     public function __construct() {
-      global $PHP_SELF, $order, $payment;
+      global $PHP_SELF, $order;
 
       $this->signature = 'stripe|stripe|1.1|2.3';
       $this->api_version = '2014-05-19';
@@ -89,14 +89,11 @@
     }
 
     public function selection() {
-      global $payment;
-
-      if ( (MODULE_PAYMENT_STRIPE_TOKENS == 'True') && !tep_session_is_registered('payment') ) {
+      if ( (MODULE_PAYMENT_STRIPE_TOKENS == 'True') && !isset($_SESSION['payment']) ) {
         $tokens_query = tep_db_query("select 1 from customers_stripe_tokens where customers_id = '" . (int)$_SESSION['customer_id'] . "' limit 1");
 
         if ( tep_db_num_rows($tokens_query) ) {
-          $payment = $this->code;
-          tep_session_register('payment');
+          $_SESSION['payment'] = $this->code;
         }
       }
 

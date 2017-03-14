@@ -93,14 +93,11 @@
     }
 
     public function selection() {
-      global $payment;
-
-      if ( (MODULE_PAYMENT_SAGE_PAY_DIRECT_TOKENS == 'True') && !tep_session_is_registered('payment') ) {
+      if ( (MODULE_PAYMENT_SAGE_PAY_DIRECT_TOKENS == 'True') && !isset($_SESSION['payment']) ) {
         $tokens_query = tep_db_query("select 1 from customers_sagepay_tokens where customers_id = '" . (int)$_SESSION['customer_id'] . "' limit 1");
 
         if ( tep_db_num_rows($tokens_query) ) {
-          $payment = $this->code;
-          tep_session_register('payment');
+          $_SESSION['payment'] = $this->code;
         }
       }
 

@@ -284,7 +284,7 @@
         tep_session_unregister('sendto');
         tep_session_unregister('billto');
         tep_session_unregister('shipping');
-        tep_session_unregister('payment');
+        unset($_SESSION['payment']);
         tep_session_unregister('comments');
 
         tep_session_unregister('sage_pay_server_nexturl');

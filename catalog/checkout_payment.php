@@ -58,7 +58,7 @@
 
       if ($check_address['total'] != '1') {
         $billto = $_SESSION['customer_default_address_id'];
-        if (tep_session_is_registered('payment')) tep_session_unregister('payment');
+        if (isset($_SESSION['payment'])) unset($_SESSION['payment']);
       }
     }
   }
@@ -183,7 +183,7 @@
 
 <?php
     if (sizeof($selection) > 1) {
-      echo tep_draw_radio_field('payment', $selection[$i]['id'], ($selection[$i]['id'] == $payment), 'required aria-required="true"');
+      echo tep_draw_radio_field('payment', $selection[$i]['id'], ($selection[$i]['id'] == $_SESSION['payment']), 'required aria-required="true"');
     } else {
       echo tep_draw_hidden_field('payment', $selection[$i]['id']);
     }
