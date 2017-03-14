@@ -278,11 +278,10 @@
   }
 
 // navigation history
-  if (!tep_session_is_registered('navigation') || !is_object($navigation)) {
-    tep_session_register('navigation');
-    $navigation = new navigationHistory;
+  if (!isset($_SESSION['navigation']) || !is_object($_SESSION['navigation'])) {
+    $_SESSION['navigation'] = new navigationHistory();
   }
-  $navigation->add_current_page();
+  $_SESSION['navigation']->add_current_page();
 
 // action recorder
   include('includes/classes/action_recorder.php');
@@ -371,7 +370,7 @@
                                 $messageStack->add_session('product_action', sprintf(PRODUCT_SUBSCRIBED, tep_get_products_name((int)$_GET['products_id'])), 'success');
                                 tep_redirect(tep_href_link($PHP_SELF, tep_get_all_get_params(array('action', 'notify'))));
                               } else {
-                                $navigation->set_snapshot();
+                                $_SESSION['navigation']->set_snapshot();
                                 tep_redirect(tep_href_link('login.php', '', 'SSL'));
                               }
                               break;
@@ -384,7 +383,7 @@
                                 $messageStack->add_session('product_action', sprintf(PRODUCT_UNSUBSCRIBED, tep_get_products_name((int)$_GET['products_id'])), 'warning');
                                 tep_redirect(tep_href_link($PHP_SELF, tep_get_all_get_params(array('action'))));
                               } else {
-                                $navigation->set_snapshot();
+                                $_SESSION['navigation']->set_snapshot();
                                 tep_redirect(tep_href_link('login.php', '', 'SSL'));
                               }
                               break;

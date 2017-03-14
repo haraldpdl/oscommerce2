@@ -349,7 +349,7 @@
             if ( ($appPayPalEcResult['PAYERSTATUS'] == 'unverified') && !empty($check['customers_password']) ) {
               $messageStack->add_session('login', $paypal_express->_app->getDef('module_ec_error_local_login_required'), 'warning');
 
-              $navigation->set_snapshot();
+              $_SESSION['navigation']->set_snapshot();
 
               $login_url = tep_href_link('login.php', '', 'SSL');
               $login_email_address = tep_output_string($appPayPalEcResult['EMAIL']);

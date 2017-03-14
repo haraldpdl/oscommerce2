@@ -155,9 +155,9 @@ echo '<div class="col-sm-8 text-center alert alert-success" itemprop="AggregateR
   <div class="buttonSet row">
     <div class="col-xs-6">
       <?php
-      $back = sizeof($navigation->path)-2;
-      if (isset($navigation->path[$back])) {
-        echo tep_draw_button(IMAGE_BUTTON_BACK, 'fa fa-angle-left', tep_href_link($navigation->path[$back]['page'], tep_array_to_string($navigation->path[$back]['get'], array('action')), $navigation->path[$back]['mode']));
+      $back = sizeof($_SESSION['navigation']->path)-2;
+      if (isset($_SESSION['navigation']->path[$back])) {
+        echo tep_draw_button(IMAGE_BUTTON_BACK, 'fa fa-angle-left', tep_href_link($_SESSION['navigation']->path[$back]['page'], tep_array_to_string($_SESSION['navigation']->path[$back]['get'], array('action')), $_SESSION['navigation']->path[$back]['mode']));
       }
       ?>&nbsp;
     </div>
