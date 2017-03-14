@@ -177,9 +177,6 @@
       </tr>
       <tr>
         <td>
-<?php
-  if (function_exists('ob_start')) {
-?>
 <style type="text/css">
 body, td, th {font-family: sans-serif; font-size: 10px;}
 .p {text-align: left;}
@@ -202,9 +199,6 @@ hr {display: none;}
          '  </tr>' .
          '</table>';
     echo $regs[1];
-  } else {
-    phpinfo();
-  }
 ?>
         </td>
       </tr>

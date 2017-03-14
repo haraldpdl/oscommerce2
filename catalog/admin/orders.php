@@ -90,84 +90,6 @@
     }
   }
 
-  if (!function_exists('tep_draw_button')) { // v2.2rc2a compatibility
-    function tep_draw_button($title = null, $icon = null, $link = null, $priority = null, $params = null) {
-      static $button_counter = 1;
-
-      $types = array('submit', 'button', 'reset');
-
-      if ( !isset($params['type']) ) {
-        $params['type'] = 'submit';
-      }
-
-      if ( !in_array($params['type'], $types) ) {
-        $params['type'] = 'submit';
-      }
-
-      if ( ($params['type'] == 'submit') && isset($link) ) {
-        $params['type'] = 'button';
-      }
-
-      if (!isset($priority)) {
-        $priority = 'secondary';
-      }
-
-      $button = '<span class="tdbLink">';
-
-      if ( ($params['type'] == 'button') && isset($link) ) {
-        $button .= '<a id="tdb' . $button_counter . '" href="' . $link . '"';
-
-        if ( isset($params['newwindow']) ) {
-          $button .= ' target="_blank"';
-        }
-      } else {
-        $button .= '<button id="tdb' . $button_counter . '" type="' . tep_output_string($params['type']) . '"';
-      }
-
-      if ( isset($params['params']) ) {
-        $button .= ' ' . $params['params'];
-      }
-
-      $button .= '>' . $title;
-
-      if ( ($params['type'] == 'button') && isset($link) ) {
-        $button .= '</a>';
-      } else {
-        $button .= '</button>';
-      }
-
-      $button .= '</span><script type="text/javascript">$("#tdb' . $button_counter . '").button(';
-
-      $args = array();
-
-      if ( isset($icon) ) {
-        if ( !isset($params['iconpos']) ) {
-          $params['iconpos'] = 'left';
-        }
-
-        if ( $params['iconpos'] == 'left' ) {
-          $args[] = 'icons:{primary:"ui-icon-' . $icon . '"}';
-        } else {
-          $args[] = 'icons:{secondary:"ui-icon-' . $icon . '"}';
-        }
-      }
-
-      if (empty($title)) {
-        $args[] = 'text:false';
-      }
-
-      if (!empty($args)) {
-        $button .= '{' . implode(',', $args) . '}';
-      }
-
-      $button .= ').addClass("ui-priority-' . $priority . '").parent().removeClass("tdbLink");</script>';
-
-      $button_counter++;
-
-      return $button;
-    }
-  }
-
   include('includes/classes/order.php');
 
   $OSCOM_Hooks->call('orders', 'orderAction');
@@ -175,26 +97,7 @@
   require('includes/template_top.php');
 
   $base_url = ($request_type == 'SSL') ? HTTPS_SERVER . DIR_WS_HTTPS_ADMIN : HTTP_SERVER . DIR_WS_ADMIN;
-?>
 
-<script>
-// v2.2rc2a compatibility
-if ( typeof jQuery == 'undefined' ) {
-  document.write('<scr' + 'ipt src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></scr' + 'ipt>');
-}
-</script>
-
-<script>
-if ( typeof jQuery.ui == 'undefined' ) {
-  document.write('<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/redmond/jquery-ui.css" />');
-  document.write('<scr' + 'ipt src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></scr' + 'ipt>');
-
-/* Custom jQuery UI */
-  document.write('<style>.ui-widget { font-family: Lucida Grande, Lucida Sans, Verdana, Arial, sans-serif; font-size: 11px; } .ui-dialog { min-width: 500px; }</style>');
-}
-</script>
-
-<?php
   if (($action == 'edit') && ($order_exists == true)) {
     $order = new order($oID);
 ?>

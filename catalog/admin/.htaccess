@@ -29,10 +29,3 @@
 # following Apache configuration parameter
 
 # AcceptPathInfo On
-
-# Fix certain PHP values
-# (commented out by default to prevent errors occuring on certain
-# servers)
-
-# php_value session.use_trans_sid 0
-# php_value register_globals 1
