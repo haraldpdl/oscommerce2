@@ -47,7 +47,7 @@
         <div class="panel-heading"><?php echo PRIMARY_ADDRESS_TITLE; ?></div>
 
         <div class="panel-body">
-          <?php echo tep_address_label($_SESSION['customer_id'], $customer_default_address_id, true, ' ', '<br />'); ?>
+          <?php echo tep_address_label($_SESSION['customer_id'], $_SESSION['customer_default_address_id'], true, ' ', '<br />'); ?>
         </div>
       </div>
     </div>
@@ -66,8 +66,8 @@
     $format_id = tep_get_address_format_id($addresses['country_id']);
 ?>
       <div class="col-sm-4">
-        <div class="panel panel-<?php echo ($addresses['address_book_id'] == $customer_default_address_id) ? 'primary' : 'default'; ?>">
-          <div class="panel-heading"><?php echo tep_output_string_protected($addresses['firstname'] . ' ' . $addresses['lastname']); ?></strong><?php if ($addresses['address_book_id'] == $customer_default_address_id) echo '&nbsp;<small><i>' . PRIMARY_ADDRESS . '</i></small>'; ?></div>
+        <div class="panel panel-<?php echo ($addresses['address_book_id'] == $_SESSION['customer_default_address_id']) ? 'primary' : 'default'; ?>">
+          <div class="panel-heading"><?php echo tep_output_string_protected($addresses['firstname'] . ' ' . $addresses['lastname']); ?></strong><?php if ($addresses['address_book_id'] == $_SESSION['customer_default_address_id']) echo '&nbsp;<small><i>' . PRIMARY_ADDRESS . '</i></small>'; ?></div>
           <div class="panel-body">
             <?php echo tep_address_format($format_id, $addresses, true, ' ', '<br />'); ?>
           </div>

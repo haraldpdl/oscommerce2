@@ -190,7 +190,7 @@
       }
     } else {
       if (!tep_session_is_registered('sendto')) tep_session_register('sendto');
-      $sendto = $customer_default_address_id;
+      $sendto = $_SESSION['customer_default_address_id'];
 
       tep_redirect(tep_href_link('checkout_shipping.php', '', 'SSL'));
     }
@@ -198,7 +198,7 @@
 
 // if no shipping destination address was selected, use their own address as default
   if (!tep_session_is_registered('sendto')) {
-    $sendto = $customer_default_address_id;
+    $sendto = $_SESSION['customer_default_address_id'];
   }
 
   $breadcrumb->add(NAVBAR_TITLE_1, tep_href_link('checkout_shipping.php', '', 'SSL'));

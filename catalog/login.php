@@ -38,8 +38,7 @@
 
     $_SESSION['customer_id'] = $login_customer_id;
 
-    $customer_default_address_id = $customer_info['customers_default_address_id'];
-    tep_session_register('customer_default_address_id');
+    $_SESSION['customer_default_address_id'] = $customer_info['customers_default_address_id'];
 
     $_SESSION['customer_first_name'] = $customer_info['customers_firstname'];
 

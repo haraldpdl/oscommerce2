@@ -49,7 +49,7 @@
 // if no billing destination address was selected, use the customers own address as default
   if (!tep_session_is_registered('billto')) {
     tep_session_register('billto');
-    $billto = $customer_default_address_id;
+    $billto = $_SESSION['customer_default_address_id'];
   } else {
 // verify the selected billing address
     if ( (is_array($billto) && empty($billto)) || is_numeric($billto) ) {
@@ -57,7 +57,7 @@
       $check_address = tep_db_fetch_array($check_address_query);
 
       if ($check_address['total'] != '1') {
-        $billto = $customer_default_address_id;
+        $billto = $_SESSION['customer_default_address_id'];
         if (tep_session_is_registered('payment')) tep_session_unregister('payment');
       }
     }
