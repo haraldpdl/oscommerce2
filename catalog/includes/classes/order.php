@@ -129,7 +129,7 @@
     }
 
     public function cart() {
-      global $customer_id, $sendto, $billto, $cart, $currency, $currencies, $shipping, $payment, $comments, $customer_default_address_id;
+      global $customer_id, $sendto, $billto, $cart, $currencies, $shipping, $payment, $comments, $customer_default_address_id;
 
       $this->content_type = $cart->get_content_type();
 
@@ -210,8 +210,8 @@
       }
 
       $this->info = array('order_status' => DEFAULT_ORDERS_STATUS_ID,
-                          'currency' => $currency,
-                          'currency_value' => $currencies->currencies[$currency]['value'],
+                          'currency' => $_SESSION['currency'],
+                          'currency_value' => $currencies->currencies[$_SESSION['currency']]['value'],
                           'payment_method' => $payment,
                           'cc_type' => '',
                           'cc_owner' => '',

@@ -29,7 +29,7 @@
     }
 
     public function execute() {
-      global $PHP_SELF, $oscTemplate, $product_check, $currency;
+      global $PHP_SELF, $oscTemplate, $product_check;
 
       if ($product_check['total'] > 0) {
         $product_info_query = tep_db_query("select p.products_id, pd.products_name, pd.products_description, p.products_image, p.products_price, p.products_quantity, p.products_tax_class_id, p.products_date_available from products p, products_description pd where p.products_id = '" . (int)$_GET['products_id'] . "' and p.products_status = '1' and p.products_id = pd.products_id and pd.language_id = '" . (int)$_SESSION['languages_id'] . "'");
@@ -58,7 +58,7 @@
             $products_price = $this->format_raw($product_info['products_price']);
           }
           $data['product:price:amount'] = $products_price;
-          $data['product:price:currency'] = $currency;
+          $data['product:price:currency'] = $_SESSION['currency'];
 
           $data['og:url'] = tep_href_link('product_info.php', 'products_id=' . $product_info['products_id'], 'NONSSL', false);
 
@@ -96,10 +96,10 @@
     }
 
     public function format_raw($number, $currency_code = '', $currency_value = '') {
-      global $currencies, $currency;
+      global $currencies;
 
       if (empty($currency_code) || !$this->is_set($currency_code)) {
-        $currency_code = $currency;
+        $currency_code = $_SESSION['currency'];
       }
 
       if (empty($currency_value) || !is_numeric($currency_value)) {

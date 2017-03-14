@@ -140,7 +140,7 @@
     }
 
     function confirmation() {
-      global $customer_id, $order, $currencies, $currency;
+      global $customer_id, $order, $currencies;
 
       $months_array = array();
 
@@ -149,7 +149,7 @@
                                 'text' => tep_output_string_protected(sprintf('%02d', $i)));
       }
 
-      $today = getdate(); 
+      $today = getdate();
       $years_array = array();
 
       for ($i=$today['year']; $i < $today['year']+10; $i++) {
@@ -159,8 +159,8 @@
 
       $content = '';
 
-      if ( !$this->isValidCurrency($currency) ) {
-        $content .= sprintf(MODULE_PAYMENT_BRAINTREE_CC_CURRENCY_CHARGE, $currencies->format($order->info['total'], true, DEFAULT_CURRENCY), DEFAULT_CURRENCY, $currency);
+      if ( !$this->isValidCurrency($_SESSION['currency']) ) {
+        $content .= sprintf(MODULE_PAYMENT_BRAINTREE_CC_CURRENCY_CHARGE, $currencies->format($order->info['total'], true, DEFAULT_CURRENCY), DEFAULT_CURRENCY, $_SESSION['currency']);
       }
 
       if ( MODULE_PAYMENT_BRAINTREE_CC_TOKENS == 'True' ) {
@@ -170,7 +170,7 @@
           $content .= '<table id="braintree_table" border="0" width="100%" cellspacing="0" cellpadding="2">';
 
           while ( $tokens = tep_db_fetch_array($tokens_query) ) {
-            $content .= '<tr class="moduleRow" id="braintree_card_' . (int)$tokens['id'] . '">' . 
+            $content .= '<tr class="moduleRow" id="braintree_card_' . (int)$tokens['id'] . '">' .
                         '  <td width="40" valign="top"><input type="radio" name="braintree_card" value="' . (int)$tokens['id'] . '" /></td>' .
                         '  <td valign="top">' . MODULE_PAYMENT_BRAINTREE_CC_CREDITCARD_LAST_4 . '&nbsp;' . tep_output_string_protected($tokens['number_filtered']) . '&nbsp;&nbsp;' . tep_output_string_protected(substr($tokens['expiry_date'], 0, 2) . '/' . substr($tokens['expiry_date'], 2)) . '&nbsp;&nbsp;' . tep_output_string_protected($tokens['card_type']) . '</td>' .
                         '</tr>';
@@ -280,7 +280,7 @@
           $months_array[] = sprintf('%02d', $i);
         }
 
-        $today = getdate(); 
+        $today = getdate();
         $years_array = array();
 
         for ($i=$today['year']; $i < $today['year']+10; $i++) {
@@ -652,10 +652,10 @@ EOD;
     }
 
     function format_raw($number, $currency_code = '', $currency_value = '') {
-      global $currencies, $currency;
+      global $currencies;
 
       if (empty($currency_code) || !$currencies->is_set($currency_code)) {
-        $currency_code = $currency;
+        $currency_code = $_SESSION['currency'];
       }
 
       if (empty($currency_value) || !is_numeric($currency_value)) {
@@ -666,9 +666,7 @@ EOD;
     }
 
     function getTransactionCurrency() {
-      global $currency;
-
-      return $this->isValidCurrency($currency) ? $currency : DEFAULT_CURRENCY;
+      return $this->isValidCurrency($_SESSION['currency']) ? $_SESSION['currency'] : DEFAULT_CURRENCY;
     }
 
     function getMerchantAccountId($currency) {

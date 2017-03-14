@@ -1,6 +1,6 @@
 <li class="dropdown">
   <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-  <?php echo sprintf(MODULE_NAVBAR_CURRENCIES_SELECTED_CURRENCY, $currency); ?>
+  <?php echo sprintf(MODULE_NAVBAR_CURRENCIES_SELECTED_CURRENCY, $_SESSION['currency']); ?>
   </a>
   <?php
   if (isset($currencies) && is_object($currencies) && (count($currencies->currencies) > 1)) {
