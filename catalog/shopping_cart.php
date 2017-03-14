@@ -94,8 +94,7 @@
       }
 
       if (isset($products[$i]['attributes']) && is_array($products[$i]['attributes'])) {
-        reset($products[$i]['attributes']);
-        while (list($option, $value) = each($products[$i]['attributes'])) {
+        foreach ($products[$i]['attributes'] as $option => $value) {
           $products_name .= '<br /><small><i> - ' . $products[$i][$option]['products_options_name'] . ' ' . $products[$i][$option]['products_options_values_name'] . '</i></small>';
         }
       }

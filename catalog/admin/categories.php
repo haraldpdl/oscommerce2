@@ -119,8 +119,7 @@
             }
           }
 
-          reset($products);
-          while (list($key, $value) = each($products)) {
+          foreach ($products as $key => $value) {
             $category_ids = '';
 
             for ($i=0, $n=sizeof($value['categories']); $i<$n; $i++) {
@@ -141,8 +140,7 @@
             tep_remove_category($categories[$i]['id']);
           }
 
-          reset($products_delete);
-          while (list($key) = each($products_delete)) {
+          foreach (array_keys($products_delete) as $key) {
             tep_remove_product($key);
           }
         }

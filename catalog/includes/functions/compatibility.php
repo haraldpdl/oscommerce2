@@ -35,15 +35,13 @@
   function do_magic_quotes_gpc(&$ar) {
     if (!is_array($ar)) return false;
 
-    reset($ar);
-    while (list($key, $value) = each($ar)) {
+    foreach ($ar as $key => $value) {
       if (is_array($ar[$key])) {
         do_magic_quotes_gpc($ar[$key]);
       } else {
         $ar[$key] = addslashes($value);
       }
     }
-    reset($ar);
   }
 
 // handle magic_quotes_gpc turned off.

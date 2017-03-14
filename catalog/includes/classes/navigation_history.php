@@ -128,8 +128,7 @@
       $clean = array();
 
       if (is_array($parameters)) {
-        reset($parameters);
-        while (list($key, $value) = each($parameters)) {
+        foreach ($parameters as $key => $value) {
           if (strpos($key, '_nh-dns') < 1) {
             $clean[$key] = $value;
           }
