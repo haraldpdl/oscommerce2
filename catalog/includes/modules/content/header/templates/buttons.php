@@ -1,7 +1,7 @@
 <div id="headerShortcuts" class="col-sm-<?php echo $content_width; ?> text-right buttons">
   <div class="btn-group">
 <?php
-  echo tep_draw_button(MODULE_CONTENT_HEADER_BUTTONS_TITLE_CART_CONTENTS . ($cart->count_contents() > 0 ? ' (' . $cart->count_contents() . ')' : ''), 'fa fa-shopping-cart', tep_href_link('shopping_cart.php')) .
+  echo tep_draw_button(MODULE_CONTENT_HEADER_BUTTONS_TITLE_CART_CONTENTS . ($_SESSION['cart']->count_contents() > 0 ? ' (' . $_SESSION['cart']->count_contents() . ')' : ''), 'fa fa-shopping-cart', tep_href_link('shopping_cart.php')) .
        tep_draw_button(MODULE_CONTENT_HEADER_BUTTONS_TITLE_CHECKOUT, 'fa fa-credit-card', tep_href_link('checkout_shipping.php', '', 'SSL')) .
        tep_draw_button(MODULE_CONTENT_HEADER_BUTTONS_TITLE_MY_ACCOUNT, 'fa fa-user', tep_href_link('account.php', '', 'SSL'));
 

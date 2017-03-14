@@ -14,7 +14,7 @@
 
   $OSCOM_Hooks->register('cart');
 
-  if ($cart->count_contents() > 0) {
+  if ($_SESSION['cart']->count_contents() > 0) {
     include('includes/classes/payment.php');
     $payment_modules = new payment;
   }
@@ -37,7 +37,7 @@
 ?>
 
 <?php
-  if ($cart->count_contents() > 0) {
+  if ($_SESSION['cart']->count_contents() > 0) {
 ?>
 
 <?php echo tep_draw_form('cart_quantity', tep_href_link('shopping_cart.php', 'action=update_product')); ?>
@@ -47,7 +47,7 @@
 
 <?php
     $any_out_of_stock = 0;
-    $products = $cart->get_products();
+    $products = $_SESSION['cart']->get_products();
     for ($i=0, $n=sizeof($products); $i<$n; $i++) {
 // Push all attributes information in an array
       if (isset($products[$i]['attributes']) && is_array($products[$i]['attributes'])) {
@@ -112,7 +112,7 @@
       </tbody>
     </table>
 
-    <p class="text-right"><strong><?php echo SUB_TITLE_SUB_TOTAL; ?> <?php echo $currencies->format($cart->show_total()); ?></strong></p>
+    <p class="text-right"><strong><?php echo SUB_TITLE_SUB_TOTAL; ?> <?php echo $currencies->format($_SESSION['cart']->show_total()); ?></strong></p>
 
 <?php
     if ($any_out_of_stock == 1) {

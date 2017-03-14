@@ -236,9 +236,8 @@
   }
 
 // create the shopping cart
-  if (!tep_session_is_registered('cart') || !is_object($cart)) {
-    tep_session_register('cart');
-    $cart = new shoppingCart;
+  if (!isset($_SESSION['cart']) || !is_object($_SESSION['cart'])) {
+    $_SESSION['cart'] = new shoppingCart();
   }
 
 // include currencies class and create an instance
@@ -315,11 +314,11 @@
       case 'update_product' : $n=sizeof($_POST['products_id']);
                               for ($i=0; $i<$n; $i++) {
                                 if (in_array($_POST['products_id'][$i], (is_array($_POST['cart_delete']) ? $_POST['cart_delete'] : array()))) {
-                                  $cart->remove($_POST['products_id'][$i]);
+                                  $_SESSION['cart']->remove($_POST['products_id'][$i]);
                                   $messageStack->add_session('product_action', sprintf(PRODUCT_REMOVED, tep_get_products_name($_POST['products_id'][$i])), 'warning');
                                 } else {
                                   $attributes = ($_POST['id'][$_POST['products_id'][$i]]) ? $_POST['id'][$_POST['products_id'][$i]] : '';
-                                  $cart->add_cart($_POST['products_id'][$i], $_POST['cart_quantity'][$i], $attributes, false);
+                                  $_SESSION['cart']->add_cart($_POST['products_id'][$i], $_POST['cart_quantity'][$i], $attributes, false);
                                 }
                               }
                               tep_redirect(tep_href_link($goto, tep_get_all_get_params($parameters)));
@@ -327,14 +326,14 @@
       // customer adds a product from the products page
       case 'add_product' :    if (isset($_POST['products_id']) && is_numeric($_POST['products_id'])) {
                                 $attributes = isset($_POST['id']) ? $_POST['id'] : '';
-                                $cart->add_cart($_POST['products_id'], $cart->get_quantity(tep_get_uprid($_POST['products_id'], $attributes))+1, $attributes);
+                                $_SESSION['cart']->add_cart($_POST['products_id'], $_SESSION['cart']->get_quantity(tep_get_uprid($_POST['products_id'], $attributes))+1, $attributes);
                               }
                               $messageStack->add_session('product_action', sprintf(PRODUCT_ADDED, tep_get_products_name((int)$_POST['products_id'])), 'success');
                               tep_redirect(tep_href_link($goto, tep_get_all_get_params($parameters)));
                               break;
       // customer removes a product from their shopping cart
       case 'remove_product' : if (isset($_GET['products_id'])) {
-                                $cart->remove($_GET['products_id']);
+                                $_SESSION['cart']->remove($_GET['products_id']);
                                 $messageStack->add_session('product_action', sprintf(PRODUCT_REMOVED, tep_get_products_name($_GET['products_id'])), 'warning');
                               }
                               tep_redirect(tep_href_link($goto, tep_get_all_get_params($parameters)));
@@ -344,7 +343,7 @@
                                 if (tep_has_product_attributes($_GET['products_id'])) {
                                   tep_redirect(tep_href_link('product_info.php', 'products_id=' . $_GET['products_id']));
                                 } else {
-                                  $cart->add_cart($_GET['products_id'], $cart->get_quantity($_GET['products_id'])+1);
+                                  $_SESSION['cart']->add_cart($_GET['products_id'], $_SESSION['cart']->get_quantity($_GET['products_id'])+1);
                                   $messageStack->add_session('product_action', sprintf(PRODUCT_ADDED, tep_get_products_name((int)$_GET['products_id'])), 'success');
                                 }
                               }
@@ -393,7 +392,7 @@
                                 if (tep_has_product_attributes($_GET['pid'])) {
                                   tep_redirect(tep_href_link('product_info.php', 'products_id=' . $_GET['pid']));
                                 } else {
-                                  $cart->add_cart($_GET['pid'], $cart->get_quantity($_GET['pid'])+1);
+                                  $_SESSION['cart']->add_cart($_GET['pid'], $_SESSION['cart']->get_quantity($_GET['pid'])+1);
                                 }
                               }
                               tep_redirect(tep_href_link($goto, tep_get_all_get_params($parameters)));

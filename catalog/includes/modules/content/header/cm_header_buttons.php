@@ -33,7 +33,7 @@
     }
 
     public function execute() {
-      global $oscTemplate, $cart;
+      global $oscTemplate;
 
       $content_width = (int)MODULE_CONTENT_HEADER_BUTTONS_CONTENT_WIDTH;
 

@@ -41,7 +41,7 @@
     }
 
     public function getOutput() {
-      global $oscTemplate, $cart, $currencies;
+      global $oscTemplate, $currencies;
 
       ob_start();
       require('includes/modules/navbar_modules/templates/shopping_cart.php');

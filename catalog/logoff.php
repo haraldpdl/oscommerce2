@@ -41,7 +41,7 @@ if ( tep_session_is_registered('comments') ) {
   tep_session_unregister('comments');
 }
 
-  $cart->reset();
+  $_SESSION['cart']->reset();
 
   require('includes/template_top.php');
 ?>
