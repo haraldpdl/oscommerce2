@@ -20,7 +20,7 @@
 // needs to be included earlier to set the success message in the messageStack
   require('includes/languages/' . $_SESSION['language'] . '/account_edit.php');
 
-  if (isset($_POST['action']) && ($_POST['action'] == 'process') && isset($_POST['formid']) && ($_POST['formid'] == $sessiontoken)) {
+  if (isset($_POST['action']) && ($_POST['action'] == 'process') && isset($_POST['formid']) && ($_POST['formid'] == $_SESSION['sessiontoken'])) {
     if (ACCOUNT_GENDER == 'true') $gender = tep_db_prepare_input($_POST['gender']);
     $firstname = tep_db_prepare_input($_POST['firstname']);
     $lastname = tep_db_prepare_input($_POST['lastname']);

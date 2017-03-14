@@ -20,7 +20,7 @@
 // needs to be included earlier to set the success message in the messageStack
   require('includes/languages/' . $_SESSION['language'] . '/address_book_process.php');
 
-  if (isset($_GET['action']) && ($_GET['action'] == 'deleteconfirm') && isset($_GET['delete']) && is_numeric($_GET['delete']) && isset($_GET['formid']) && ($_GET['formid'] == md5($sessiontoken))) {
+  if (isset($_GET['action']) && ($_GET['action'] == 'deleteconfirm') && isset($_GET['delete']) && is_numeric($_GET['delete']) && isset($_GET['formid']) && ($_GET['formid'] == md5($_SESSION['sessiontoken']))) {
     if ((int)$_GET['delete'] == $customer_default_address_id) {
       $messageStack->add_session('addressbook', WARNING_PRIMARY_ADDRESS_DELETION, 'warning');
     } else {
@@ -34,7 +34,7 @@
 
 // error checking when updating or adding an entry
   $process = false;
-  if (isset($_POST['action']) && (($_POST['action'] == 'process') || ($_POST['action'] == 'update')) && isset($_POST['formid']) && ($_POST['formid'] == $sessiontoken)) {
+  if (isset($_POST['action']) && (($_POST['action'] == 'process') || ($_POST['action'] == 'update')) && isset($_POST['formid']) && ($_POST['formid'] == $_SESSION['sessiontoken'])) {
     $process = true;
     $error = false;
 
@@ -282,7 +282,7 @@
   </div>
 
   <div class="buttonSet">
-    <span class="buttonAction"><?php echo tep_draw_button(IMAGE_BUTTON_DELETE, 'fa fa-trash', tep_href_link('address_book_process.php', 'delete=' . $_GET['delete'] . '&action=deleteconfirm&formid=' . md5($sessiontoken), 'SSL'), 'primary', NULL, 'btn-danger'); ?></span>
+    <span class="buttonAction"><?php echo tep_draw_button(IMAGE_BUTTON_DELETE, 'fa fa-trash', tep_href_link('address_book_process.php', 'delete=' . $_GET['delete'] . '&action=deleteconfirm&formid=' . md5($_SESSION['sessiontoken']), 'SSL'), 'primary', NULL, 'btn-danger'); ?></span>
 
     <?php echo tep_draw_button(IMAGE_BUTTON_BACK, 'fa fa-angle-left', tep_href_link('address_book.php', '', 'SSL')); ?>
   </div>

@@ -14,7 +14,7 @@
 
   require('includes/languages/' . $_SESSION['language'] . '/contact_us.php');
 
-  if (isset($_GET['action']) && ($_GET['action'] == 'send') && isset($_POST['formid']) && ($_POST['formid'] == $sessiontoken)) {
+  if (isset($_GET['action']) && ($_GET['action'] == 'send') && isset($_POST['formid']) && ($_POST['formid'] == $_SESSION['sessiontoken'])) {
     $error = false;
 
     $name = tep_db_prepare_input($_POST['name']);
