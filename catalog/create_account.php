@@ -218,10 +218,8 @@
 
       $_SESSION['customer_first_name'] = $firstname;
       $_SESSION['customer_default_address_id'] = $address_id;
-      $customer_country_id = $country;
-      $customer_zone_id = $zone_id;
-      tep_session_register('customer_country_id');
-      tep_session_register('customer_zone_id');
+      $_SESSION['customer_country_id'] = $country;
+      $_SESSION['customer_zone_id'] = $zone_id;
 
 // reset session token
       $_SESSION['sessiontoken'] = md5(tep_rand() . tep_rand() . tep_rand() . tep_rand());

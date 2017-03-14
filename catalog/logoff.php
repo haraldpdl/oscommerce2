@@ -19,8 +19,8 @@
   unset($_SESSION['customer_id']);
   unset($_SESSION['customer_default_address_id']);
   unset($_SESSION['customer_first_name']);
-  tep_session_unregister('customer_country_id');
-  tep_session_unregister('customer_zone_id');
+  unset($_SESSION['customer_country_id']);
+  unset($_SESSION['customer_zone_id']);
 if ( tep_session_is_registered('sendto') ) {
   tep_session_unregister('sendto');
 }
