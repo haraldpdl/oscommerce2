@@ -33,11 +33,11 @@
     }
 
     public function execute() {
-      global $oscTemplate, $customer_id;
+      global $oscTemplate;
 
       $content_width = (int)MODULE_CONTENT_FOOTER_ACCOUNT_CONTENT_WIDTH;
 
-      if ( tep_session_is_registered('customer_id') ) {
+      if ( isset($_SESSION['customer_id']) ) {
         $account_content = '<li><a href="' . tep_href_link('account.php', '', 'SSL') . '">' . MODULE_CONTENT_FOOTER_ACCOUNT_BOX_ACCOUNT . '</a></li>' .
                            '<li><a href="' . tep_href_link('address_book.php', '', 'SSL') . '">' . MODULE_CONTENT_FOOTER_ACCOUNT_BOX_ADDRESS_BOOK . '</a></li>' .
                            '<li><a href="' . tep_href_link('account_history.php', '', 'SSL') . '">' . MODULE_CONTENT_FOOTER_ACCOUNT_BOX_ORDER_HISTORY . '</a></li>' .

@@ -106,7 +106,7 @@
     }
 
     public function before_process() {
-      global $sagepay_server_skey_code, $sagepay_server_transaction_details, $sage_pay_server_nexturl, $customer_id, $order, $order_totals;
+      global $sagepay_server_skey_code, $sagepay_server_transaction_details, $sage_pay_server_nexturl, $order, $order_totals;
 
       $sagepay_server_transaction_details = null;
 
@@ -140,7 +140,7 @@
         $params = array('VPSProtocol' => $this->api_version,
                         'ReferrerID' => 'C74D7B82-E9EB-4FBD-93DB-76F0F551C802',
                         'Vendor' => substr(MODULE_PAYMENT_SAGE_PAY_SERVER_VENDOR_LOGIN_NAME, 0, 15),
-                        'VendorTxCode' => substr(date('YmdHis') . '-' . $customer_id . '-' . $_SESSION['cartID'], 0, 40),
+                        'VendorTxCode' => substr(date('YmdHis') . '-' . $_SESSION['customer_id'] . '-' . $_SESSION['cartID'], 0, 40),
                         'Amount' => $this->format_raw($order->info['total']),
                         'Currency' => $_SESSION['currency'],
                         'Description' => substr(STORE_NAME, 0, 100),

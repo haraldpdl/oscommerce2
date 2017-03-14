@@ -140,7 +140,7 @@
     }
 
     function confirmation() {
-      global $customer_id, $order, $currencies;
+      global $order, $currencies;
 
       $months_array = array();
 
@@ -164,7 +164,7 @@
       }
 
       if ( MODULE_PAYMENT_BRAINTREE_CC_TOKENS == 'True' ) {
-        $tokens_query = tep_db_query("select id, card_type, number_filtered, expiry_date from customers_braintree_tokens where customers_id = '" . (int)$customer_id . "' order by date_added");
+        $tokens_query = tep_db_query("select id, card_type, number_filtered, expiry_date from customers_braintree_tokens where customers_id = '" . (int)$_SESSION['customer_id'] . "' order by date_added");
 
         if ( tep_db_num_rows($tokens_query) > 0 ) {
           $content .= '<table id="braintree_table" border="0" width="100%" cellspacing="0" cellpadding="2">';
@@ -235,7 +235,7 @@
     }
 
     function before_process() {
-      global $customer_id, $order, $braintree_result, $braintree_token, $braintree_error;
+      global $order, $braintree_result, $braintree_token, $braintree_error;
 
       $braintree_token = null;
       $braintree_token_cvv = null;
@@ -243,7 +243,7 @@
 
       if ( MODULE_PAYMENT_BRAINTREE_CC_TOKENS == 'True' ) {
         if ( isset($_POST['braintree_card']) && is_numeric($_POST['braintree_card']) && ($_POST['braintree_card'] > 0) ) {
-          $token_query = tep_db_query("select braintree_token from customers_braintree_tokens where id = '" . (int)$_POST['braintree_card'] . "' and customers_id = '" . (int)$customer_id . "'");
+          $token_query = tep_db_query("select braintree_token from customers_braintree_tokens where id = '" . (int)$_POST['braintree_card'] . "' and customers_id = '" . (int)$_SESSION['customer_id'] . "'");
 
           if ( tep_db_num_rows($token_query) == 1 ) {
             $token = tep_db_fetch_array($token_query);
@@ -418,7 +418,7 @@
     }
 
     function after_process() {
-      global $customer_id, $insert_id, $braintree_result, $braintree_token;
+      global $insert_id, $braintree_result, $braintree_token;
 
       $status_comment = array('Transaction ID: ' . $braintree_result->transaction->id);
 
@@ -428,9 +428,9 @@
         $number = tep_db_prepare_input($braintree_result->transaction->creditCard['last4']);
         $expiry = tep_db_prepare_input($braintree_result->transaction->creditCard['expirationMonth'] . $braintree_result->transaction->creditCard['expirationYear']);
 
-        $check_query = tep_db_query("select id from customers_braintree_tokens where customers_id = '" . (int)$customer_id . "' and braintree_token = '" . tep_db_input($token) . "' limit 1");
+        $check_query = tep_db_query("select id from customers_braintree_tokens where customers_id = '" . (int)$_SESSION['customer_id'] . "' and braintree_token = '" . tep_db_input($token) . "' limit 1");
         if ( tep_db_num_rows($check_query) < 1 ) {
-          $sql_data_array = array('customers_id' => (int)$customer_id,
+          $sql_data_array = array('customers_id' => (int)$_SESSION['customer_id'],
                                   'braintree_token' => $token,
                                   'card_type' => $type,
                                   'number_filtered' => $number,
@@ -696,8 +696,6 @@ EOD;
     }
 
     function deleteCard($token, $token_id) {
-      global $customer_id;
-
       Braintree_Configuration::environment(MODULE_PAYMENT_BRAINTREE_CC_TRANSACTION_SERVER == 'Live' ? 'production' : 'sandbox');
       Braintree_Configuration::merchantId(MODULE_PAYMENT_BRAINTREE_CC_MERCHANT_ID);
       Braintree_Configuration::publicKey(MODULE_PAYMENT_BRAINTREE_CC_PUBLIC_KEY);
@@ -708,7 +706,7 @@ EOD;
       } catch ( Exception $e ) {
       }
 
-      tep_db_query("delete from customers_braintree_tokens where id = '" . (int)$token_id . "' and customers_id = '" . (int)$customer_id . "' and braintree_token = '" . tep_db_prepare_input(tep_db_input($token)) . "'");
+      tep_db_query("delete from customers_braintree_tokens where id = '" . (int)$token_id . "' and customers_id = '" . (int)$_SESSION['customer_id'] . "' and braintree_token = '" . tep_db_prepare_input(tep_db_input($token)) . "'");
 
       return (tep_db_affected_rows() === 1);
     }

@@ -5,7 +5,7 @@
        tep_draw_button(MODULE_CONTENT_HEADER_BUTTONS_TITLE_CHECKOUT, 'fa fa-credit-card', tep_href_link('checkout_shipping.php', '', 'SSL')) .
        tep_draw_button(MODULE_CONTENT_HEADER_BUTTONS_TITLE_MY_ACCOUNT, 'fa fa-user', tep_href_link('account.php', '', 'SSL'));
 
-  if ( tep_session_is_registered('customer_id') ) {
+  if ( isset($_SESSION['customer_id']) ) {
     echo tep_draw_button(MODULE_CONTENT_HEADER_BUTTONS_TITLE_LOGOFF, 'fa fa-sign-out', tep_href_link('logoff.php', '', 'SSL'));
   }
 ?>

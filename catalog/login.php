@@ -36,8 +36,7 @@
     $customer_info_query = tep_db_query("select c.customers_firstname, c.customers_default_address_id, ab.entry_country_id, ab.entry_zone_id from " . TABLE_CUSTOMERS . " c left join " . TABLE_ADDRESS_BOOK . " ab on (c.customers_id = ab.customers_id and c.customers_default_address_id = ab.address_book_id) where c.customers_id = '" . (int)$login_customer_id . "'");
     $customer_info = tep_db_fetch_array($customer_info_query);
 
-    $customer_id = $login_customer_id;
-    tep_session_register('customer_id');
+    $_SESSION['customer_id'] = $login_customer_id;
 
     $customer_default_address_id = $customer_info['customers_default_address_id'];
     tep_session_register('customer_default_address_id');
@@ -51,7 +50,7 @@
     $customer_zone_id = $customer_info['entry_zone_id'];
     tep_session_register('customer_zone_id');
 
-    tep_db_query("update " . TABLE_CUSTOMERS_INFO . " set customers_info_date_of_last_logon = now(), customers_info_number_of_logons = customers_info_number_of_logons+1, password_reset_key = null, password_reset_date = null where customers_info_id = '" . (int)$customer_id . "'");
+    tep_db_query("update " . TABLE_CUSTOMERS_INFO . " set customers_info_date_of_last_logon = now(), customers_info_number_of_logons = customers_info_number_of_logons+1, password_reset_key = null, password_reset_date = null where customers_info_id = '" . (int)$_SESSION['customer_id'] . "'");
 
 // reset session token
     $_SESSION['sessiontoken'] = md5(tep_rand() . tep_rand() . tep_rand() . tep_rand());

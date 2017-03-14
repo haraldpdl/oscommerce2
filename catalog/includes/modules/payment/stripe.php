@@ -89,10 +89,10 @@
     }
 
     public function selection() {
-      global $customer_id, $payment;
+      global $payment;
 
       if ( (MODULE_PAYMENT_STRIPE_TOKENS == 'True') && !tep_session_is_registered('payment') ) {
-        $tokens_query = tep_db_query("select 1 from customers_stripe_tokens where customers_id = '" . (int)$customer_id . "' limit 1");
+        $tokens_query = tep_db_query("select 1 from customers_stripe_tokens where customers_id = '" . (int)$_SESSION['customer_id'] . "' limit 1");
 
         if ( tep_db_num_rows($tokens_query) ) {
           $payment = $this->code;
@@ -113,7 +113,7 @@
     }
 
     public function confirmation() {
-      global $customer_id, $order, $currencies;
+      global $order, $currencies;
 
       $months_array = array();
 
@@ -145,7 +145,7 @@
       $content = '';
 
       if ( MODULE_PAYMENT_STRIPE_TOKENS == 'True' ) {
-        $tokens_query = tep_db_query("select id, card_type, number_filtered, expiry_date from customers_stripe_tokens where customers_id = '" . (int)$customer_id . "' order by date_added");
+        $tokens_query = tep_db_query("select id, card_type, number_filtered, expiry_date from customers_stripe_tokens where customers_id = '" . (int)$_SESSION['customer_id'] . "' order by date_added");
 
         if ( tep_db_num_rows($tokens_query) > 0 ) {
           $content .= '<table id="stripe_table" border="0" width="100%" cellspacing="0" cellpadding="2">';
@@ -220,7 +220,7 @@
     }
 
     public function before_process() {
-      global $customer_id, $order, $stripe_result, $stripe_error;
+      global $order, $stripe_result, $stripe_error;
 
       $stripe_result = null;
 
@@ -228,7 +228,7 @@
 
       if ( MODULE_PAYMENT_STRIPE_TOKENS == 'True' ) {
         if ( isset($_POST['stripe_card']) && is_numeric($_POST['stripe_card']) && ($_POST['stripe_card'] > 0) ) {
-          $token_query = tep_db_query("select stripe_token from customers_stripe_tokens where id = '" . (int)$_POST['stripe_card'] . "' and customers_id = '" . (int)$customer_id . "'");
+          $token_query = tep_db_query("select stripe_token from customers_stripe_tokens where id = '" . (int)$_POST['stripe_card'] . "' and customers_id = '" . (int)$_SESSION['customer_id'] . "'");
 
           if ( tep_db_num_rows($token_query) === 1 ) {
             $token = tep_db_fetch_array($token_query);
@@ -294,7 +294,7 @@
     }
 
     public function after_process() {
-      global $insert_id, $customer_id, $stripe_result;
+      global $insert_id, $stripe_result;
 
       $status_comment = array('Transaction ID: ' . $stripe_result['id'],
                               'CVC: ' . $stripe_result['card']['cvc_check']);
@@ -809,9 +809,7 @@ EOD;
     }
 
     public function getCustomerID() {
-      global $customer_id;
-
-      $token_check_query = tep_db_query("select stripe_token from customers_stripe_tokens where customers_id = '" . (int)$customer_id . "' limit 1");
+      $token_check_query = tep_db_query("select stripe_token from customers_stripe_tokens where customers_id = '" . (int)$_SESSION['customer_id'] . "' limit 1");
 
       if ( tep_db_num_rows($token_check_query) === 1 ) {
         $token_check = tep_db_fetch_array($token_check_query);
@@ -825,8 +823,6 @@ EOD;
     }
 
     public function createCustomer($token) {
-      global $customer_id;
-
       $params = array('card' => $token);
 
       $result = json_decode($this->sendTransactionToGateway('https://api.stripe.com/v1/customers', $params), true);
@@ -837,7 +833,7 @@ EOD;
         $number = tep_db_prepare_input($result['cards']['data'][0]['last4']);
         $expiry = tep_db_prepare_input(str_pad($result['cards']['data'][0]['exp_month'], 2, '0', STR_PAD_LEFT) . $result['cards']['data'][0]['exp_year']);
 
-        $sql_data_array = array('customers_id' => (int)$customer_id,
+        $sql_data_array = array('customers_id' => (int)$_SESSION['customer_id'],
                                 'stripe_token' => $token,
                                 'card_type' => $type,
                                 'number_filtered' => $number,
@@ -856,8 +852,6 @@ EOD;
     }
 
     public function addCard($token, $customer) {
-      global $customer_id;
-
       $params = array('card' => $token);
 
       $result = json_decode($this->sendTransactionToGateway('https://api.stripe.com/v1/customers/' . $customer . '/cards', $params), true);
@@ -868,7 +862,7 @@ EOD;
         $number = tep_db_prepare_input($result['last4']);
         $expiry = tep_db_prepare_input(str_pad($result['exp_month'], 2, '0', STR_PAD_LEFT) . $result['exp_year']);
 
-        $sql_data_array = array('customers_id' => (int)$customer_id,
+        $sql_data_array = array('customers_id' => (int)$_SESSION['customer_id'],
                                 'stripe_token' => $token,
                                 'card_type' => $type,
                                 'number_filtered' => $number,
@@ -886,15 +880,13 @@ EOD;
     }
 
     public function deleteCard($card, $customer, $token_id) {
-      global $customer_id;
-
       $result = $this->sendTransactionToGateway('https://api.stripe.com/v1/customers/' . $customer . '/cards/' . $card, null, array(CURLOPT_CUSTOMREQUEST => 'DELETE'));
 
       if ( !is_array($result) || !isset($result['object']) || ($result['object'] != 'card') ) {
         $this->sendDebugEmail($result);
       }
 
-      tep_db_query("delete from customers_stripe_tokens where id = '" . (int)$token_id . "' and customers_id = '" . (int)$customer_id . "' and stripe_token = '" . tep_db_prepare_input(tep_db_input($customer . ':|:' . $card)) . "'");
+      tep_db_query("delete from customers_stripe_tokens where id = '" . (int)$token_id . "' and customers_id = '" . (int)$_SESSION['customer_id'] . "' and stripe_token = '" . tep_db_prepare_input(tep_db_input($customer . ':|:' . $card)) . "'");
 
       return (tep_db_affected_rows() === 1);
     }

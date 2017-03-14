@@ -95,7 +95,7 @@
     }
 
     public function process_button() {
-      global $customer_id, $order, $sendto;
+      global $order, $sendto;
 
       $tstamp = time();
       $sequence = rand(1, 1000);
@@ -115,7 +115,7 @@
                       'x_zip' => substr($order->billing['postcode'], 0, 20),
                       'x_country' => substr($order->billing['country']['title'], 0, 60),
                       'x_phone' => substr(preg_replace('/[^0-9]/', '', $order->customer['telephone']), 0, 25),
-                      'x_cust_id' => substr($customer_id, 0, 20),
+                      'x_cust_id' => substr($_SESSION['customer_id'], 0, 20),
                       'x_customer_ip' => tep_get_ip_address(),
                       'x_email' => substr($order->customer['email_address'], 0, 255),
                       'x_description' => substr(STORE_NAME, 0, 255),

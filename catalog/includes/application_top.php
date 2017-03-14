@@ -348,7 +348,7 @@
                               }
                               tep_redirect(tep_href_link($goto, tep_get_all_get_params($parameters)));
                               break;
-      case 'notify' :         if (tep_session_is_registered('customer_id')) {
+      case 'notify' :         if (isset($_SESSION['customer_id'])) {
                                 if (isset($_GET['products_id'])) {
                                   $notify = $_GET['products_id'];
                                 } elseif (isset($_GET['notify'])) {
@@ -361,10 +361,10 @@
                                 if (!is_array($notify)) $notify = array($notify);
                                 $n=sizeof($notify);
                                 for ($i=0; $i<$n; $i++) {
-                                  $check_query = tep_db_query("select count(*) as count from " . TABLE_PRODUCTS_NOTIFICATIONS . " where products_id = '" . (int)$notify[$i] . "' and customers_id = '" . (int)$customer_id . "'");
+                                  $check_query = tep_db_query("select count(*) as count from " . TABLE_PRODUCTS_NOTIFICATIONS . " where products_id = '" . (int)$notify[$i] . "' and customers_id = '" . (int)$_SESSION['customer_id'] . "'");
                                   $check = tep_db_fetch_array($check_query);
                                   if ($check['count'] < 1) {
-                                    tep_db_query("insert into " . TABLE_PRODUCTS_NOTIFICATIONS . " (products_id, customers_id, date_added) values ('" . (int)$notify[$i] . "', '" . (int)$customer_id . "', now())");
+                                    tep_db_query("insert into " . TABLE_PRODUCTS_NOTIFICATIONS . " (products_id, customers_id, date_added) values ('" . (int)$notify[$i] . "', '" . (int)$_SESSION['customer_id'] . "', now())");
                                   }
                                 }
                                 $messageStack->add_session('product_action', sprintf(PRODUCT_SUBSCRIBED, tep_get_products_name((int)$_GET['products_id'])), 'success');
@@ -374,11 +374,11 @@
                                 tep_redirect(tep_href_link('login.php', '', 'SSL'));
                               }
                               break;
-      case 'notify_remove' :  if (tep_session_is_registered('customer_id') && isset($_GET['products_id'])) {
-                                $check_query = tep_db_query("select count(*) as count from " . TABLE_PRODUCTS_NOTIFICATIONS . " where products_id = '" . (int)$_GET['products_id'] . "' and customers_id = '" . (int)$customer_id . "'");
+      case 'notify_remove' :  if (isset($_SESSION['customer_id']) && isset($_GET['products_id'])) {
+                                $check_query = tep_db_query("select count(*) as count from " . TABLE_PRODUCTS_NOTIFICATIONS . " where products_id = '" . (int)$_GET['products_id'] . "' and customers_id = '" . (int)$_SESSION['customer_id'] . "'");
                                 $check = tep_db_fetch_array($check_query);
                                 if ($check['count'] > 0) {
-                                  tep_db_query("delete from " . TABLE_PRODUCTS_NOTIFICATIONS . " where products_id = '" . (int)$_GET['products_id'] . "' and customers_id = '" . (int)$customer_id . "'");
+                                  tep_db_query("delete from " . TABLE_PRODUCTS_NOTIFICATIONS . " where products_id = '" . (int)$_GET['products_id'] . "' and customers_id = '" . (int)$_SESSION['customer_id'] . "'");
                                 }
                                 $messageStack->add_session('product_action', sprintf(PRODUCT_UNSUBSCRIBED, tep_get_products_name((int)$_GET['products_id'])), 'warning');
                                 tep_redirect(tep_href_link($PHP_SELF, tep_get_all_get_params(array('action'))));
@@ -387,7 +387,7 @@
                                 tep_redirect(tep_href_link('login.php', '', 'SSL'));
                               }
                               break;
-      case 'cust_order' :     if (tep_session_is_registered('customer_id') && isset($_GET['pid'])) {
+      case 'cust_order' :     if (isset($_SESSION['customer_id']) && isset($_GET['pid'])) {
                                 if (tep_has_product_attributes($_GET['pid'])) {
                                   tep_redirect(tep_href_link('product_info.php', 'products_id=' . $_GET['pid']));
                                 } else {

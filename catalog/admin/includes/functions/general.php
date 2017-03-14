@@ -1208,7 +1208,7 @@
     global $customer_zone_id, $customer_country_id;
 
     if ( ($country_id == -1) && ($zone_id == -1) ) {
-      if (!tep_session_is_registered('customer_id')) {
+      if (!isset($_SESSION['customer_id'])) {
         $country_id = STORE_COUNTRY;
         $zone_id = STORE_ZONE;
       } else {

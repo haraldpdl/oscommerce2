@@ -323,7 +323,7 @@
     static $tax_rates = array();
 
     if ( ($country_id == -1) && ($zone_id == -1) ) {
-      if (!tep_session_is_registered('customer_id')) {
+      if (!isset($_SESSION['customer_id'])) {
         $country_id = STORE_COUNTRY;
         $zone_id = STORE_ZONE;
       } else {
@@ -1300,18 +1300,16 @@
   }
 
   function tep_count_customer_orders($id = '', $check_session = true) {
-    global $customer_id;
-
     if (is_numeric($id) == false) {
-      if (tep_session_is_registered('customer_id')) {
-        $id = $customer_id;
+      if (isset($_SESSION['customer_id'])) {
+        $id = $_SESSION['customer_id'];
       } else {
         return 0;
       }
     }
 
     if ($check_session == true) {
-      if ( (tep_session_is_registered('customer_id') == false) || ($id != $customer_id) ) {
+      if ( (isset($_SESSION['customer_id']) == false) || ($id != $_SESSION['customer_id']) ) {
         return 0;
       }
     }
@@ -1323,18 +1321,16 @@
   }
 
   function tep_count_customer_address_book_entries($id = '', $check_session = true) {
-    global $customer_id;
-
     if (is_numeric($id) == false) {
-      if (tep_session_is_registered('customer_id')) {
-        $id = $customer_id;
+      if (isset($_SESSION['customer_id'])) {
+        $id = $_SESSION['customer_id'];
       } else {
         return 0;
       }
     }
 
     if ($check_session == true) {
-      if ( (tep_session_is_registered('customer_id') == false) || ($id != $customer_id) ) {
+      if ( (isset($_SESSION['customer_id']) == false) || ($id != $_SESSION['customer_id']) ) {
         return 0;
       }
     }

@@ -41,7 +41,7 @@
     }
 
     public function getOutput() {
-      global $oscTemplate, $customer_first_name, $customer_id;
+      global $oscTemplate, $customer_first_name;
 
       ob_start();
       require('includes/modules/navbar_modules/templates/account.php');

@@ -33,11 +33,11 @@
     }
 
     public function execute() {
-      global $oscTemplate, $customer_id, $customer_first_name;
+      global $oscTemplate, $customer_first_name;
 
       $content_width = MODULE_CONTENT_CUSTOMER_GREETING_CONTENT_WIDTH;
 
-      if (tep_session_is_registered('customer_first_name') && tep_session_is_registered('customer_id')) {
+      if (tep_session_is_registered('customer_first_name') && isset($_SESSION['customer_id'])) {
         $customer_greeting = sprintf(MODULE_CONTENT_CUSTOMER_GREETING_PERSONAL, tep_output_string_protected($customer_first_name), tep_href_link('products_new.php'));
       } else {
         $customer_greeting = sprintf(MODULE_CONTENT_CUSTOMER_GREETING_GUEST, tep_href_link('login.php', '', 'SSL'), tep_href_link('create_account.php', '', 'SSL'));

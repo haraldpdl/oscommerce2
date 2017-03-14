@@ -1,8 +1,8 @@
-<li class="dropdown"> 
-  <a class="dropdown-toggle" data-toggle="dropdown" href="#"><?php echo (tep_session_is_registered('customer_id')) ? sprintf(MODULE_NAVBAR_ACCOUNT_LOGGED_IN, $customer_first_name) : MODULE_NAVBAR_ACCOUNT_LOGGED_OUT; ?></a>
+<li class="dropdown">
+  <a class="dropdown-toggle" data-toggle="dropdown" href="#"><?php echo (isset($_SESSION['customer_id'])) ? sprintf(MODULE_NAVBAR_ACCOUNT_LOGGED_IN, $customer_first_name) : MODULE_NAVBAR_ACCOUNT_LOGGED_OUT; ?></a>
   <ul class="dropdown-menu">
     <?php
-    if (tep_session_is_registered('customer_id')) {
+    if (isset($_SESSION['customer_id'])) {
       echo '<li><a href="' . tep_href_link('logoff.php', '', 'SSL') . '">' . MODULE_NAVBAR_ACCOUNT_LOGOFF . '</a></li>';
     }
     else {

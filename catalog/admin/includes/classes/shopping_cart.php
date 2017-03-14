@@ -17,60 +17,12 @@
       $this->reset();
     }
 
-    public function restore_contents() {
-      global $customer_id;
-
-      if (!$customer_id) return 0;
-
-// insert current cart contents in database
-      if ($this->contents) {
-        foreach (array_keys($this->contents) as $products_id) {
-          $qty = $this->contents[$products_id]['qty'];
-          $product_query = tep_db_query("select products_id from " . TABLE_CUSTOMERS_BASKET . " where customers_id = '" . (int)$customer_id . "' and products_id = '" . tep_db_input($products_id) . "'");
-          if (!tep_db_num_rows($product_query)) {
-            tep_db_query("insert into " . TABLE_CUSTOMERS_BASKET . " (customers_id, products_id, customers_basket_quantity, customers_basket_date_added) values ('" . (int)$customer_id . "', '" . tep_db_input($products_id) . "', '" . tep_db_input($qty) . "', '" . date('Ymd') . "')");
-            if ($this->contents[$products_id]['attributes']) {
-              foreach ($this->contents[$products_id]['attributes'] as $option => $value) {
-                tep_db_query("insert into " . TABLE_CUSTOMERS_BASKET_ATTRIBUTES . " (customers_id, products_id, products_options_id, products_options_value_id) values ('" . (int)$customer_id . "', '" . tep_db_input($products_id) . "', '" . (int)$option . "', '" . (int)$value . "')");
-              }
-            }
-          } else {
-            tep_db_query("update " . TABLE_CUSTOMERS_BASKET . " set customers_basket_quantity = '" . tep_db_input($qty) . "' where customers_id = '" . (int)$customer_id . "' and products_id = '" . tep_db_input($products_id) . "'");
-          }
-        }
-      }
-
-// reset per-session cart contents, but not the database contents
-      $this->reset(FALSE);
-
-      $products_query = tep_db_query("select products_id, customers_basket_quantity from " . TABLE_CUSTOMERS_BASKET . " where customers_id = '" . (int)$customer_id . "'");
-      while ($products = tep_db_fetch_array($products_query)) {
-        $this->contents[$products['products_id']] = array('qty' => $products['customers_basket_quantity']);
-// attributes
-        $attributes_query = tep_db_query("select products_options_id, products_options_value_id from " . TABLE_CUSTOMERS_BASKET_ATTRIBUTES . " where customers_id = '" . (int)$customer_id . "' and products_id = '" . tep_db_input($products['products_id']) . "'");
-        while ($attributes = tep_db_fetch_array($attributes_query)) {
-          $this->contents[$products['products_id']]['attributes'][$attributes['products_options_id']] = $attributes['products_options_value_id'];
-        }
-      }
-
-      $this->cleanup();
-    }
-
-    public function reset($reset_database = FALSE) {
-      global $customer_id;
-
+    public function reset() {
       $this->contents = array();
       $this->total = 0;
-
-      if ($customer_id && $reset_database) {
-        tep_db_query("delete from " . TABLE_CUSTOMERS_BASKET . " where customers_id = '" . (int)$customer_id . "'");
-        tep_db_query("delete from " . TABLE_CUSTOMERS_BASKET_ATTRIBUTES . " where customers_id = '" . (int)$customer_id . "'");
-      }
     }
 
     public function add_cart($products_id, $qty = '', $attributes = '') {
-      global $customer_id;
-
       $products_id = tep_get_uprid($products_id, $attributes);
 
       if ($this->in_cart($products_id)) {
@@ -80,14 +32,10 @@
 
         $this->contents[] = array($products_id);
         $this->contents[$products_id] = array('qty' => $qty);
-// insert into database
-        if ($customer_id) tep_db_query("insert into " . TABLE_CUSTOMERS_BASKET . " (customers_id, products_id, customers_basket_quantity, customers_basket_date_added) values ('" . (int)$customer_id . "', '" . tep_db_input($products_id) . "', '" . tep_db_input($qty) . "', '" . date('Ymd') . "')");
 
         if (is_array($attributes)) {
           foreach ($attributes as $option => $value) {
             $this->contents[$products_id]['attributes'][$option] = $value;
-// insert into database
-            if ($customer_id) tep_db_query("insert into " . TABLE_CUSTOMERS_BASKET_ATTRIBUTES . " (customers_id, products_id, products_options_id, products_options_value_id) values ('" . (int)$customer_id . "', '" . tep_db_input($products_id) . "', '" . (int)$option . "', '" . (int)$value . "')");
           }
         }
         $_SESSION['new_products_id_in_cart'] = $products_id;
@@ -96,34 +44,21 @@
     }
 
     public function update_quantity($products_id, $quantity = '', $attributes = '') {
-      global $customer_id;
-
       if ($quantity == '') return true; // nothing needs to be updated if theres no quantity, so we return true..
 
       $this->contents[$products_id] = array('qty' => $quantity);
-// update database
-      if ($customer_id) tep_db_query("update " . TABLE_CUSTOMERS_BASKET . " set customers_basket_quantity = '" . tep_db_input($quantity) . "' where customers_id = '" . (int)$customer_id . "' and products_id = '" . tep_db_input($products_id) . "'");
 
       if (is_array($attributes)) {
         foreach ($attributes as $option => $value) {
           $this->contents[$products_id]['attributes'][$option] = $value;
-// update database
-          if ($customer_id) tep_db_query("update " . TABLE_CUSTOMERS_BASKET_ATTRIBUTES . " set products_options_value_id = '" . (int)$value . "' where customers_id = '" . (int)$customer_id . "' and products_id = '" . tep_db_input($products_id) . "' and products_options_id = '" . (int)$option . "'");
         }
       }
     }
 
     public function cleanup() {
-      global $customer_id;
-
       foreach (array_keys($this->contents) as $key) {
         if ($this->contents[$key]['qty'] < 1) {
           unset($this->contents[$key]);
-// remove from database
-          if ($customer_id) {
-            tep_db_query("delete from " . TABLE_CUSTOMERS_BASKET . " where customers_id = '" . (int)$customer_id . "' and products_id = '" . tep_db_input($key) . "'");
-            tep_db_query("delete from " . TABLE_CUSTOMERS_BASKET_ATTRIBUTES . " where customers_id = '" . (int)$customer_id . "' and products_id = '" . tep_db_input($key) . "'");
-          }
         }
       }
     }
@@ -155,14 +90,7 @@
     }
 
     public function remove($products_id) {
-      global $customer_id;
-
       unset($this->contents[$products_id]);
-// remove from database
-      if ($customer_id) {
-        tep_db_query("delete from " . TABLE_CUSTOMERS_BASKET . " where customers_id = '" . (int)$customer_id . "' and products_id = '" . tep_db_input($products_id) . "'");
-        tep_db_query("delete from " . TABLE_CUSTOMERS_BASKET_ATTRIBUTES . " where customers_id = '" . (int)$customer_id . "' and products_id = '" . tep_db_input($products_id) . "'");
-      }
     }
 
     public function remove_all() {
