@@ -41,8 +41,7 @@
     $customer_default_address_id = $customer_info['customers_default_address_id'];
     tep_session_register('customer_default_address_id');
 
-    $customer_first_name = $customer_info['customers_firstname'];
-    tep_session_register('customer_first_name');
+    $_SESSION['customer_first_name'] = $customer_info['customers_firstname'];
 
     $customer_country_id = $customer_info['entry_country_id'];
     tep_session_register('customer_country_id');
