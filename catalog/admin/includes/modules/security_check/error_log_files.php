@@ -14,9 +14,7 @@
     public $type = 'warning';
 
     public function __construct() {
-      global $language;
-
-      include(DIR_FS_ADMIN . 'includes/languages/' . $language . '/modules/security_check/error_log_files.php');
+      include(DIR_FS_ADMIN . 'includes/languages/' . $_SESSION['language'] . '/modules/security_check/error_log_files.php');
 
       $this->title = MODULE_SECURITY_CHECK_ERROR_LOG_FILES_TITLE;
     }

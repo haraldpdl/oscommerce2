@@ -27,8 +27,8 @@
     tep_redirect(tep_href_link('checkout_payment.php', '', 'SSL'));
   }
 
-  require('includes/languages/' . $language . '/checkout_confirmation.php');
-  require('includes/languages/' . $language . '/modules/payment/sage_pay_direct.php');
+  require('includes/languages/' . $_SESSION['language'] . '/checkout_confirmation.php');
+  require('includes/languages/' . $_SESSION['language'] . '/modules/payment/sage_pay_direct.php');
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html <?php echo HTML_PARAMS; ?>>

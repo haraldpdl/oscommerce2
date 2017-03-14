@@ -24,8 +24,6 @@
     }
 
     public function getSetField() {
-      global $languages_id;
-
       $statuses_array = array();
 
       $flags_query = tep_db_query("describe orders_status public_flag");

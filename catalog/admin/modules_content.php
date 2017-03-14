@@ -33,8 +33,8 @@
                 $class = substr($file, 0, strrpos($file, '.'));
 
                 if (!class_exists($class)) {
-                  if ( file_exists(DIR_FS_CATALOG_LANGUAGES . $language . '/modules/content/' . $group . '/' . $file) ) {
-                    include(DIR_FS_CATALOG_LANGUAGES . $language . '/modules/content/' . $group . '/' . $file);
+                  if ( file_exists(DIR_FS_CATALOG_LANGUAGES . $_SESSION['language'] . '/modules/content/' . $group . '/' . $file) ) {
+                    include(DIR_FS_CATALOG_LANGUAGES . $_SESSION['language'] . '/modules/content/' . $group . '/' . $file);
                   }
 
                   include(DIR_FS_CATALOG_MODULES . 'content/' . $group . '/' . $file);

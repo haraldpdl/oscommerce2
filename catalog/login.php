@@ -68,7 +68,7 @@
     tep_redirect(tep_href_link('index.php'));
   }
 
-  require('includes/languages/' . $language . '/login.php');
+  require('includes/languages/' . $_SESSION['language'] . '/login.php');
 
   $breadcrumb->add(NAVBAR_TITLE, tep_href_link('login.php', '', 'SSL'));
 

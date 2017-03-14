@@ -97,12 +97,7 @@
   tep_session_start();
 
 // set the language
-  if (!tep_session_is_registered('language') || isset($_GET['language'])) {
-    if (!tep_session_is_registered('language')) {
-      tep_session_register('language');
-      tep_session_register('languages_id');
-    }
-
+  if (!isset($_SESSION['language']) || isset($_GET['language'])) {
     include('includes/classes/language.php');
     $lng = new language();
 
@@ -112,8 +107,8 @@
       $lng->get_browser_language();
     }
 
-    $language = $lng->language['directory'];
-    $languages_id = $lng->language['id'];
+    $_SESSION['language'] = $lng->language['directory'];
+    $_SESSION['languages_id'] = $lng->language['id'];
   }
 
 // redirect to login page if administrator is not yet logged in
@@ -161,12 +156,12 @@
 
 // include the language translations
   $_system_locale_numeric = setlocale(LC_NUMERIC, 0);
-  require('includes/languages/' . $language . '.php');
+  require('includes/languages/' . $_SESSION['language'] . '.php');
   setlocale(LC_NUMERIC, $_system_locale_numeric); // Prevent LC_ALL from setting LC_NUMERIC to a locale with 1,0 float/decimal values instead of 1.0 (see bug #634)
 
   $current_page = basename($PHP_SELF);
-  if (file_exists('includes/languages/' . $language . '/' . $current_page)) {
-    include('includes/languages/' . $language . '/' . $current_page);
+  if (file_exists('includes/languages/' . $_SESSION['language'] . '/' . $current_page)) {
+    include('includes/languages/' . $_SESSION['language'] . '/' . $current_page);
   }
 
 // define our localization functions

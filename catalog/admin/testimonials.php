@@ -43,14 +43,14 @@
 
         tep_redirect(tep_href_link('testimonials.php', 'page=' . $_GET['page']));
         break;
-        
+
       case 'addnew':
         $customers_name = tep_db_prepare_input($_POST['customer_name']);
         $testimonial = tep_db_prepare_input($_POST['testimonials_text']);
 
         tep_db_query("insert into testimonials (customers_name, date_added, testimonials_status) values ('" . tep_db_input($customers_name) . "', now(), 1)");
         $insert_id = tep_db_insert_id();
-        tep_db_query("insert into testimonials_description (testimonials_id, languages_id, testimonials_text) values ('" . (int)$insert_id . "', '" . (int)$languages_id . "', '" . tep_db_input($testimonial) . "')");
+        tep_db_query("insert into testimonials_description (testimonials_id, languages_id, testimonials_text) values ('" . (int)$insert_id . "', '" . (int)$_SESSION['languages_id'] . "', '" . tep_db_input($testimonial) . "')");
 
         tep_redirect(tep_href_link('testimonials.php', tep_get_all_get_params(array('action'))));
         break;
@@ -100,7 +100,7 @@
       </tr>
       <tr>
         <td><?php echo tep_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
-      </tr>      
+      </tr>
       <tr>
         <td align="right" class="smallText"><?php echo tep_draw_hidden_field('testimonials_id', $tInfo->testimonials_id) . tep_draw_hidden_field('customers_name', $tInfo->customers_name) . tep_draw_hidden_field('date_added', $tInfo->date_added) . tep_draw_button(IMAGE_SAVE, 'document') . tep_draw_button(IMAGE_CANCEL, 'close', tep_href_link('testimonials.php', 'page=' . $_GET['page'] . '&tID=' . $_GET['tID'])); ?></td>
       </form></tr>
@@ -124,9 +124,9 @@
           </tr>
           <tr>
             <td><?php echo tep_draw_button(IMAGE_SAVE, 'disk', null, 'primary'); ?></td>
-          </tr>      
+          </tr>
         </table></td>
-      </tr>  
+      </tr>
       </form>
        <?php
      } else {
@@ -184,7 +184,7 @@
                 </table></td>
                 <tr>
                   <td colspan="4"><?php echo tep_draw_separator('pixel_trans.gif', '1', '10'); ?></td>
-                </tr>                
+                </tr>
                 <td colspan="4" class="smallText" align="right"><?php echo tep_draw_button(IMAGE_BUTTON_ADD_TESTIMONIAL, 'triangle-1-e', tep_href_link('testimonials.php', 'action=new')); ?></td>
               </tr>
             </table></td>

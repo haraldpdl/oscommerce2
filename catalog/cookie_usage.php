@@ -12,7 +12,7 @@
 
   require('includes/application_top.php');
 
-  require('includes/languages/' . $language . '/cookie_usage.php');
+  require('includes/languages/' . $_SESSION['language'] . '/cookie_usage.php');
 
   $breadcrumb->add(NAVBAR_TITLE, tep_href_link('cookie_usage.php'));
 

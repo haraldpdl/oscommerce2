@@ -59,7 +59,7 @@
       $class = substr($adm, 0, strrpos($adm, '.'));
 
       if ( !class_exists($class) ) {
-        include('includes/languages/' . $language . '/modules/dashboard/' . $adm);
+        include('includes/languages/' . $_SESSION['language'] . '/modules/dashboard/' . $adm);
         include('includes/modules/dashboard/' . $class . '.php');
       }
 

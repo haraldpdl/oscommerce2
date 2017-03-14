@@ -24,7 +24,7 @@
   }
 
   // needs to be included earlier to set the success message in the messageStack
-  require('includes/languages/' . $language . '/checkout_shipping_address.php');
+  require('includes/languages/' . $_SESSION['language'] . '/checkout_shipping_address.php');
 
   require('includes/classes/order.php');
   $order = new order;
@@ -251,7 +251,7 @@
 ?>
 
   <h2><?php echo TABLE_HEADING_ADDRESS_BOOK_ENTRIES; ?></h2>
-  
+
   <div class="alert alert-info"><?php echo TEXT_SELECT_OTHER_SHIPPING_DESTINATION; ?></div>
 
   <div class="contentText row">
@@ -298,7 +298,7 @@
   <div class="buttonSet">
     <div class="text-right"><?php echo tep_draw_hidden_field('action', 'submit') . tep_draw_button(IMAGE_BUTTON_CONTINUE, 'fa fa-angle-right', null, 'primary', null, 'btn-success'); ?></div>
   </div>
-  
+
   <div class="clearfix"></div>
 
   <div class="contentText">
@@ -319,7 +319,7 @@
       </div>
     </div>
   </div>
-  
+
 
 <?php
   if ($process == true) {

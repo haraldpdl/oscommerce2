@@ -24,9 +24,7 @@
     }
 
     public function query($order_id) {
-      global $languages_id;
-
-      $order_query = tep_db_query("select o.*, s.orders_status_name from " . TABLE_ORDERS . " o, " . TABLE_ORDERS_STATUS . " s where o.orders_id = '" . (int)$order_id . "' and o.orders_status = s.orders_status_id and s.language_id = '" . (int)$languages_id . "'");
+      $order_query = tep_db_query("select o.*, s.orders_status_name from " . TABLE_ORDERS . " o, " . TABLE_ORDERS_STATUS . " s where o.orders_id = '" . (int)$order_id . "' and o.orders_status = s.orders_status_id and s.language_id = '" . (int)$_SESSION['languages_id'] . "'");
       $order = tep_db_fetch_array($order_query);
 
       $totals_query = tep_db_query("select title, text, class from " . TABLE_ORDERS_TOTAL . " where orders_id = '" . (int)$order_id . "' order by sort_order");

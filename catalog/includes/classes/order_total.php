@@ -15,13 +15,11 @@
 
 // class constructor
     public function __construct() {
-      global $language;
-
       if (defined('MODULE_ORDER_TOTAL_INSTALLED') && tep_not_null(MODULE_ORDER_TOTAL_INSTALLED)) {
         $this->modules = explode(';', MODULE_ORDER_TOTAL_INSTALLED);
 
         foreach ($this->modules as $value) {
-          include('includes/languages/' . $language . '/modules/order_total/' . $value);
+          include('includes/languages/' . $_SESSION['language'] . '/modules/order_total/' . $value);
           include('includes/modules/order_total/' . $value);
 
           $class = substr($value, 0, strrpos($value, '.'));

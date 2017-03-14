@@ -12,7 +12,7 @@
 
   require('includes/application_top.php');
 
-  require('includes/languages/' . $language . '/advanced_search.php');
+  require('includes/languages/' . $_SESSION['language'] . '/advanced_search.php');
 
   $breadcrumb->add(NAVBAR_TITLE_1, tep_href_link('advanced_search.php'));
 
@@ -133,7 +133,7 @@ function check_form() {
       <div class="col-xs-6"><a data-toggle="modal" href="#helpSearch" class="btn btn-primary"><?php echo TEXT_SEARCH_HELP_LINK; ?></a></div>
       <div class="col-xs-6 text-right"><?php echo tep_draw_button(IMAGE_BUTTON_SEARCH, 'fa fa-search', null, 'primary', null, 'btn-success'); ?></div>
     </div>
-    
+
     <div class="modal fade" id="helpSearch" tabindex="-1" role="dialog" aria-labelledby="helpSearchLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">

@@ -12,7 +12,7 @@
 
   require('includes/application_top.php');
 
-  require('includes/languages/' . $language . '/shipping.php');
+  require('includes/languages/' . $_SESSION['language'] . '/shipping.php');
 
   $breadcrumb->add(NAVBAR_TITLE, tep_href_link('shipping.php'));
 

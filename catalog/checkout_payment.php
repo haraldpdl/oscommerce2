@@ -78,7 +78,7 @@
   require('includes/classes/payment.php');
   $payment_modules = new payment;
 
-  require('includes/languages/' . $language . '/checkout_payment.php');
+  require('includes/languages/' . $_SESSION['language'] . '/checkout_payment.php');
 
   $breadcrumb->add(NAVBAR_TITLE_1, tep_href_link('checkout_shipping.php', '', 'SSL'));
   $breadcrumb->add(NAVBAR_TITLE_2, tep_href_link('checkout_payment.php', '', 'SSL'));

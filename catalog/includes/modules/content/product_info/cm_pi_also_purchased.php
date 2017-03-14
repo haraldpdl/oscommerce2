@@ -33,12 +33,12 @@
     }
 
     public function execute() {
-      global $oscTemplate, $languages_id;
+      global $oscTemplate;
 
       $content_width = (int)MODULE_CONTENT_PRODUCT_INFO_ALSO_PURCHASED_CONTENT_WIDTH;
       $product_width = (int)MODULE_CONTENT_PRODUCT_INFO_ALSO_PURCHASED_DISPLAY_EACH;
 
-      $orders_query = tep_db_query("select p.products_id, p.products_image, pd.products_name from orders_products opa, orders_products opb, orders o, products p LEFT JOIN products_description pd on p.products_id = pd.products_id where opa.products_id = '" . (int)$_GET['products_id'] . "' and opa.orders_id = opb.orders_id and opb.products_id != '" . (int)$_GET['products_id'] . "' and opb.products_id = p.products_id and opb.orders_id = o.orders_id and p.products_status = '1' and pd.language_id = '" . (int)$languages_id . "' group by p.products_id order by o.date_purchased desc limit " . (int)MODULE_CONTENT_PRODUCT_INFO_ALSO_PURCHASED_CONTENT_LIMIT);
+      $orders_query = tep_db_query("select p.products_id, p.products_image, pd.products_name from orders_products opa, orders_products opb, orders o, products p LEFT JOIN products_description pd on p.products_id = pd.products_id where opa.products_id = '" . (int)$_GET['products_id'] . "' and opa.orders_id = opb.orders_id and opb.products_id != '" . (int)$_GET['products_id'] . "' and opb.products_id = p.products_id and opb.orders_id = o.orders_id and p.products_status = '1' and pd.language_id = '" . (int)$_SESSION['languages_id'] . "' group by p.products_id order by o.date_purchased desc limit " . (int)MODULE_CONTENT_PRODUCT_INFO_ALSO_PURCHASED_CONTENT_LIMIT);
       $num_products_ordered = tep_db_num_rows($orders_query);
 
       if ($num_products_ordered > 0) {

@@ -12,7 +12,7 @@
 
   require('includes/application_top.php');
 
-  require('includes/languages/' . $language . '/privacy.php');
+  require('includes/languages/' . $_SESSION['language'] . '/privacy.php');
 
   $breadcrumb->add(NAVBAR_TITLE, tep_href_link('privacy.php'));
 

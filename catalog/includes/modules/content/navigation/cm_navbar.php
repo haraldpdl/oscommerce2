@@ -32,7 +32,7 @@
     }
 
     public function execute() {
-      global $language, $oscTemplate;
+      global $oscTemplate;
 
       $navbar_style   = (MODULE_CONTENT_NAVBAR_STYLE == 'Inverse') ? ' navbar-inverse' : ' navbar-default';
       $navbar_corners = (MODULE_CONTENT_NAVBAR_CORNERS == 'Yes') ? '' : ' navbar-no-corners';
@@ -61,7 +61,7 @@
           $class = substr($nbm, 0, strrpos($nbm, '.'));
 
           if ( !class_exists($class) ) {
-            include('includes/languages/' . $language . '/modules/navbar_modules/' . $nbm);
+            include('includes/languages/' . $_SESSION['language'] . '/modules/navbar_modules/' . $nbm);
             require('includes/modules/navbar_modules/' . $class . '.php');
           }
 

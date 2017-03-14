@@ -14,7 +14,7 @@
     public $_modules = array();
 
     public function __construct() {
-      global $PHP_SELF, $language;
+      global $PHP_SELF;
 
       $file_extension = substr($PHP_SELF, strrpos($PHP_SELF, '.'));
       $directory = 'includes/modules/cfg_modules';
@@ -25,7 +25,7 @@
             if (substr($file, strrpos($file, '.')) == $file_extension) {
               $class = substr($file, 0, strrpos($file, '.'));
 
-              include('includes/languages/' . $language . '/modules/cfg_modules/' . $file);
+              include('includes/languages/' . $_SESSION['language'] . '/modules/cfg_modules/' . $file);
               include('includes/modules/cfg_modules/' . $class . '.php');
 
               $m = new $class();

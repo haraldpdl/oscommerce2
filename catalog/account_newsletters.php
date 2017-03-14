@@ -18,7 +18,7 @@
   }
 
 // needs to be included earlier to set the success message in the messageStack
-  require('includes/languages/' . $language . '/account_newsletters.php');
+  require('includes/languages/' . $_SESSION['language'] . '/account_newsletters.php');
 
   $newsletter_query = tep_db_query("select customers_newsletter from " . TABLE_CUSTOMERS . " where customers_id = '" . (int)$customer_id . "'");
   $newsletter = tep_db_fetch_array($newsletter_query);

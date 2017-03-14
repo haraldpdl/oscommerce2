@@ -21,7 +21,7 @@
 
   $paypal_standard = new paypal_standard();
 
-  require(DIR_FS_CATALOG . 'includes/languages/' . $language . '/checkout_process.php');
+  require(DIR_FS_CATALOG . 'includes/languages/' . $_SESSION['language'] . '/checkout_process.php');
 
   $result = false;
 

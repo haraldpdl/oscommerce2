@@ -12,7 +12,7 @@
 
   require('includes/application_top.php');
 
-  require('includes/languages/' . $language . '/contact_us.php');
+  require('includes/languages/' . $_SESSION['language'] . '/contact_us.php');
 
   if (isset($_GET['action']) && ($_GET['action'] == 'send') && isset($_POST['formid']) && ($_POST['formid'] == $sessiontoken)) {
     $error = false;
@@ -80,7 +80,7 @@
 
 <div class="contentContainer">
   <div class="contentText">
-  
+
     <p class="text-danger text-right"><?php echo FORM_REQUIRED_INFORMATION; ?></p>
     <div class="clearfix"></div>
 

@@ -30,7 +30,7 @@
     }
 
     public function getOutput() {
-      global $lng, $languages_id;
+      global $lng;
 
       if (!isset($lng) || (isset($lng) && !is_object($lng))) {
         include('includes/classes/language.php');
@@ -38,7 +38,7 @@
       }
 
       foreach ($lng->catalog_languages as $lkey => $lvalue) {
-        if ($lvalue['id'] == $languages_id) {
+        if ($lvalue['id'] == $_SESSION['languages_id']) {
           $language_code = $lkey;
           break;
         }

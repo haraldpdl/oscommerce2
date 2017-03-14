@@ -18,7 +18,7 @@
   }
 
 // needs to be included earlier to set the success message in the messageStack
-  require('includes/languages/' . $language . '/address_book_process.php');
+  require('includes/languages/' . $_SESSION['language'] . '/address_book_process.php');
 
   if (isset($_GET['action']) && ($_GET['action'] == 'deleteconfirm') && isset($_GET['delete']) && is_numeric($_GET['delete']) && isset($_GET['formid']) && ($_GET['formid'] == md5($sessiontoken))) {
     if ((int)$_GET['delete'] == $customer_default_address_id) {

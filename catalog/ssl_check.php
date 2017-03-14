@@ -12,7 +12,7 @@
 
   require('includes/application_top.php');
 
-  require('includes/languages/' . $language . '/ssl_check.php');
+  require('includes/languages/' . $_SESSION['language'] . '/ssl_check.php');
 
   $breadcrumb->add(NAVBAR_TITLE, tep_href_link('ssl_check.php'));
 

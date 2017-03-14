@@ -12,7 +12,7 @@
 
   require('includes/application_top.php');
 
-  require('includes/languages/' . $language . '/product_reviews_write.php');
+  require('includes/languages/' . $_SESSION['language'] . '/product_reviews_write.php');
 
   if (!tep_session_is_registered('customer_id')) {
     $navigation->set_snapshot();
@@ -23,7 +23,7 @@
     tep_redirect(tep_href_link('product_reviews.php', tep_get_all_get_params(array('action'))));
   }
 
-  $product_info_query = tep_db_query("select p.products_id, p.products_model, p.products_image, p.products_price, p.products_tax_class_id, pd.products_name from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd where p.products_id = '" . (int)$_GET['products_id'] . "' and p.products_status = '1' and p.products_id = pd.products_id and pd.language_id = '" . (int)$languages_id . "'");
+  $product_info_query = tep_db_query("select p.products_id, p.products_model, p.products_image, p.products_price, p.products_tax_class_id, pd.products_name from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd where p.products_id = '" . (int)$_GET['products_id'] . "' and p.products_status = '1' and p.products_id = pd.products_id and pd.language_id = '" . (int)$_SESSION['languages_id'] . "'");
   if (!tep_db_num_rows($product_info_query)) {
     tep_redirect(tep_href_link('product_reviews.php', tep_get_all_get_params(array('action'))));
   } else {
@@ -54,7 +54,7 @@
       tep_db_query("insert into " . TABLE_REVIEWS . " (products_id, customers_id, customers_name, reviews_rating, date_added) values ('" . (int)$_GET['products_id'] . "', '" . (int)$customer_id . "', '" . tep_db_input($customer['customers_firstname']) . ' ' . tep_db_input($customer['customers_lastname']) . "', '" . tep_db_input($rating) . "', now())");
       $insert_id = tep_db_insert_id();
 
-      tep_db_query("insert into " . TABLE_REVIEWS_DESCRIPTION . " (reviews_id, languages_id, reviews_text) values ('" . (int)$insert_id . "', '" . (int)$languages_id . "', '" . tep_db_input($review) . "')");
+      tep_db_query("insert into " . TABLE_REVIEWS_DESCRIPTION . " (reviews_id, languages_id, reviews_text) values ('" . (int)$insert_id . "', '" . (int)$_SESSION['languages_id'] . "', '" . tep_db_input($review) . "')");
 
       $messageStack->add_session('product_reviews', TEXT_REVIEW_RECEIVED, 'success');
       tep_redirect(tep_href_link('product_reviews.php', tep_get_all_get_params(array('action'))));
@@ -105,7 +105,7 @@ function checkForm() {
 }
 //--></script>
 
-<div class="page-header">  
+<div class="page-header">
   <div class="row">
     <h1 class="col-sm-4"><?php echo $products_name; ?></h1>
     <h2 class="col-sm-8 text-right-not-xs"><?php echo $products_price; ?></h2>

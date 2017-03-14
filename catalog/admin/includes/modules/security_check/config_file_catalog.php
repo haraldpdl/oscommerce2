@@ -14,9 +14,7 @@
     public $type = 'warning';
 
     public function __construct() {
-      global $language;
-
-      include(DIR_FS_ADMIN . 'includes/languages/' . $language . '/modules/security_check/config_file_catalog.php');
+      include(DIR_FS_ADMIN . 'includes/languages/' . $_SESSION['language'] . '/modules/security_check/config_file_catalog.php');
     }
 
     public function pass() {

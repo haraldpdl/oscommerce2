@@ -29,11 +29,11 @@
     }
 
     public function execute() {
-      global $PHP_SELF, $oscTemplate, $categories, $current_category_id, $languages_id;
+      global $PHP_SELF, $oscTemplate, $categories, $current_category_id;
 
       if (basename($PHP_SELF) == 'index.php') {
         if ($current_category_id > 0) {
-          $categories_query = tep_db_query("select categories_name, categories_seo_title from categories_description where categories_id = '" . (int)$current_category_id . "' and language_id = '" . (int)$languages_id . "' limit 1");
+          $categories_query = tep_db_query("select categories_name, categories_seo_title from categories_description where categories_id = '" . (int)$current_category_id . "' and language_id = '" . (int)$_SESSION['languages_id'] . "' limit 1");
           if (tep_db_num_rows($categories_query) > 0) {
             $categories = tep_db_fetch_array($categories_query);
 

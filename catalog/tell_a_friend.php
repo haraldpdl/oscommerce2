@@ -19,7 +19,7 @@
 
   $valid_product = false;
   if (isset($_GET['products_id'])) {
-    $product_info_query = tep_db_query("select pd.products_name from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd where p.products_status = '1' and p.products_id = '" . (int)$_GET['products_id'] . "' and p.products_id = pd.products_id and pd.language_id = '" . (int)$languages_id . "'");
+    $product_info_query = tep_db_query("select pd.products_name from " . TABLE_PRODUCTS . " p, " . TABLE_PRODUCTS_DESCRIPTION . " pd where p.products_status = '1' and p.products_id = '" . (int)$_GET['products_id'] . "' and p.products_id = pd.products_id and pd.language_id = '" . (int)$_SESSION['languages_id'] . "'");
     if (tep_db_num_rows($product_info_query)) {
       $valid_product = true;
 
@@ -31,7 +31,7 @@
     tep_redirect(tep_href_link('product_info.php', 'products_id=' . (int)$_GET['products_id']));
   }
 
-  require('includes/languages/' . $language . '/tell_a_friend.php');
+  require('includes/languages/' . $_SESSION['language'] . '/tell_a_friend.php');
 
   if (isset($_GET['action']) && ($_GET['action'] == 'process') && isset($_POST['formid']) && ($_POST['formid'] == $sessiontoken)) {
     $error = false;

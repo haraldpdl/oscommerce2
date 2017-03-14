@@ -29,7 +29,7 @@
     }
 
     public function execute() {
-      global $PHP_SELF, $oscTemplate, $customer_id, $lng, $languages_id;
+      global $PHP_SELF, $oscTemplate, $customer_id, $lng;
 
       if (MODULE_HEADER_TAGS_GOOGLE_ADWORDS_CONVERSION_JS_PLACEMENT != 'Footer') {
         $this->group = 'header_tags';
@@ -52,7 +52,7 @@
           $language_code = 'en';
 
           foreach ($lng->catalog_languages as $lkey => $lvalue) {
-            if ($lvalue['id'] == $languages_id) {
+            if ($lvalue['id'] == $_SESSION['languages_id']) {
               $language_code = $lkey;
               break;
             }

@@ -79,7 +79,7 @@
     }
   }
 
-  require('includes/languages/' . $language . '/checkout_confirmation.php');
+  require('includes/languages/' . $_SESSION['language'] . '/checkout_confirmation.php');
 
   $breadcrumb->add(NAVBAR_TITLE_1, tep_href_link('checkout_shipping.php', '', 'SSL'));
   $breadcrumb->add(NAVBAR_TITLE_2);

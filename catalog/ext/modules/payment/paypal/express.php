@@ -26,7 +26,7 @@
     tep_redirect(tep_href_link('shopping_cart.php', '', 'SSL'));
   }
 
-  require(DIR_FS_CATALOG . 'includes/languages/' . $language . '/create_account.php');
+  require(DIR_FS_CATALOG . 'includes/languages/' . $_SESSION['language'] . '/create_account.php');
 
   if ( !tep_session_is_registered('sendto') ) {
     if ( tep_session_is_registered('customer_id') ) {
@@ -194,7 +194,7 @@
             if ( ($pass == true) && ($order->info['total'] >= MODULE_ORDER_TOTAL_SHIPPING_FREE_SHIPPING_OVER) ) {
               $free_shipping = true;
 
-              include(DIR_FS_CATALOG . 'includes/languages/' . $language . '/modules/order_total/ot_shipping.php');
+              include(DIR_FS_CATALOG . 'includes/languages/' . $_SESSION['language'] . '/modules/order_total/ot_shipping.php');
             }
           }
 
@@ -555,7 +555,7 @@ EOD;
             if ( ($pass == true) && ($order->info['total'] >= MODULE_ORDER_TOTAL_SHIPPING_FREE_SHIPPING_OVER) ) {
               $free_shipping = true;
 
-              include(DIR_FS_CATALOG . 'includes/languages/' . $language . '/modules/order_total/ot_shipping.php');
+              include(DIR_FS_CATALOG . 'includes/languages/' . $_SESSION['language'] . '/modules/order_total/ot_shipping.php');
             }
           }
 
@@ -827,7 +827,7 @@ EOD;
             if ( ($pass == true) && ($order->info['total'] >= MODULE_ORDER_TOTAL_SHIPPING_FREE_SHIPPING_OVER) ) {
               $free_shipping = true;
 
-              include(DIR_FS_CATALOG . 'includes/languages/' . $language . '/modules/order_total/ot_shipping.php');
+              include(DIR_FS_CATALOG . 'includes/languages/' . $_SESSION['language'] . '/modules/order_total/ot_shipping.php');
             }
           }
 

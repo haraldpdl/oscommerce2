@@ -17,7 +17,7 @@
     tep_redirect(tep_href_link('login.php', '', 'SSL'));
   }
 
-  require('includes/languages/' . $language . '/account.php');
+  require('includes/languages/' . $_SESSION['language'] . '/account.php');
 
   $breadcrumb->add(NAVBAR_TITLE, tep_href_link('account.php', '', 'SSL'));
 
@@ -40,7 +40,7 @@
     <?php
     echo $oscTemplate->getContent('account');
     ?>
-  
+
   </div>
 </div>
 

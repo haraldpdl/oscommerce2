@@ -20,7 +20,7 @@
 
   if ( defined('MODULE_PAYMENT_INSTALLED') && tep_not_null(MODULE_PAYMENT_INSTALLED) && in_array('braintree_cc.php', explode(';', MODULE_PAYMENT_INSTALLED)) ) {
     if ( !class_exists('braintree_cc') ) {
-      include('includes/languages/' . $language . '/modules/payment/braintree_cc.php');
+      include('includes/languages/' . $_SESSION['language'] . '/modules/payment/braintree_cc.php');
       include('includes/modules/payment/braintree_cc.php');
     }
 
@@ -33,7 +33,7 @@
     tep_redirect(tep_href_link('account.php', '', 'SSL'));
   }
 
-  require('includes/languages/' . $language . '/modules/content/account/cm_account_braintree_cards.php');
+  require('includes/languages/' . $_SESSION['language'] . '/modules/content/account/cm_account_braintree_cards.php');
   require('includes/modules/content/account/cm_account_braintree_cards.php');
   $braintree_cards = new cm_account_braintree_cards();
 

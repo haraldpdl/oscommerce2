@@ -13,7 +13,7 @@
   require('includes/application_top.php');
 
 // needs to be included earlier to set the success message in the messageStack
-  require('includes/languages/' . $language . '/create_account.php');
+  require('includes/languages/' . $_SESSION['language'] . '/create_account.php');
 
   $process = false;
   if (isset($_POST['action']) && ($_POST['action'] == 'process') && isset($_POST['formid']) && ($_POST['formid'] == $sessiontoken)) {
@@ -345,7 +345,7 @@
 ?>
 
   <h2><?php echo CATEGORY_COMPANY; ?></h2>
-  
+
   <div class="contentText">
     <div class="form-group">
       <label for="inputCompany" class="control-label col-sm-3"><?php echo ENTRY_COMPANY; ?></label>
@@ -449,7 +449,7 @@
   </div>
 
   <h2><?php echo CATEGORY_CONTACT; ?></h2>
-  
+
   <div class="contentText">
     <div class="form-group has-feedback">
       <label for="inputTelephone" class="control-label col-sm-3"><?php echo ENTRY_TELEPHONE_NUMBER; ?></label>
@@ -479,11 +479,11 @@
         </div>
       </div>
     </div>
-  
+
   </div>
 
   <h2><?php echo CATEGORY_PASSWORD; ?></h2>
-  
+
   <div class="contentText">
     <div class="form-group has-feedback">
       <label for="inputPassword" class="control-label col-sm-3"><?php echo ENTRY_PASSWORD; ?></label>

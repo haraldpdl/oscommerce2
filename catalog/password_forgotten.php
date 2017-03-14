@@ -12,7 +12,7 @@
 
   require('includes/application_top.php');
 
-  require('includes/languages/' . $language . '/password_forgotten.php');
+  require('includes/languages/' . $_SESSION['language'] . '/password_forgotten.php');
 
   $password_reset_initiated = false;
 

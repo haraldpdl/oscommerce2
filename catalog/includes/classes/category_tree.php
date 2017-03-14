@@ -30,15 +30,13 @@
         $cpath_end_string = '';
 
     public function __construct() {
-      global $languages_id;
-
       static $_category_tree_data;
 
       if ( isset($_category_tree_data) ) {
         $this->_data = $_category_tree_data;
       } else {
 
-        $categories_query = tep_db_query("select c.categories_id, c.parent_id, c.categories_image, cd.categories_name from " . TABLE_CATEGORIES . " c, " . TABLE_CATEGORIES_DESCRIPTION . " cd where c.categories_id = cd.categories_id and cd.language_id = '" . (int)$languages_id. "' order by c.parent_id, c.sort_order, cd.categories_name");
+        $categories_query = tep_db_query("select c.categories_id, c.parent_id, c.categories_image, cd.categories_name from " . TABLE_CATEGORIES . " c, " . TABLE_CATEGORIES_DESCRIPTION . " cd where c.categories_id = cd.categories_id and cd.language_id = '" . (int)$_SESSION['languages_id']. "' order by c.parent_id, c.sort_order, cd.categories_name");
 
         while ( $categories = tep_db_fetch_array($categories_query) ) {
           $this->_data[$categories['parent_id']][$categories['categories_id']] = array('name' => $categories['categories_name'],

@@ -18,7 +18,7 @@
   }
 
 // needs to be included earlier to set the success message in the messageStack
-  require('includes/languages/' . $language . '/account_password.php');
+  require('includes/languages/' . $_SESSION['language'] . '/account_password.php');
 
   if (isset($_POST['action']) && ($_POST['action'] == 'process') && isset($_POST['formid']) && ($_POST['formid'] == $sessiontoken)) {
     $password_current = tep_db_prepare_input($_POST['password_current']);
@@ -78,9 +78,9 @@
 <?php
 $customer_info_query = tep_db_query("select customers_email_address from customers where customers_id = '" . (int)$customer_id . "'");
 $customer_info = tep_db_fetch_array($customer_info_query);
-echo tep_draw_hidden_field('username', $customer_info['customers_email_address'], 'readonly autocomplete="username"'); 
+echo tep_draw_hidden_field('username', $customer_info['customers_email_address'], 'readonly autocomplete="username"');
 ?>
-    
+
 <div class="contentContainer">
   <p class="text-danger text-right"><?php echo FORM_REQUIRED_INFORMATION; ?></p>
 
