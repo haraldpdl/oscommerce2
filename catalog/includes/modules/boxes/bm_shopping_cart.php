@@ -31,7 +31,7 @@
     }
 
     public function execute() {
-      global $new_products_id_in_cart, $currencies, $oscTemplate;
+      global $currencies, $oscTemplate;
 
       $cart_contents_string = '';
 
@@ -41,7 +41,7 @@
         for ($i=0, $n=sizeof($products); $i<$n; $i++) {
 
           $cart_contents_string .= '<li';
-          if ((tep_session_is_registered('new_products_id_in_cart')) && ($new_products_id_in_cart == $products[$i]['id'])) {
+          if ((isset($_SESSION['new_products_id_in_cart'])) && ($_SESSION['new_products_id_in_cart'] == $products[$i]['id'])) {
             $cart_contents_string .= ' class="newItemInCart"';
           }
           $cart_contents_string .= '>';
@@ -54,8 +54,8 @@
 
           $cart_contents_string .= '</a></li>';
 
-          if ((tep_session_is_registered('new_products_id_in_cart')) && ($new_products_id_in_cart == $products[$i]['id'])) {
-            tep_session_unregister('new_products_id_in_cart');
+          if ((isset($_SESSION['new_products_id_in_cart'])) && ($_SESSION['new_products_id_in_cart'] == $products[$i]['id'])) {
+            unset($_SESSION['new_products_id_in_cart']);
           }
         }
 

@@ -69,7 +69,7 @@
     }
 
     public function add_cart($products_id, $qty = '', $attributes = '') {
-      global $new_products_id_in_cart, $customer_id;
+      global $customer_id;
 
       $products_id = tep_get_uprid($products_id, $attributes);
 
@@ -90,8 +90,7 @@
             if ($customer_id) tep_db_query("insert into " . TABLE_CUSTOMERS_BASKET_ATTRIBUTES . " (customers_id, products_id, products_options_id, products_options_value_id) values ('" . (int)$customer_id . "', '" . tep_db_input($products_id) . "', '" . (int)$option . "', '" . (int)$value . "')");
           }
         }
-        $new_products_id_in_cart = $products_id;
-        tep_session_register('new_products_id_in_cart');
+        $_SESSION['new_products_id_in_cart'] = $products_id;
       }
       $this->cleanup();
     }

@@ -77,7 +77,7 @@
     }
 
     public function add_cart($products_id, $qty = '1', $attributes = '', $notify = true) {
-      global $new_products_id_in_cart, $customer_id;
+      global $customer_id;
 
       $products_id_string = tep_get_uprid($products_id, $attributes);
       $products_id = tep_get_prid($products_id_string);
@@ -111,8 +111,7 @@
 
         if (($check_product !== false) && ($check_product['products_status'] == '1')) {
           if ($notify == true) {
-            $new_products_id_in_cart = $products_id;
-            tep_session_register('new_products_id_in_cart');
+            $_SESSION['new_products_id_in_cart'] = $products_id;
           }
 
           if ($this->in_cart($products_id_string)) {
