@@ -24,7 +24,7 @@
   }
 
 // if no shipping method has been selected, redirect the customer to the shipping method selection page
-  if (!tep_session_is_registered('shipping')) {
+  if (!isset($_SESSION['shipping'])) {
     tep_redirect(tep_href_link('checkout_shipping.php', '', 'SSL'));
   }
 
@@ -47,17 +47,16 @@
   }
 
 // if no billing destination address was selected, use the customers own address as default
-  if (!tep_session_is_registered('billto')) {
-    tep_session_register('billto');
-    $billto = $_SESSION['customer_default_address_id'];
+  if (!isset($_SESSION['billto'])) {
+    $_SESSION['billto'] = $_SESSION['customer_default_address_id'];
   } else {
 // verify the selected billing address
-    if ( (is_array($billto) && empty($billto)) || is_numeric($billto) ) {
-      $check_address_query = tep_db_query("select count(*) as total from " . TABLE_ADDRESS_BOOK . " where customers_id = '" . (int)$_SESSION['customer_id'] . "' and address_book_id = '" . (int)$billto . "'");
+    if ( (is_array($_SESSION['billto']) && empty($_SESSION['billto'])) || is_numeric($_SESSION['billto']) ) {
+      $check_address_query = tep_db_query("select count(*) as total from " . TABLE_ADDRESS_BOOK . " where customers_id = '" . (int)$_SESSION['customer_id'] . "' and address_book_id = '" . (int)$_SESSION['billto'] . "'");
       $check_address = tep_db_fetch_array($check_address_query);
 
       if ($check_address['total'] != '1') {
-        $billto = $_SESSION['customer_default_address_id'];
+        $_SESSION['billto'] = $_SESSION['customer_default_address_id'];
         if (isset($_SESSION['payment'])) unset($_SESSION['payment']);
       }
     }
@@ -127,7 +126,7 @@
       <div class="panel panel-primary">
         <div class="panel-heading"><?php echo TITLE_BILLING_ADDRESS; ?></div>
         <div class="panel-body">
-          <?php echo tep_address_label($_SESSION['customer_id'], $billto, true, ' ', '<br />'); ?>
+          <?php echo tep_address_label($_SESSION['customer_id'], $_SESSION['billto'], true, ' ', '<br />'); ?>
         </div>
       </div>
     </div>

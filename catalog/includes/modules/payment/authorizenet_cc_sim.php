@@ -95,7 +95,7 @@
     }
 
     public function process_button() {
-      global $order, $sendto;
+      global $order;
 
       $tstamp = time();
       $sequence = rand(1, 1000);
@@ -130,7 +130,7 @@
                       'x_cancel_url' => tep_href_link('shopping_cart.php', '', 'SSL'),
                       'x_cancel_url_text' => MODULE_PAYMENT_AUTHORIZENET_CC_SIM_TEXT_RETURN_BUTTON);
 
-      if (is_numeric($sendto) && ($sendto > 0)) {
+      if (is_numeric($_SESSION['sendto']) && ($_SESSION['sendto'] > 0)) {
         $params['x_ship_to_first_name'] = substr($order->delivery['firstname'], 0, 50);
         $params['x_ship_to_last_name'] = substr($order->delivery['lastname'], 0, 50);
         $params['x_ship_to_company'] = substr($order->delivery['company'], 0, 50);
@@ -278,9 +278,9 @@
         $_SESSION['cart']->reset(true);
 
 // unregister session variables used during checkout
-        tep_session_unregister('sendto');
-        tep_session_unregister('billto');
-        tep_session_unregister('shipping');
+        unset($_SESSION['sendto']);
+        unset($_SESSION['billto']);
+        unset($_SESSION['shipping']);
         unset($_SESSION['payment']);
         tep_session_unregister('comments');
 

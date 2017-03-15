@@ -21,25 +21,26 @@
   unset($_SESSION['customer_first_name']);
   unset($_SESSION['customer_country_id']);
   unset($_SESSION['customer_zone_id']);
-if ( tep_session_is_registered('sendto') ) {
-  tep_session_unregister('sendto');
-}
 
-if ( tep_session_is_registered('billto') ) {
-  tep_session_unregister('billto');
-}
+  if ( isset($_SESSION['sendto']) ) {
+    unset($_SESSION['sendto']);
+  }
 
-if ( tep_session_is_registered('shipping') ) {
-  tep_session_unregister('shipping');
-}
+  if ( isset($_SESSION['billto']) ) {
+    unset($_SESSION['billto']);
+  }
 
-if ( isset($_SESSION['payment']) ) {
-  unset($_SESSION['payment']);
-}
+  if ( isset($_SESSION['shipping']) ) {
+    unset($_SESSION['shipping']);
+  }
 
-if ( tep_session_is_registered('comments') ) {
-  tep_session_unregister('comments');
-}
+  if ( isset($_SESSION['payment']) ) {
+    unset($_SESSION['payment']);
+  }
+
+  if ( tep_session_is_registered('comments') ) {
+    tep_session_unregister('comments');
+  }
 
   $_SESSION['cart']->reset();
 

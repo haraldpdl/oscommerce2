@@ -32,10 +32,8 @@
 // if the order contains only virtual products, forward the customer to the billing page as
 // a shipping address is not needed
   if ($order->content_type == 'virtual') {
-    if (!tep_session_is_registered('shipping')) tep_session_register('shipping');
-    $shipping = false;
-    if (!tep_session_is_registered('sendto')) tep_session_register('sendto');
-    $sendto = false;
+    $_SESSION['shipping'] = false;
+    $_SESSION['sendto'] = false;
     tep_redirect(tep_href_link('checkout_payment.php', '', 'SSL'));
   }
 
@@ -154,51 +152,46 @@
           }
         }
 
-        if (!tep_session_is_registered('sendto')) tep_session_register('sendto');
-
         tep_db_perform(TABLE_ADDRESS_BOOK, $sql_data_array);
 
-        $sendto = tep_db_insert_id();
+        $_SESSION['sendto'] = tep_db_insert_id();
 
-        if (tep_session_is_registered('shipping')) tep_session_unregister('shipping');
+        if (isset($_SESSION['shipping'])) unset($_SESSION['shipping']);
 
         tep_redirect(tep_href_link('checkout_shipping.php', '', 'SSL'));
       }
 // process the selected shipping destination
     } elseif (isset($_POST['address'])) {
       $reset_shipping = false;
-      if (tep_session_is_registered('sendto')) {
-        if ($sendto != $_POST['address']) {
-          if (tep_session_is_registered('shipping')) {
+      if (isset($_SESSION['sendto'])) {
+        if ($_SESSION['sendto'] != $_POST['address']) {
+          if (isset($_SESSION['shipping'])) {
             $reset_shipping = true;
           }
         }
-      } else {
-        tep_session_register('sendto');
       }
 
-      $sendto = $_POST['address'];
+      $_SESSION['sendto'] = $_POST['address'];
 
-      $check_address_query = tep_db_query("select count(*) as total from " . TABLE_ADDRESS_BOOK . " where customers_id = '" . (int)$_SESSION['customer_id'] . "' and address_book_id = '" . (int)$sendto . "'");
+      $check_address_query = tep_db_query("select count(*) as total from " . TABLE_ADDRESS_BOOK . " where customers_id = '" . (int)$_SESSION['customer_id'] . "' and address_book_id = '" . (int)$_SESSION['sendto'] . "'");
       $check_address = tep_db_fetch_array($check_address_query);
 
       if ($check_address['total'] == '1') {
-        if ($reset_shipping == true) tep_session_unregister('shipping');
+        if ($reset_shipping == true) unset($_SESSION['shipping']);
         tep_redirect(tep_href_link('checkout_shipping.php', '', 'SSL'));
       } else {
-        tep_session_unregister('sendto');
+        unset($_SESSION['sendto']);
       }
     } else {
-      if (!tep_session_is_registered('sendto')) tep_session_register('sendto');
-      $sendto = $_SESSION['customer_default_address_id'];
+      $_SESSION['sendto'] = $_SESSION['customer_default_address_id'];
 
       tep_redirect(tep_href_link('checkout_shipping.php', '', 'SSL'));
     }
   }
 
 // if no shipping destination address was selected, use their own address as default
-  if (!tep_session_is_registered('sendto')) {
-    $sendto = $_SESSION['customer_default_address_id'];
+  if (!isset($_SESSION['sendto'])) {
+    $_SESSION['sendto'] = $_SESSION['customer_default_address_id'];
   }
 
   $breadcrumb->add(NAVBAR_TITLE_1, tep_href_link('checkout_shipping.php', '', 'SSL'));
@@ -238,7 +231,7 @@
         <div class="panel-heading"><?php echo TITLE_SHIPPING_ADDRESS; ?></div>
 
         <div class="panel-body">
-          <?php echo tep_address_label($_SESSION['customer_id'], $sendto, true, ' ', '<br />'); ?>
+          <?php echo tep_address_label($_SESSION['customer_id'], $_SESSION['sendto'], true, ' ', '<br />'); ?>
         </div>
       </div>
     </div>
@@ -264,12 +257,12 @@
         $format_id = tep_get_address_format_id($addresses['country_id']);
 ?>
       <div class="col-sm-4">
-        <div class="panel panel-<?php echo ($addresses['address_book_id'] == $sendto) ? 'primary' : 'default'; ?>">
+        <div class="panel panel-<?php echo ($addresses['address_book_id'] == $_SESSION['sendto']) ? 'primary' : 'default'; ?>">
           <div class="panel-heading"><?php echo tep_output_string_protected($addresses['firstname'] . ' ' . $addresses['lastname']); ?></strong></div>
           <div class="panel-body">
             <?php echo tep_address_format($format_id, $addresses, true, ' ', '<br />'); ?>
           </div>
-          <div class="panel-footer text-center"><?php echo tep_draw_radio_field('address', $addresses['address_book_id'], ($addresses['address_book_id'] == $sendto)); ?></div>
+          <div class="panel-footer text-center"><?php echo tep_draw_radio_field('address', $addresses['address_book_id'], ($addresses['address_book_id'] == $_SESSION['sendto'])); ?></div>
         </div>
       </div>
 

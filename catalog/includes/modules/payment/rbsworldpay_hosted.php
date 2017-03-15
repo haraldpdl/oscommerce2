@@ -323,7 +323,7 @@
     }
 
     public function before_process() {
-      global $order, $order_totals, $sendto, $billto, $currencies, $cart_RBS_Worldpay_Hosted_ID;
+      global $order, $order_totals, $currencies, $cart_RBS_Worldpay_Hosted_ID;
 
       $order_id = substr($cart_RBS_Worldpay_Hosted_ID, strpos($cart_RBS_Worldpay_Hosted_ID, '-')+1);
 
@@ -482,12 +482,12 @@
       if ($order->content_type != 'virtual') {
         $email_order .= "\n" . EMAIL_TEXT_DELIVERY_ADDRESS . "\n" .
                         EMAIL_SEPARATOR . "\n" .
-                        tep_address_label($_SESSION['customer_id'], $sendto, 0, '', "\n") . "\n";
+                        tep_address_label($_SESSION['customer_id'], $_SESSION['sendto'], 0, '', "\n") . "\n";
       }
 
       $email_order .= "\n" . EMAIL_TEXT_BILLING_ADDRESS . "\n" .
                       EMAIL_SEPARATOR . "\n" .
-                      tep_address_label($_SESSION['customer_id'], $billto, 0, '', "\n") . "\n\n";
+                      tep_address_label($_SESSION['customer_id'], $_SESSION['billto'], 0, '', "\n") . "\n\n";
 
       if (is_object($GLOBALS[$_SESSION['payment']])) {
         $email_order .= EMAIL_TEXT_PAYMENT_METHOD . "\n" .
@@ -512,9 +512,9 @@
       $_SESSION['cart']->reset(true);
 
 // unregister session variables used during checkout
-      tep_session_unregister('sendto');
-      tep_session_unregister('billto');
-      tep_session_unregister('shipping');
+      unset($_SESSION['sendto']);
+      unset($_SESSION['billto']);
+      unset($_SESSION['shipping']);
       unset($_SESSION['payment']);
       tep_session_unregister('comments');
 
