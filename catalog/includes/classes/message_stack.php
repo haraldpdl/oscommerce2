@@ -63,7 +63,7 @@
         }
       }
 
-      return $this->alertBlock($output);
+      return parent::__construct($output);
     }
 
     public function size($class) {
