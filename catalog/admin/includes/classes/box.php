@@ -32,11 +32,11 @@
     public function infoBox($heading, $contents) {
       $this->table_row_parameters = 'class="infoBoxHeading"';
       $this->table_data_parameters = 'class="infoBoxHeading"';
-      $this->heading = $this->tableBlock($heading);
+      $this->heading = parent::__construct($heading);
 
       $this->table_row_parameters = '';
       $this->table_data_parameters = 'class="infoBoxContent"';
-      $this->contents = $this->tableBlock($contents);
+      $this->contents = parent::__construct($contents);
 
       return $this->heading . $this->contents;
     }
@@ -49,10 +49,10 @@
       } else {
         $heading[0]['text'] = '&nbsp;' . $heading[0]['text'] . '&nbsp;';
       }
-      $this->heading = $this->tableBlock($heading);
+      $this->heading = parent::__construct($heading);
 
       $this->table_data_parameters = 'class="menuBoxContent"';
-      $this->contents = (!empty($contents) ? $this->tableBlock($contents) : '');
+      $this->contents = (!empty($contents) ? parent::__construct($contents) : '');
 
       return $this->heading . $this->contents;
     }
