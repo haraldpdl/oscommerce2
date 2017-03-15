@@ -171,7 +171,7 @@
     $get_url = '';
     if (is_array($_GET) && (sizeof($_GET) > 0)) {
       foreach ($_GET as $key => $value) {
-        if ( is_string($value) && (strlen($value) > 0) && ($key != tep_session_name()) && ($key != 'error') && (!in_array($key, $exclude_array)) && ($key != 'x') && ($key != 'y') ) {
+        if ( is_string($value) && (strlen($value) > 0) && ($key != session_name()) && ($key != 'error') && (!in_array($key, $exclude_array)) && ($key != 'x') && ($key != 'y') ) {
           $get_url .= $key . '=' . rawurlencode(stripslashes($value)) . '&';
         }
       }

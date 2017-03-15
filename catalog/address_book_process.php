@@ -311,7 +311,7 @@
 <?php
     } else {
       if (sizeof($_SESSION['navigation']->snapshot) > 0) {
-        $back_link = tep_href_link($_SESSION['navigation']->snapshot['page'], tep_array_to_string($_SESSION['navigation']->snapshot['get'], array(tep_session_name())), $_SESSION['navigation']->snapshot['mode']);
+        $back_link = tep_href_link($_SESSION['navigation']->snapshot['page'], tep_array_to_string($_SESSION['navigation']->snapshot['get'], array(session_name())), $_SESSION['navigation']->snapshot['mode']);
       } else {
         $back_link = tep_href_link('address_book.php', '', 'SSL');
       }

@@ -135,8 +135,8 @@
   require('includes/functions/sessions.php');
 
 // set the session name and save path
-  tep_session_name('osCsid');
-  tep_session_save_path(SESSION_WRITE_DIRECTORY);
+  session_name('osCsid');
+  session_save_path(SESSION_WRITE_DIRECTORY);
 
 // set the session cookie parameters
   session_set_cookie_params(0, $cookie_path, $cookie_domain);
@@ -145,10 +145,10 @@
 
 // set the session ID if it exists
   if ( SESSION_FORCE_COOKIE_USE == 'False' ) {
-    if ( isset($_GET[tep_session_name()]) && (!isset($_COOKIE[tep_session_name()]) || ($_COOKIE[tep_session_name()] != $_GET[tep_session_name()])) ) {
-      tep_session_id($_GET[tep_session_name()]);
-    } elseif ( isset($_POST[tep_session_name()]) && (!isset($_COOKIE[tep_session_name()]) || ($_COOKIE[tep_session_name()] != $_POST[tep_session_name()])) ) {
-      tep_session_id($_POST[tep_session_name()]);
+    if ( isset($_GET[session_name()]) && (!isset($_COOKIE[session_name()]) || ($_COOKIE[session_name()] != $_GET[session_name()])) ) {
+      session_id($_GET[session_name()]);
+    } elseif ( isset($_POST[session_name()]) && (!isset($_COOKIE[session_name()]) || ($_COOKIE[session_name()] != $_POST[session_name()])) ) {
+      session_id($_POST[session_name()]);
     }
   }
 
