@@ -204,7 +204,7 @@
     }
 
     public function before_process_paypal() {
-      global $order, $order_totals, $sendto, $response_array;
+      global $order, $order_totals, $response_array;
 
       if ( isset($_POST['cc_owner']) && !empty($_POST['cc_owner']) && isset($_POST['cc_type']) && $this->isCardAccepted($_POST['cc_type']) && isset($_POST['cc_number_nh-dns']) && !empty($_POST['cc_number_nh-dns']) ) {
         $params = array('AMT' => $this->_app->formatCurrencyRaw($order->info['total']),
@@ -229,7 +229,7 @@
           $params['ISSUENUMBER'] = $_POST['cc_issue_nh-dns'];
         }
 
-        if ( is_numeric($sendto) && ($sendto > 0) ) {
+        if ( is_numeric($_SESSION['sendto']) && ($_SESSION['sendto'] > 0) ) {
           $params['SHIPTONAME'] = $order->delivery['firstname'] . ' ' . $order->delivery['lastname'];
           $params['SHIPTOSTREET'] = $order->delivery['street_address'];
           $params['SHIPTOSTREET2'] = $order->delivery['suburb'];
@@ -284,7 +284,7 @@
     }
 
     public function before_process_payflow() {
-      global $cartID, $order, $order_totals, $sendto, $response_array;
+      global $order, $order_totals, $response_array;
 
       if ( isset($_POST['cc_owner']) && !empty($_POST['cc_owner']) && isset($_POST['cc_type']) && $this->isCardAccepted($_POST['cc_type']) && isset($_POST['cc_number_nh-dns']) && !empty($_POST['cc_number_nh-dns']) ) {
         $params = array('AMT' => $this->_app->formatCurrencyRaw($order->info['total']),
@@ -302,7 +302,7 @@
                         'EXPDATE' => $_POST['cc_expires_month'] . $_POST['cc_expires_year'],
                         'CVV2' => $_POST['cc_cvc_nh-dns']);
 
-        if ( is_numeric($sendto) && ($sendto > 0) ) {
+        if ( is_numeric($_SESSION['sendto']) && ($_SESSION['sendto'] > 0) ) {
           $params['SHIPTOFIRSTNAME'] = $order->delivery['firstname'];
           $params['SHIPTOLASTNAME'] = $order->delivery['lastname'];
           $params['SHIPTOSTREET'] = $order->delivery['street_address'];
@@ -347,7 +347,7 @@
           $params = array_merge($params, $item_params);
         }
 
-        $params['_headers'] = array('X-VPS-REQUEST-ID: ' . md5($cartID . tep_session_id() . $this->_app->formatCurrencyRaw($order->info['total'])),
+        $params['_headers'] = array('X-VPS-REQUEST-ID: ' . md5($_SESSION['cartID'] . session_id() . $this->_app->formatCurrencyRaw($order->info['total'])),
                                     'X-VPS-CLIENT-TIMEOUT: 45',
                                     'X-VPS-VIT-INTEGRATION-PRODUCT: OSCOM',
                                     'X-VPS-VIT-INTEGRATION-VERSION: 2.3');

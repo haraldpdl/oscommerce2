@@ -97,12 +97,10 @@
     }
 
     public function preLogin() {
-      global $paypal_login_access_token, $paypal_login_customer_id, $sendto, $billto;
-
       $return_url = tep_href_link('login.php', '', 'SSL');
 
       if ( isset($_GET['code']) ) {
-        $paypal_login_customer_id = false;
+        $_SESSION['paypal_login_customer_id'] = false;
 
         $params = array('code' => $_GET['code'],
                         'redirect_uri' => str_replace('&amp;', '&', tep_href_link('login.php', 'action=paypal_login', 'SSL')));
@@ -121,13 +119,12 @@
           $response = $this->_app->getApiResult('LOGIN', 'UserInfo', $params);
 
           if ( isset($response['email']) ) {
-            $paypal_login_access_token = $response_token['access_token'];
-            tep_session_register('paypal_login_access_token');
+            $_SESSION['paypal_login_access_token'] = $response_token['access_token'];
 
             $force_login = false;
 
 // check if e-mail address exists in database and login or create customer account
-            if ( !tep_session_is_registered('customer_id') ) {
+            if ( !isset($_SESSION['customer_id']) ) {
               $customer_id = 0;
               $customer_default_address_id = 0;
 
@@ -199,7 +196,7 @@
             if (tep_db_num_rows($check_query)) {
               $check = tep_db_fetch_array($check_query);
 
-              $sendto = $check['address_book_id'];
+              $_SESSION['sendto'] = $check['address_book_id'];
             } else {
               $sql_data_array = array('customers_id' => $customer_id,
                                       'entry_firstname' => $ship_firstname,
@@ -223,7 +220,7 @@
 
               $address_id = tep_db_insert_id();
 
-              $sendto = $address_id;
+              $_SESSION['sendto'] = $address_id;
 
               if ($customer_default_address_id < 1) {
                 tep_db_query("update customers set customers_default_address_id = '" . (int)$address_id . "' where customers_id = '" . (int)$customer_id . "'");
@@ -232,24 +229,12 @@
             }
 
             if ($force_login == true) {
-              $paypal_login_customer_id = $customer_id;
+              $_SESSION['paypal_login_customer_id'] = $customer_id;
             } else {
-              $paypal_login_customer_id = false;
+              $_SESSION['paypal_login_customer_id'] = false;
             }
 
-            if ( !tep_session_is_registered('paypal_login_customer_id') ) {
-              tep_session_register('paypal_login_customer_id');
-            }
-
-            $billto = $sendto;
-
-            if ( !tep_session_is_registered('sendto') ) {
-              tep_session_register('sendto');
-            }
-
-            if ( !tep_session_is_registered('billto') ) {
-              tep_session_register('billto');
-            }
+            $_SESSION['billto'] = $_SESSION['sendto'];
 
             $return_url = tep_href_link('login.php', 'action=paypal_login_process', 'SSL');
           }
@@ -262,18 +247,18 @@
     }
 
     public function postLogin() {
-      global $paypal_login_customer_id, $login_customer_id, $language, $payment;
+      global $login_customer_id;
 
-      if ( tep_session_is_registered('paypal_login_customer_id') ) {
-        if ( $paypal_login_customer_id !== false ) {
-          $login_customer_id = $paypal_login_customer_id;
+      if ( isset($_SESSION['paypal_login_customer_id']) ) {
+        if ( $_SESSION['paypal_login_customer_id'] !== false ) {
+          $login_customer_id = $_SESSION['paypal_login_customer_id'];
         }
 
-        tep_session_unregister('paypal_login_customer_id');
+        unset($_SESSION['paypal_login_customer_id']);
       }
 
 // Register PayPal Express Checkout as the default payment method
-      if ( !tep_session_is_registered('payment') || ($payment != 'paypal_express') ) {
+      if ( !isset($_SESSION['payment']) || ($_SESSION['payment'] != 'paypal_express') ) {
         if (defined('MODULE_PAYMENT_INSTALLED') && tep_not_null(MODULE_PAYMENT_INSTALLED)) {
           if ( in_array('paypal_express.php', explode(';', MODULE_PAYMENT_INSTALLED)) ) {
             if ( !class_exists('paypal_express') ) {
@@ -283,8 +268,7 @@
             $ppe = new paypal_express();
 
             if ( $ppe->enabled ) {
-              $payment = 'paypal_express';
-              tep_session_register('payment');
+              $_SESSION['payment'] = 'paypal_express';
             }
           }
         }
