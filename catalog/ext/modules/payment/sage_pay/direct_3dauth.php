@@ -19,7 +19,7 @@
     tep_redirect(tep_href_link('login.php', '', 'SSL'));
   }
 
-  if (!tep_session_is_registered('sage_pay_direct_acsurl')) {
+  if (!isset($_SESSION['sage_pay_direct_acsurl'])) {
     tep_redirect(tep_href_link('checkout_payment.php', '', 'SSL'));
   }
 
@@ -39,10 +39,10 @@
 <link rel="stylesheet" type="text/css" href="stylesheet.css">
 </head>
 <body>
-<form name="form" action="<?php echo $sage_pay_direct_acsurl; ?>" method="POST">
-<input type="hidden" name="PaReq" value="<?php echo $sage_pay_direct_pareq; ?>" />
+<form name="form" action="<?php echo $_SESSION['sage_pay_direct_acsurl']; ?>" method="POST">
+<input type="hidden" name="PaReq" value="<?php echo $_SESSION['sage_pay_direct_pareq']; ?>" />
 <input type="hidden" name="TermUrl" value="<?php echo tep_href_link('ext/modules/payment/sage_pay/redirect.php', '', 'SSL'); ?>" />
-<input type="hidden" name="MD" value="<?php echo $sage_pay_direct_md; ?>" />
+<input type="hidden" name="MD" value="<?php echo $_SESSION['sage_pay_direct_md']; ?>" />
 <noscript>
 <?php echo '<center><p>' . MODULE_PAYMENT_SAGE_PAY_DIRECT_3DAUTH_INFO . '</p><p><input type="submit" value="' . MODULE_PAYMENT_SAGE_PAY_DIRECT_3DAUTH_BUTTON . '"/></p></center>'; ?>
 </noscript>

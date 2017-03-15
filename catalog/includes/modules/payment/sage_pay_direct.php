@@ -496,29 +496,19 @@
       }
 
       if ( isset($params['CreateToken']) && ($params['CreateToken'] == '1') ) {
-        global $sagepay_token_cc_type, $sagepay_token_cc_number, $sagepay_token_cc_expiry_date;
+        $_SESSION['sagepay_token_cc_type'] = $params['CardType'];
 
-        tep_session_register('sagepay_token_cc_type');
-        $sagepay_token_cc_type = $params['CardType'];
+        $_SESSION['sagepay_token_cc_number'] = str_repeat('X', strlen($params['CardNumber']) - 4) . substr($params['CardNumber'], -4);
 
-        tep_session_register('sagepay_token_cc_number');
-        $sagepay_token_cc_number = str_repeat('X', strlen($params['CardNumber']) - 4) . substr($params['CardNumber'], -4);
-
-        tep_session_register('sagepay_token_cc_expiry_date');
-        $sagepay_token_cc_expiry_date = $params['ExpiryDate'];
+        $_SESSION['sagepay_token_cc_expiry_date'] = $params['ExpiryDate'];
       }
 
       if ($sage_pay_response['Status'] == '3DAUTH') {
-        global $sage_pay_direct_acsurl, $sage_pay_direct_pareq, $sage_pay_direct_md;
+        $_SESSION['sage_pay_direct_acsurl'] = $sage_pay_response['ACSURL'];
 
-        tep_session_register('sage_pay_direct_acsurl');
-        $sage_pay_direct_acsurl = $sage_pay_response['ACSURL'];
+        $_SESSION['sage_pay_direct_pareq'] = $sage_pay_response['PAReq'];
 
-        tep_session_register('sage_pay_direct_pareq');
-        $sage_pay_direct_pareq = $sage_pay_response['PAReq'];
-
-        tep_session_register('sage_pay_direct_md');
-        $sage_pay_direct_md = $sage_pay_response['MD'];
+        $_SESSION['sage_pay_direct_md'] = $sage_pay_response['MD'];
 
         tep_redirect(tep_href_link('ext/modules/payment/sage_pay/checkout.php', '', 'SSL'));
       }
@@ -569,16 +559,14 @@
         $result['3D Secure'] = $sage_pay_response['3DSecureStatus'];
       }
 
-      if ( isset($sage_pay_response['Token']) && tep_session_is_registered('sagepay_token_cc_number') ) {
-        global $sagepay_token_cc_type, $sagepay_token_cc_number, $sagepay_token_cc_expiry_date;
-
+      if ( isset($sage_pay_response['Token']) && isset($_SESSION['sagepay_token_cc_number']) ) {
         $check_query = tep_db_query("select id from customers_sagepay_tokens where customers_id = '" . (int)$_SESSION['customer_id'] . "' and sagepay_token = '" . tep_db_input($sage_pay_response['Token']) . "' limit 1");
         if ( tep_db_num_rows($check_query) < 1 ) {
           $sql_data_array = array('customers_id' => $_SESSION['customer_id'],
                                   'sagepay_token' => $sage_pay_response['Token'],
-                                  'card_type' => $sagepay_token_cc_type,
-                                  'number_filtered' => $sagepay_token_cc_number,
-                                  'expiry_date' => $sagepay_token_cc_expiry_date,
+                                  'card_type' => $_SESSION['sagepay_token_cc_type'],
+                                  'number_filtered' => $_SESSION['sagepay_token_cc_number'],
+                                  'expiry_date' => $_SESSION['sagepay_token_cc_expiry_date'],
                                   'date_added' => 'now()');
 
           tep_db_perform('customers_sagepay_tokens', $sql_data_array);
@@ -586,9 +574,9 @@
 
         $result['Token Created'] = 'Yes';
 
-        tep_session_unregister('sagepay_token_cc_type');
-        tep_session_unregister('sagepay_token_cc_number');
-        tep_session_unregister('sagepay_token_cc_expiry_date');
+        unset($_SESSION['sagepay_token_cc_type']);
+        unset($_SESSION['sagepay_token_cc_number']);
+        unset($_SESSION['sagepay_token_cc_expiry_date']);
       }
 
       if ( isset($_GET['check']) && ($_GET['check'] == 'PAYPAL') && isset($_POST['Status']) && ($_POST['Status'] == 'PAYPALOK') && isset($_POST['VPSTxId']) && isset($sage_pay_response['VPSTxId']) && ($_POST['VPSTxId'] == $sage_pay_response['VPSTxId']) ) {
@@ -612,10 +600,10 @@
 
       tep_db_perform(TABLE_ORDERS_STATUS_HISTORY, $sql_data_array);
 
-      if (tep_session_is_registered('sage_pay_direct_acsurl')) {
-        tep_session_unregister('sage_pay_direct_acsurl');
-        tep_session_unregister('sage_pay_direct_pareq');
-        tep_session_unregister('sage_pay_direct_md');
+      if (isset($_SESSION['sage_pay_direct_acsurl'])) {
+        unset($_SESSION['sage_pay_direct_acsurl']);
+        unset($_SESSION['sage_pay_direct_pareq']);
+        unset($_SESSION['sage_pay_direct_md']);
       }
 
       $sage_pay_response = null;

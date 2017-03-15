@@ -235,7 +235,7 @@
     }
 
     function before_process() {
-      global $order, $braintree_result, $braintree_token, $braintree_error;
+      global $order, $braintree_result, $braintree_token;
 
       $braintree_token = null;
       $braintree_token_cvv = null;
@@ -394,7 +394,7 @@
         $braintree_error = $braintree_result->message;
 
         if ( !empty($braintree_error) ) {
-          tep_session_register('braintree_error');
+          $_SESSION['braintree_error'] = $braintree_error;
         }
       } else {
         $braintree_error = '';
@@ -410,7 +410,7 @@
         }
 
         if ( !empty($braintree_error) ) {
-          tep_session_register('braintree_error');
+          $_SESSION['braintree_error'] = $braintree_error;
         }
       }
 
@@ -455,8 +455,6 @@
     }
 
     function get_error() {
-      global $braintree_error;
-
       $message = MODULE_PAYMENT_BRAINTREE_CC_ERROR_GENERAL;
 
       if ( isset($_GET['error']) && !empty($_GET['error']) ) {
@@ -477,10 +475,10 @@
             $message = MODULE_PAYMENT_BRAINTREE_CC_ERROR_CARDCVV;
             break;
         }
-      } elseif ( tep_session_is_registered('braintree_error') ) {
-        $message = $braintree_error . ' ' . $message;
+      } elseif ( isset($_SESSION['braintree_error']) ) {
+        $message = $_SESSION['braintree_error'] . ' ' . $message;
 
-        tep_session_unregister('braintree_error');
+        unset($_SESSION['braintree_error']);
       }
 
       $error = array('title' => MODULE_PAYMENT_BRAINTREE_CC_ERROR_TITLE,

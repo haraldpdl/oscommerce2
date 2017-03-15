@@ -36,7 +36,7 @@
     tep_redirect(tep_href_link('checkout_shipping.php', '', 'SSL'));
   }
 
-  if (!isset($_SESSION['payment']) || (($_SESSION['payment'] != 'sage_pay_direct') && ($_SESSION['payment'] != 'sage_pay_server')) || (($_SESSION['payment'] == 'sage_pay_server') && !tep_session_is_registered('sage_pay_server_nexturl'))) {
+  if (!isset($_SESSION['payment']) || (($_SESSION['payment'] != 'sage_pay_direct') && ($_SESSION['payment'] != 'sage_pay_server')) || (($_SESSION['payment'] == 'sage_pay_server') && !isset($_SESSION['sage_pay_server_nexturl']))) {
     tep_redirect(tep_href_link('checkout_payment.php', '', 'SSL'));
   }
 
@@ -87,7 +87,7 @@
   if ($_SESSION['payment'] == 'sage_pay_direct') {
     $iframe_url = tep_href_link('ext/modules/payment/sage_pay/direct_3dauth.php', '', 'SSL');
   } else {
-    $iframe_url = $sage_pay_server_nexturl;
+    $iframe_url = $_SESSION['sage_pay_server_nexturl'];
   }
 
   require('includes/template_top.php');

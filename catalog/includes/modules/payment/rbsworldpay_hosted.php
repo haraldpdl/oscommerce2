@@ -82,10 +82,8 @@
     }
 
     public function selection() {
-      global $cart_RBS_Worldpay_Hosted_ID;
-
-      if (tep_session_is_registered('cart_RBS_Worldpay_Hosted_ID')) {
-        $order_id = substr($cart_RBS_Worldpay_Hosted_ID, strpos($cart_RBS_Worldpay_Hosted_ID, '-')+1);
+      if (isset($_SESSION['cart_RBS_Worldpay_Hosted_ID'])) {
+        $order_id = substr($_SESSION['cart_RBS_Worldpay_Hosted_ID'], strpos($_SESSION['cart_RBS_Worldpay_Hosted_ID'], '-')+1);
 
         $check_query = tep_db_query('select orders_id from ' . TABLE_ORDERS_STATUS_HISTORY . ' where orders_id = "' . (int)$order_id . '" limit 1');
 
@@ -97,7 +95,7 @@
           tep_db_query('delete from ' . TABLE_ORDERS_PRODUCTS_ATTRIBUTES . ' where orders_id = "' . (int)$order_id . '"');
           tep_db_query('delete from ' . TABLE_ORDERS_PRODUCTS_DOWNLOAD . ' where orders_id = "' . (int)$order_id . '"');
 
-          tep_session_unregister('cart_RBS_Worldpay_Hosted_ID');
+          unset($_SESSION['cart_RBS_Worldpay_Hosted_ID']);
         }
       }
 
@@ -112,17 +110,17 @@
     }
 
     public function confirmation() {
-      global $cart_RBS_Worldpay_Hosted_ID, $order, $order_total_modules;
+      global $order, $order_total_modules;
 
       $insert_order = false;
 
-      if (tep_session_is_registered('cart_RBS_Worldpay_Hosted_ID')) {
-        $order_id = substr($cart_RBS_Worldpay_Hosted_ID, strpos($cart_RBS_Worldpay_Hosted_ID, '-')+1);
+      if (isset($_SESSION['cart_RBS_Worldpay_Hosted_ID'])) {
+        $order_id = substr($_SESSION['cart_RBS_Worldpay_Hosted_ID'], strpos($_SESSION['cart_RBS_Worldpay_Hosted_ID'], '-')+1);
 
         $curr_check = tep_db_query("select currency from " . TABLE_ORDERS . " where orders_id = '" . (int)$order_id . "'");
         $curr = tep_db_fetch_array($curr_check);
 
-        if ( ($curr['currency'] != $order->info['currency']) || ($_SESSION['cartID'] != substr($cart_RBS_Worldpay_Hosted_ID, 0, strlen($_SESSION['cartID']))) ) {
+        if ( ($curr['currency'] != $order->info['currency']) || ($_SESSION['cartID'] != substr($_SESSION['cart_RBS_Worldpay_Hosted_ID'], 0, strlen($_SESSION['cartID']))) ) {
           $check_query = tep_db_query('select orders_id from ' . TABLE_ORDERS_STATUS_HISTORY . ' where orders_id = "' . (int)$order_id . '" limit 1');
 
           if (tep_db_num_rows($check_query) < 1) {
@@ -272,17 +270,16 @@
           }
         }
 
-        $cart_RBS_Worldpay_Hosted_ID = $_SESSION['cartID'] . '-' . $insert_id;
-        tep_session_register('cart_RBS_Worldpay_Hosted_ID');
+        $_SESSION['cart_RBS_Worldpay_Hosted_ID'] = $_SESSION['cartID'] . '-' . $insert_id;
       }
 
       return false;
     }
 
     public function process_button() {
-      global $order, $cart_RBS_Worldpay_Hosted_ID;
+      global $order;
 
-      $order_id = substr($cart_RBS_Worldpay_Hosted_ID, strpos($cart_RBS_Worldpay_Hosted_ID, '-')+1);
+      $order_id = substr($_SESSION['cart_RBS_Worldpay_Hosted_ID'], strpos($_SESSION['cart_RBS_Worldpay_Hosted_ID'], '-')+1);
 
       $lang_query = tep_db_query("select code from " . TABLE_LANGUAGES . " where languages_id = '" . (int)$_SESSION['languages_id'] . "'");
       $lang = tep_db_fetch_array($lang_query);
@@ -323,9 +320,9 @@
     }
 
     public function before_process() {
-      global $order, $order_totals, $currencies, $cart_RBS_Worldpay_Hosted_ID;
+      global $order, $order_totals, $currencies;
 
-      $order_id = substr($cart_RBS_Worldpay_Hosted_ID, strpos($cart_RBS_Worldpay_Hosted_ID, '-')+1);
+      $order_id = substr($_SESSION['cart_RBS_Worldpay_Hosted_ID'], strpos($_SESSION['cart_RBS_Worldpay_Hosted_ID'], '-')+1);
 
       if (!isset($_GET['hash']) || ($_GET['hash'] != md5(tep_session_id() . $_SESSION['customer_id'] . $order_id . $_SESSION['language'] . number_format($order->info['total'], 2) . MODULE_PAYMENT_RBSWORLDPAY_HOSTED_MD5_PASSWORD))) {
         $this->sendDebugEmail();
@@ -518,7 +515,7 @@
       unset($_SESSION['payment']);
       unset($_SESSION['comments']);
 
-      tep_session_unregister('cart_RBS_Worldpay_Hosted_ID');
+      unset($_SESSION['cart_RBS_Worldpay_Hosted_ID']);
 
       tep_redirect(tep_href_link('checkout_success.php', '', 'SSL'));
     }

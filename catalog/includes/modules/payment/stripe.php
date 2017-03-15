@@ -217,7 +217,7 @@
     }
 
     public function before_process() {
-      global $order, $stripe_result, $stripe_error;
+      global $order, $stripe_result;
 
       $stripe_result = null;
 
@@ -280,9 +280,7 @@
       }
 
       if ( isset($stripe_result['error']['message']) ) {
-        tep_session_register('stripe_error');
-
-        $stripe_error = $stripe_result['error']['message'];
+        $_SESSION['stripe_error'] = $stripe_result['error']['message'];
       }
 
       $this->sendDebugEmail($stripe_result);
@@ -320,20 +318,18 @@
 
       tep_db_perform(TABLE_ORDERS_STATUS_HISTORY, $sql_data_array);
 
-      if ( tep_session_is_registered('stripe_error') ) {
-        tep_session_unregister('stripe_error');
+      if ( isset($_SESSION['stripe_error']) ) {
+        unset($_SESSION['stripe_error']);
       }
     }
 
     public function get_error() {
-      global $stripe_error;
-
       $message = MODULE_PAYMENT_STRIPE_ERROR_GENERAL;
 
-      if ( tep_session_is_registered('stripe_error') ) {
-        $message = $stripe_error . ' ' . $message;
+      if ( isset($_SESSION['stripe_error']) ) {
+        $message = $_SESSION['stripe_error'] . ' ' . $message;
 
-        tep_session_unregister('stripe_error');
+        unset($_SESSION['stripe_error']);
       }
 
       if ( isset($_GET['error']) && !empty($_GET['error']) ) {

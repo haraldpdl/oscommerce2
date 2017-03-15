@@ -217,10 +217,10 @@ EOD;
     }
 
     public function before_process() {
-      global $order, $authorizenet_cc_dpm_error;
+      global $order;
 
       $error = false;
-      $authorizenet_cc_dpm_error = false;
+      $_SESSION['authorizenet_cc_dpm_error'] = false;
 
       $check_array = array('x_response_code',
                            'x_response_reason_text',
@@ -257,14 +257,13 @@ EOD;
       if ( $error !== false ) {
         $this->sendDebugEmail();
 
-        $authorizenet_cc_dpm_error = $_POST['x_response_reason_text'];
-        tep_session_register('authorizenet_cc_dpm_error');
+        $_SESSION['authorizenet_cc_dpm_error'] = $_POST['x_response_reason_text'];
 
         tep_redirect(tep_href_link('checkout_payment.php', 'payment_error=' . $this->code . '&error=' . $error, 'SSL'));
       }
 
-      if ( tep_session_is_registered('authorizenet_cc_dpm_error') ) {
-        tep_session_unregister('authorizenet_cc_dpm_error');
+      if ( isset($_SESSION['authorizenet_cc_dpm_error']) ) {
+        unset($_SESSION['authorizenet_cc_dpm_error']);
       }
     }
 
@@ -347,8 +346,6 @@ EOD;
     }
 
     public function get_error() {
-      global $authorizenet_cc_dpm_error;
-
       $error_message = MODULE_PAYMENT_AUTHORIZENET_CC_DPM_ERROR_GENERAL;
 
       switch ($_GET['error']) {
@@ -365,10 +362,10 @@ EOD;
           break;
       }
 
-      if ( ($_GET['error'] != 'verification') && tep_session_is_registered('authorizenet_cc_dpm_error') ) {
-        $error_message = $authorizenet_cc_dpm_error;
+      if ( ($_GET['error'] != 'verification') && isset($_SESSION['authorizenet_cc_dpm_error']) ) {
+        $error_message = $_SESSION['authorizenet_cc_dpm_error'];
 
-        tep_session_unregister('authorizenet_cc_dpm_error');
+        unset($_SESSION['authorizenet_cc_dpm_error']);
       }
 
       $error = array('title' => MODULE_PAYMENT_AUTHORIZENET_CC_DPM_ERROR_TITLE,
