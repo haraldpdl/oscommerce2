@@ -34,11 +34,11 @@
 
     $('#mBoxContents').html('<p><i class="fa fa-spinner fa-spin fa-2x"></i> Testing database connection..</p>');
 
-    dbServer = $('#DB_SERVER').val();
-    dbUsername = $('#DB_SERVER_USERNAME').val();
-    dbPassword = $('#DB_SERVER_PASSWORD').val();
-    dbName = $('#DB_DATABASE').val();
-    dbImportSample = $('#DB_IMPORT_SAMPLE').val();
+    dbServer = $('#dbServer').val();
+    dbUsername = $('#userName').val();
+    dbPassword = $('#passWord').val();
+    dbName = $('#dbName').val();
+    dbImportSample = $('#dbImportSample').val();
 
     $.get('rpc.php?action=dbCheck&server=' + encodeURIComponent(dbServer) + '&username=' + encodeURIComponent(dbUsername) + '&password=' + encodeURIComponent(dbPassword) + '&name=' + encodeURIComponent(dbName), function (response) {
       var result = /\[\[([^|]*?)(?:\|([^|]*?)){0,1}\]\]/.exec(response);
@@ -158,7 +158,7 @@
       <div class="form-group has-feedback">
         <label for="passWord" class="control-label col-xs-3">Password</label>
         <div class="col-xs-9">
-          <?php echo osc_draw_password_field('DB_SERVER_PASSWORD', NULL, 'required aria-required="true" id="passWord"'); ?>
+          <?php echo osc_draw_password_field('DB_SERVER_PASSWORD', 'required aria-required="true" id="passWord"'); ?>
           <span class="fa fa-asterisk form-control-feedback text-danger"></span>
           <span class="help-block">The password that is used together with the username to connect to the database server.</span>
         </div>
