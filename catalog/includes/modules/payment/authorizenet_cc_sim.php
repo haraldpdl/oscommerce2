@@ -282,7 +282,7 @@
         unset($_SESSION['billto']);
         unset($_SESSION['shipping']);
         unset($_SESSION['payment']);
-        tep_session_unregister('comments');
+        unset($_SESSION['comments']);
 
         $redirect_url = tep_href_link('checkout_success.php', '', 'SSL');
 

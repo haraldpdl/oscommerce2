@@ -285,7 +285,7 @@
         unset($_SESSION['billto']);
         unset($_SESSION['shipping']);
         unset($_SESSION['payment']);
-        tep_session_unregister('comments');
+        unset($_SESSION['comments']);
 
         tep_session_unregister('sage_pay_server_nexturl');
 

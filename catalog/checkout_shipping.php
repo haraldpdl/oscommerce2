@@ -98,9 +98,8 @@
 
 // process the selected shipping method
   if ( isset($_POST['action']) && ($_POST['action'] == 'process') && isset($_POST['formid']) && ($_POST['formid'] == $_SESSION['sessiontoken']) ) {
-    if (!tep_session_is_registered('comments')) tep_session_register('comments');
     if (tep_not_null($_POST['comments'])) {
-      $comments = tep_db_prepare_input($_POST['comments']);
+      $_SESSION['comments'] = tep_db_prepare_input($_POST['comments']);
     }
 
     if ( (tep_count_shipping_modules() > 0) || ($free_shipping == true) ) {
@@ -323,7 +322,7 @@
       <label for="inputComments" class="control-label col-sm-4"><?php echo TABLE_HEADING_COMMENTS; ?></label>
       <div class="col-sm-8">
         <?php
-        echo tep_draw_textarea_field('comments', 'soft', 60, 5, $comments, 'id="inputComments" placeholder="' . TABLE_HEADING_COMMENTS . '"');
+        echo tep_draw_textarea_field('comments', 'soft', 60, 5, (isset($_SESSION['comments']) ? $_SESSION['comments'] : ''), 'id="inputComments" placeholder="' . TABLE_HEADING_COMMENTS . '"');
         ?>
       </div>
     </div>

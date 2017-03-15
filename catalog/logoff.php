@@ -38,8 +38,8 @@
     unset($_SESSION['payment']);
   }
 
-  if ( tep_session_is_registered('comments') ) {
-    tep_session_unregister('comments');
+  if ( isset($_SESSION['comments']) ) {
+    unset($_SESSION['comments']);
   }
 
   $_SESSION['cart']->reset();
