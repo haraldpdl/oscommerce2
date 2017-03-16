@@ -142,26 +142,25 @@
       <div class="form-group has-feedback">
         <label for="dbServer" class="control-label col-xs-3">Database Server</label>
         <div class="col-xs-9">
-          <?php echo osc_draw_input_field('DB_SERVER', NULL, 'required aria-required="true" id="dbServer" placeholder="localhost"'); ?>
-          <span class="fa fa-asterisk form-control-feedback text-danger"></span>
-          <span class="help-block">The address of the database server in the form of a hostname or IP address.</span>
+          <?php echo osc_draw_input_field('DB_SERVER', NULL, 'required aria-required="true" id="dbServer"'); ?>
+          <span class="form-control-feedback text-danger"><span class="fa fa-asterisk"></span></span>
+          <span class="help-block">The address of the database server in the form of a hostname or IP address. <i>(e.g. localhost or 127.0.0.1)</i></span>
         </div>
       </div>
 
       <div class="form-group has-feedback">
         <label for="userName" class="control-label col-xs-3">Username</label>
         <div class="col-xs-9">
-          <?php echo osc_draw_input_field('DB_SERVER_USERNAME', NULL, 'required aria-required="true" id="userName" placeholder="Username"'); ?>
-          <span class="fa fa-asterisk form-control-feedback text-danger"></span>
+          <?php echo osc_draw_input_field('DB_SERVER_USERNAME', NULL, 'required aria-required="true" id="userName"'); ?>
+          <span class="form-control-feedback text-danger"><span class="fa fa-asterisk"></span></span>
           <span class="help-block">The username used to connect to the database server.</span>
         </div>
       </div>
 
-      <div class="form-group has-feedback">
+      <div class="form-group">
         <label for="passWord" class="control-label col-xs-3">Password</label>
         <div class="col-xs-9">
-          <?php echo osc_draw_password_field('DB_SERVER_PASSWORD', 'required aria-required="true" id="passWord"'); ?>
-          <span class="fa fa-asterisk form-control-feedback text-danger"></span>
+          <?php echo osc_draw_password_field('DB_SERVER_PASSWORD', 'id="passWord"'); ?>
           <span class="help-block">The password that is used together with the username to connect to the database server.</span>
         </div>
       </div>
@@ -169,8 +168,8 @@
       <div class="form-group has-feedback">
         <label for="dbName" class="control-label col-xs-3">Database Name</label>
         <div class="col-xs-9">
-          <?php echo osc_draw_input_field('DB_DATABASE', NULL, 'required aria-required="true" id="dbName" placeholder="Database"'); ?>
-          <span class="fa fa-asterisk form-control-feedback text-danger"></span>
+          <?php echo osc_draw_input_field('DB_DATABASE', NULL, 'required aria-required="true" id="dbName"'); ?>
+          <span class="form-control-feedback text-danger"><span class="fa fa-asterisk"></span></span>
           <span class="help-block">The name of the database to hold the data in.</span>
         </div>
       </div>
@@ -178,8 +177,8 @@
       <div class="form-group">
         <label for="dbTablePrefix" class="control-label col-xs-3">Table Name Prefix</label>
         <div class="col-xs-9">
-          <?php echo osc_draw_input_field('DB_TABLE_PREFIX', NULL, 'id="dbTablePrefix" placeholder="osc_"'); ?>
-          <span class="help-block">The name to prefix table names with.</span>
+          <?php echo osc_draw_input_field('DB_TABLE_PREFIX', NULL, 'id="dbTablePrefix"'); ?>
+          <span class="help-block">The name to prefix table names with. <i>(e.g. osc_ or empty for no prefix)</i></span>
         </div>
       </div>
 
