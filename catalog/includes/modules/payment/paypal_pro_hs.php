@@ -264,7 +264,7 @@
                                        and poval.language_id = '" . (int)$_SESSION['languages_id'] . "'";
                   $attributes = tep_db_query($attributes_query);
                 } else {
-                  $attributes = tep_db_query("select popt.products_options_name, poval.products_options_values_name, pa.options_values_price, pa.price_prefix from :table_products_options popt, :table_products_options_values poval, :table_products_attributes pa where pa.products_id = '" . $order->products[$i]['id'] . "' and pa.options_id = '" . $order->products[$i]['attributes'][$j]['option_id'] . "' and pa.options_id = popt.products_options_id and pa.options_values_id = '" . $order->products[$i]['attributes'][$j]['value_id'] . "' and pa.options_values_id = poval.products_options_values_id and popt.language_id = '" . (int)$_SESSION['languages_id'] . "' and poval.language_id = '" . (int)$_SESSION['languages_id'] . "'");
+                  $attributes = tep_db_query("select popt.products_options_name, poval.products_options_values_name, pa.options_values_price, pa.price_prefix from :table_products_options popt, :table_products_options_values poval, :table_products_attributes pa where pa.products_id = '" . (int)$order->products[$i]['id'] . "' and pa.options_id = '" . (int)$order->products[$i]['attributes'][$j]['option_id'] . "' and pa.options_id = popt.products_options_id and pa.options_values_id = '" . (int)$order->products[$i]['attributes'][$j]['value_id'] . "' and pa.options_values_id = poval.products_options_values_id and popt.language_id = '" . (int)$_SESSION['languages_id'] . "' and poval.language_id = '" . (int)$_SESSION['languages_id'] . "'");
                 }
                 $attributes_values = tep_db_fetch_array($attributes);
 
@@ -490,10 +490,10 @@ EOD;
                                    from :table_products_options popt, :table_products_options_values poval, :table_products_attributes pa
                                    left join :table_products_attributes_download pad
                                    on pa.products_attributes_id=pad.products_attributes_id
-                                   where pa.products_id = '" . $order->products[$i]['id'] . "'
-                                   and pa.options_id = '" . $order->products[$i]['attributes'][$j]['option_id'] . "'
+                                   where pa.products_id = '" . (int)$order->products[$i]['id'] . "'
+                                   and pa.options_id = '" . (int)$order->products[$i]['attributes'][$j]['option_id'] . "'
                                    and pa.options_id = popt.products_options_id
-                                   and pa.options_values_id = '" . $order->products[$i]['attributes'][$j]['value_id'] . "'
+                                   and pa.options_values_id = '" . (int)$order->products[$i]['attributes'][$j]['value_id'] . "'
                                    and pa.options_values_id = poval.products_options_values_id
                                    and popt.language_id = '" . (int)$_SESSION['languages_id'] . "'
                                    and poval.language_id = '" . (int)$_SESSION['languages_id'] . "'";

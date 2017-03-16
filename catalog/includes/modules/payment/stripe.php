@@ -879,7 +879,7 @@ EOD;
         $this->sendDebugEmail($result);
       }
 
-      tep_db_query("delete from :table_customers_stripe_tokens where id = '" . (int)$token_id . "' and customers_id = '" . (int)$_SESSION['customer_id'] . "' and stripe_token = '" . tep_db_prepare_input(tep_db_input($customer . ':|:' . $card)) . "'");
+      tep_db_query("delete from :table_customers_stripe_tokens where id = '" . (int)$token_id . "' and customers_id = '" . (int)$_SESSION['customer_id'] . "' and stripe_token = '" . tep_db_input(tep_db_prepare_input($customer . ':|:' . $card)) . "'");
 
       return (tep_db_affected_rows() === 1);
     }

@@ -269,7 +269,7 @@
           tep_db_query("delete from :table_sessions");
 
           tep_db_query("delete from :table_configuration where configuration_key = 'DB_LAST_RESTORE'");
-          tep_db_query("insert into :table_configuration values (null, 'Last Database Restore', 'DB_LAST_RESTORE', '" . tep_db_prepare_input(tep_db_input($read_from)) . "', 'Last database restore file', '6', '0', null, now(), '', '')");
+          tep_db_query("insert into :table_configuration values (null, 'Last Database Restore', 'DB_LAST_RESTORE', '" . tep_db_input(tep_db_prepare_input($read_from)) . "', 'Last database restore file', '6', '0', null, now(), '', '')");
 
           if (isset($remove_raw) && ($remove_raw == true)) {
             unlink($restore_from);
