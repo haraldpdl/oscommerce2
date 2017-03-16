@@ -44,6 +44,14 @@
     die('<font color="#000000"><strong>' . $errno . ' - ' . $error . '<br /><br />' . $query . '<br /><br /><small><font color="#ff0000">[TEP STOP]</font></small><br /><br /></strong></font>');
   }
 
+  function tep_db_table_name($table) {
+    if (strpos($table, ':table_') === false) {
+      $table = ':table_' . $table;
+    }
+
+    return str_replace(':table_', DB_TABLE_PREFIX, $table);
+  }
+
   function tep_db_query($query, $link = 'db_link') {
     global $$link, $logger;
 
@@ -60,11 +68,7 @@
   }
 
   function tep_db_perform($table, $data, $action = 'insert', $parameters = '', $link = 'db_link') {
-    if (strpos($table, ':table_') === false) {
-      $table = ':table_' . $table;
-    }
-
-    $table = str_replace(':table_', DB_TABLE_PREFIX, $table);
+    $table = tep_db_table_name($table);
 
     if ($action == 'insert') {
       $query = 'insert into ' . $table . ' (';
