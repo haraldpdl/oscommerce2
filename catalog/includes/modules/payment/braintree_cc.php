@@ -107,7 +107,7 @@
 
       if ( ($this->enabled == true) && ((int)MODULE_PAYMENT_BRAINTREE_CC_ZONE > 0) ) {
         $check_flag = false;
-        $check_query = tep_db_query("select zone_id from " . TABLE_ZONES_TO_GEO_ZONES . " where geo_zone_id = '" . MODULE_PAYMENT_BRAINTREE_CC_ZONE . "' and zone_country_id = '" . $order->delivery['country']['id'] . "' order by zone_id");
+        $check_query = tep_db_query("select zone_id from :table_zones_to_geo_zones where geo_zone_id = '" . (int)MODULE_PAYMENT_BRAINTREE_CC_ZONE . "' and zone_country_id = '" . (int)$order->delivery['country']['id'] . "' order by zone_id");
         while ($check = tep_db_fetch_array($check_query)) {
           if ($check['zone_id'] < 1) {
             $check_flag = true;
@@ -164,7 +164,7 @@
       }
 
       if ( MODULE_PAYMENT_BRAINTREE_CC_TOKENS == 'True' ) {
-        $tokens_query = tep_db_query("select id, card_type, number_filtered, expiry_date from customers_braintree_tokens where customers_id = '" . (int)$_SESSION['customer_id'] . "' order by date_added");
+        $tokens_query = tep_db_query("select id, card_type, number_filtered, expiry_date from :table_customers_braintree_tokens where customers_id = '" . (int)$_SESSION['customer_id'] . "' order by date_added");
 
         if ( tep_db_num_rows($tokens_query) > 0 ) {
           $content .= '<table id="braintree_table" border="0" width="100%" cellspacing="0" cellpadding="2">';
@@ -243,7 +243,7 @@
 
       if ( MODULE_PAYMENT_BRAINTREE_CC_TOKENS == 'True' ) {
         if ( isset($_POST['braintree_card']) && is_numeric($_POST['braintree_card']) && ($_POST['braintree_card'] > 0) ) {
-          $token_query = tep_db_query("select braintree_token from customers_braintree_tokens where id = '" . (int)$_POST['braintree_card'] . "' and customers_id = '" . (int)$_SESSION['customer_id'] . "'");
+          $token_query = tep_db_query("select braintree_token from :table_customers_braintree_tokens where id = '" . (int)$_POST['braintree_card'] . "' and customers_id = '" . (int)$_SESSION['customer_id'] . "'");
 
           if ( tep_db_num_rows($token_query) == 1 ) {
             $token = tep_db_fetch_array($token_query);
@@ -428,7 +428,7 @@
         $number = tep_db_prepare_input($braintree_result->transaction->creditCard['last4']);
         $expiry = tep_db_prepare_input($braintree_result->transaction->creditCard['expirationMonth'] . $braintree_result->transaction->creditCard['expirationYear']);
 
-        $check_query = tep_db_query("select id from customers_braintree_tokens where customers_id = '" . (int)$_SESSION['customer_id'] . "' and braintree_token = '" . tep_db_input($token) . "' limit 1");
+        $check_query = tep_db_query("select id from :table_customers_braintree_tokens where customers_id = '" . (int)$_SESSION['customer_id'] . "' and braintree_token = '" . tep_db_input($token) . "' limit 1");
         if ( tep_db_num_rows($check_query) < 1 ) {
           $sql_data_array = array('customers_id' => (int)$_SESSION['customer_id'],
                                   'braintree_token' => $token,
@@ -451,7 +451,7 @@
                               'customer_notified' => '0',
                               'comments' => implode("\n", $status_comment));
 
-      tep_db_perform(TABLE_ORDERS_STATUS_HISTORY, $sql_data_array);
+      tep_db_perform('orders_status_history', $sql_data_array);
     }
 
     function get_error() {
@@ -489,7 +489,7 @@
 
     function check() {
       if (!isset($this->_check)) {
-        $check_query = tep_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_BRAINTREE_CC_STATUS'");
+        $check_query = tep_db_query("select configuration_value from :table_configuration where configuration_key = 'MODULE_PAYMENT_BRAINTREE_CC_STATUS'");
         $this->_check = tep_db_num_rows($check_query);
       }
       return $this->_check;
@@ -523,12 +523,12 @@
           $sql_data_array['use_function'] = $data['use_func'];
         }
 
-        tep_db_perform(TABLE_CONFIGURATION, $sql_data_array);
+        tep_db_perform('configuration', $sql_data_array);
       }
     }
 
     function remove() {
-      tep_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
+      tep_db_query("delete from :table_configuration where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
     function keys() {
@@ -546,9 +546,9 @@
     }
 
     function getParams() {
-      if ( tep_db_num_rows(tep_db_query("show tables like 'customers_braintree_tokens'")) != 1 ) {
+      if ( tep_db_num_rows(tep_db_query("show tables like ':table_customers_braintree_tokens'")) != 1 ) {
         $sql = <<<EOD
-CREATE TABLE customers_braintree_tokens (
+CREATE TABLE :table_customers_braintree_tokens (
   id int NOT NULL auto_increment,
   customers_id int NOT NULL,
   braintree_token varchar(255) NOT NULL,
@@ -566,10 +566,10 @@ EOD;
       }
 
       if (!defined('MODULE_PAYMENT_BRAINTREE_CC_TRANSACTION_ORDER_STATUS_ID')) {
-        $check_query = tep_db_query("select orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name = 'Braintree [Transactions]' limit 1");
+        $check_query = tep_db_query("select orders_status_id from :table_orders_status where orders_status_name = 'Braintree [Transactions]' limit 1");
 
         if (tep_db_num_rows($check_query) < 1) {
-          $status_query = tep_db_query("select max(orders_status_id) as status_id from " . TABLE_ORDERS_STATUS);
+          $status_query = tep_db_query("select max(orders_status_id) as status_id from :table_orders_status");
           $status = tep_db_fetch_array($status_query);
 
           $status_id = $status['status_id']+1;
@@ -577,12 +577,12 @@ EOD;
           $languages = tep_get_languages();
 
           foreach ($languages as $lang) {
-            tep_db_query("insert into " . TABLE_ORDERS_STATUS . " (orders_status_id, language_id, orders_status_name) values ('" . $status_id . "', '" . $lang['id'] . "', 'Braintree [Transactions]')");
+            tep_db_query("insert into :table_orders_status (orders_status_id, language_id, orders_status_name) values ('" . (int)$status_id . "', '" . (int)$lang['id'] . "', 'Braintree [Transactions]')");
           }
 
-          $flags_query = tep_db_query("describe " . TABLE_ORDERS_STATUS . " public_flag");
+          $flags_query = tep_db_query("describe :table_orders_status public_flag");
           if (tep_db_num_rows($flags_query) == 1) {
-            tep_db_query("update " . TABLE_ORDERS_STATUS . " set public_flag = 0 and downloads_flag = 0 where orders_status_id = '" . $status_id . "'");
+            tep_db_query("update :table_orders_status set public_flag = 0 and downloads_flag = 0 where orders_status_id = '" . (int)$status_id . "'");
           }
         } else {
           $check = tep_db_fetch_array($check_query);
@@ -704,7 +704,7 @@ EOD;
       } catch ( Exception $e ) {
       }
 
-      tep_db_query("delete from customers_braintree_tokens where id = '" . (int)$token_id . "' and customers_id = '" . (int)$_SESSION['customer_id'] . "' and braintree_token = '" . tep_db_prepare_input(tep_db_input($token)) . "'");
+      tep_db_query("delete from :table_customers_braintree_tokens where id = '" . (int)$token_id . "' and customers_id = '" . (int)$_SESSION['customer_id'] . "' and braintree_token = '" . tep_db_prepare_input(tep_db_input($token)) . "'");
 
       return (tep_db_affected_rows() === 1);
     }

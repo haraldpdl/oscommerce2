@@ -46,9 +46,6 @@
   define('LOCAL_EXE_ZIP', 'zip');
   define('LOCAL_EXE_UNZIP', 'unzip');
 
-// include the list of project database tables
-  require('includes/database_tables.php');
-
 // Define how do we update currency exchange rates
 // Possible values are 'oanda' 'xe' 'fixer' or ''
 // fixer is the lastest added, more details at http://fixer.io
@@ -62,7 +59,7 @@
   tep_db_connect() or die('Unable to connect to database server!');
 
 // set application wide parameters
-  $configuration_query = tep_db_query('select configuration_key as cfgKey, configuration_value as cfgValue from ' . TABLE_CONFIGURATION);
+  $configuration_query = tep_db_query('select configuration_key as cfgKey, configuration_value as cfgValue from :table_configuration');
   while ($configuration = tep_db_fetch_array($configuration_query)) {
     define($configuration['cfgKey'], $configuration['cfgValue']);
   }

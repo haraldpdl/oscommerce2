@@ -52,6 +52,10 @@
   function osc_db_query($query, $link = 'db_link') {
     global $$link;
 
+    if (defined('OSCOM_DB_TABLE_PREFIX')) {
+      $query = str_replace(':table_', OSCOM_DB_TABLE_PREFIX, $query);
+    }
+
     return mysqli_query($$link, $query);
   }
 
@@ -59,7 +63,7 @@
     return mysqli_num_rows($db_query);
   }
 
-  function osc_db_install($database, $sql_file, $link = 'db_link') {
+  function osc_db_install($database, $sql_file, $table_prefix = null, $link = 'db_link') {
     global $$link, $db_error;
 
     $db_error = false;
@@ -126,7 +130,19 @@
       }
 
       for ($i=0; $i<sizeof($sql_array); $i++) {
-        if (!osc_db_query($sql_array[$i])) {
+        $sql_query = $sql_array[$i];
+
+        if (isset($table_prefix) && !empty($table_prefix)) {
+          if (strtoupper(substr($sql_query, 0, 20)) == 'DROP TABLE IF EXISTS') {
+            $sql_query = 'DROP TABLE IF EXISTS ' . $table_prefix . substr($sql_query, 21);
+          } elseif (strtoupper(substr($sql_query, 0, 12)) == 'CREATE TABLE') {
+            $sql_query = 'CREATE TABLE ' . $table_prefix . substr($sql_query, 13);
+          } elseif (strtoupper(substr($sql_query, 0, 11)) == 'INSERT INTO') {
+            $sql_query = 'INSERT INTO ' . $table_prefix . substr($sql_query, 12);
+          }
+        }
+
+        if (!osc_db_query($sql_query)) {
           $db_error = mysqli_error($$link);
 
           return false;

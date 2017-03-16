@@ -47,6 +47,8 @@
   function tep_db_query($query, $link = 'db_link') {
     global $$link, $logger;
 
+    $query = str_replace(':table_', DB_TABLE_PREFIX, $query);
+
     if (defined('STORE_DB_TRANSACTIONS') && (STORE_DB_TRANSACTIONS == 'true')) {
       if (!is_object($logger)) $logger = new logger;
       $logger->write($query, 'QUERY');
@@ -58,6 +60,12 @@
   }
 
   function tep_db_perform($table, $data, $action = 'insert', $parameters = '', $link = 'db_link') {
+    if (strpos($table, ':table_') === false) {
+      $table = ':table_' . $table;
+    }
+
+    $table = str_replace(':table_', DB_TABLE_PREFIX, $table);
+
     if ($action == 'insert') {
       $query = 'insert into ' . $table . ' (';
 

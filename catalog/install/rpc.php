@@ -47,6 +47,7 @@
                     'DB_SERVER_USERNAME' => trim(rawurldecode($_GET['username'])),
                     'DB_SERVER_PASSWORD' => trim(rawurldecode($_GET['password'])),
                     'DB_DATABASE' => trim(rawurldecode($_GET['name'])),
+                    'DB_TABLE_PREFIX' => trim(rawurldecode($_GET['tableprefix'])),
                     'DB_IMPORT_SAMPLE' => trim(rawurldecode($_GET['importsample']))
                    );
 
@@ -57,11 +58,11 @@
         $sql_sample_file = $dir_fs_www_root . '/oscommerce_data_sample.sql';
 
         osc_set_time_limit(0);
-        osc_db_install($db['DB_DATABASE'], $sql_file);
+        osc_db_install($db['DB_DATABASE'], $sql_file, $db['DB_TABLE_PREFIX']);
 
         if ($db_error == false) {
           if ($db['DB_IMPORT_SAMPLE'] == '1') {
-            osc_db_install($db['DB_DATABASE'], $sql_sample_file);
+            osc_db_install($db['DB_DATABASE'], $sql_sample_file, $db['DB_TABLE_PREFIX']);
           }
         }
 

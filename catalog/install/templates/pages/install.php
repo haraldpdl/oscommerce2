@@ -18,6 +18,7 @@
   var dbUsername;
   var dbPassword;
   var dbName;
+  var dbTablePrefix;
   var dbImportSample;
 
   var formSubmited = false;
@@ -38,6 +39,7 @@
     dbUsername = $('#userName').val();
     dbPassword = $('#passWord').val();
     dbName = $('#dbName').val();
+    dbTablePrefix = $('#dbTablePrefix').val();
     dbImportSample = $('#dbImportSample').val();
 
     $.get('rpc.php?action=dbCheck&server=' + encodeURIComponent(dbServer) + '&username=' + encodeURIComponent(dbUsername) + '&password=' + encodeURIComponent(dbPassword) + '&name=' + encodeURIComponent(dbName), function (response) {
@@ -47,7 +49,7 @@
       if (result[0] == '1') {
         $('#mBoxContents').html('<p><i class="fa fa-spinner fa-spin fa-2x"></i> The database structure is now being imported. Please be patient during this procedure.</p>');
 
-        $.get('rpc.php?action=dbImport&server=' + encodeURIComponent(dbServer) + '&username=' + encodeURIComponent(dbUsername) + '&password='+ encodeURIComponent(dbPassword) + '&name=' + encodeURIComponent(dbName) + '&importsample=' + encodeURIComponent(dbImportSample), function (response2) {
+        $.get('rpc.php?action=dbImport&server=' + encodeURIComponent(dbServer) + '&username=' + encodeURIComponent(dbUsername) + '&password='+ encodeURIComponent(dbPassword) + '&name=' + encodeURIComponent(dbName) + '&tableprefix=' + encodeURIComponent(dbTablePrefix) + '&importsample=' + encodeURIComponent(dbImportSample), function (response2) {
           var result2 = /\[\[([^|]*?)(?:\|([^|]*?)){0,1}\]\]/.exec(response2);
           result2.shift();
 
@@ -170,6 +172,14 @@
           <?php echo osc_draw_input_field('DB_DATABASE', NULL, 'required aria-required="true" id="dbName" placeholder="Database"'); ?>
           <span class="fa fa-asterisk form-control-feedback text-danger"></span>
           <span class="help-block">The name of the database to hold the data in.</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="dbTablePrefix" class="control-label col-xs-3">Table Name Prefix</label>
+        <div class="col-xs-9">
+          <?php echo osc_draw_input_field('DB_TABLE_PREFIX', NULL, 'id="dbTablePrefix" placeholder="osc_"'); ?>
+          <span class="help-block">The name to prefix table names with.</span>
         </div>
       </div>
 

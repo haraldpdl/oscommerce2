@@ -12,9 +12,9 @@
 
   require('includes/application_top.php');
 
-  if ( tep_db_num_rows(tep_db_query("show tables like 'oscom_app_paypal_log'")) != 1 ) {
+  if ( tep_db_num_rows(tep_db_query("show tables like ':table_oscom_app_paypal_log'")) != 1 ) {
     $sql = <<<EOD
-CREATE TABLE oscom_app_paypal_log (
+CREATE TABLE :table_oscom_app_paypal_log (
   id int unsigned NOT NULL auto_increment,
   customers_id int NOT NULL,
   module varchar(8) NOT NULL,
@@ -57,8 +57,8 @@ EOD;
         if ( !in_array('d_paypal_app.php', $admin_dashboard_modules) ) {
           $admin_dashboard_modules[] = 'd_paypal_app.php';
 
-          tep_db_query("update configuration set configuration_value = '" . tep_db_input(implode(';', $admin_dashboard_modules)) . "' where configuration_key = 'MODULE_ADMIN_DASHBOARD_INSTALLED'");
-          tep_db_query("insert into configuration (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort Order', 'MODULE_ADMIN_DASHBOARD_PAYPAL_APP_SORT_ORDER', '5000', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
+          tep_db_query("update :table_configuration set configuration_value = '" . tep_db_input(implode(';', $admin_dashboard_modules)) . "' where configuration_key = 'MODULE_ADMIN_DASHBOARD_INSTALLED'");
+          tep_db_query("insert into :table_configuration (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort Order', 'MODULE_ADMIN_DASHBOARD_PAYPAL_APP_SORT_ORDER', '5000', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
         }
       }
 

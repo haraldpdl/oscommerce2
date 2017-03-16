@@ -20,7 +20,7 @@
 // needs to be included earlier to set the success message in the messageStack
   require('includes/languages/' . $_SESSION['language'] . '/account_newsletters.php');
 
-  $newsletter_query = tep_db_query("select customers_newsletter from " . TABLE_CUSTOMERS . " where customers_id = '" . (int)$_SESSION['customer_id'] . "'");
+  $newsletter_query = tep_db_query("select customers_newsletter from :table_customers where customers_id = '" . (int)$_SESSION['customer_id'] . "'");
   $newsletter = tep_db_fetch_array($newsletter_query);
 
   if (isset($_POST['action']) && ($_POST['action'] == 'process') && isset($_POST['formid']) && ($_POST['formid'] == $_SESSION['sessiontoken'])) {
@@ -33,7 +33,7 @@
     if ($newsletter_general != $newsletter['customers_newsletter']) {
       $newsletter_general = (($newsletter['customers_newsletter'] == '1') ? '0' : '1');
 
-      tep_db_query("update " . TABLE_CUSTOMERS . " set customers_newsletter = '" . (int)$newsletter_general . "' where customers_id = '" . (int)$_SESSION['customer_id'] . "'");
+      tep_db_query("update :table_customers set customers_newsletter = '" . (int)$newsletter_general . "' where customers_id = '" . (int)$_SESSION['customer_id'] . "'");
     }
 
     $messageStack->add_session('account', SUCCESS_NEWSLETTER_UPDATED, 'success');
