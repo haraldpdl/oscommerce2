@@ -31,7 +31,7 @@
         $data = array('info' => $encoded);
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'http://' . $target_host . $target_path);
+        curl_setopt($ch, CURLOPT_URL, 'https://' . $target_host . $target_path);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

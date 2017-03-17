@@ -69,7 +69,7 @@
       if ( !isset($result) ) {
         if (function_exists('curl_init')) {
           $ch = curl_init();
-          curl_setopt($ch, CURLOPT_URL, 'http://www.oscommerce.com/index.php?RPC&Website&Index&GetPartnerStatusUpdates');
+          curl_setopt($ch, CURLOPT_URL, 'https://www.oscommerce.com/index.php?RPC&Website&Index&GetPartnerStatusUpdates');
           curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
           $response = trim(curl_exec($ch));
           curl_close($ch);
