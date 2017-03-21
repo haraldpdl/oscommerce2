@@ -35,10 +35,15 @@
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        if ( file_exists(DIR_FS_CATALOG . 'includes/cacert.pem') ) {
+          curl_setopt($ch, CURLOPT_CAINFO, DIR_FS_CATALOG . 'includes/cacert.pem');
+        }
+
         $response = trim(curl_exec($ch));
         curl_close($ch);
       } else {
-        if ($fp = @fsockopen($target_host, 80, $errno, $errstr, 30)) {
+        if ($fp = @fsockopen('ssl://' . $target_host, 443, $errno, $errstr, 30)) {
           $data = 'info=' . $encoded;
 
           fputs($fp, "POST " . $target_path . " HTTP/1.1\r\n");

@@ -71,14 +71,20 @@
           $ch = curl_init();
           curl_setopt($ch, CURLOPT_URL, 'https://www.oscommerce.com/index.php?RPC&Website&Index&GetPartnerStatusUpdates');
           curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+          if ( file_exists(DIR_FS_CATALOG . 'includes/cacert.pem') ) {
+            curl_setopt($ch, CURLOPT_CAINFO, DIR_FS_CATALOG . 'includes/cacert.pem');
+          }
+
           $response = trim(curl_exec($ch));
+
           curl_close($ch);
 
           if (!empty($response)) {
             $result = trim($response);
           }
         } else {
-          if ($fp = @fsockopen('www.oscommerce.com', 80, $errno, $errstr, 30)) {
+          if ($fp = @fsockopen('ssl://www.oscommerce.com', 443, $errno, $errstr, 30)) {
             $header = 'GET /index.php?RPC&Website&Index&GetPartnerStatusUpdates HTTP/1.0' . "\r\n" .
                       'Host: www.oscommerce.com' . "\r\n" .
                       'Connection: close' . "\r\n\r\n";
