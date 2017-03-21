@@ -126,7 +126,7 @@
       }
 
       $process_button_string .= tep_draw_hidden_field('cart_brand_name', 'oscommerce') .
-                                tep_draw_hidden_field('cart_version_name', PROJECT_VERSION);
+                                tep_draw_hidden_field('cart_version_name', tep_get_version());
 
       return $process_button_string;
     }

@@ -27,9 +27,6 @@
     include('includes/configure.php');
   }
 
-// Define the project version --- obsolete, now retrieved with tep_get_version()
-  define('PROJECT_VERSION', 'osCommerce Online Merchant v2.3');
-
 // some code to solve compatibility issues
   require('includes/functions/compatibility.php');
 
