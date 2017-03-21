@@ -13,7 +13,6 @@
   require('includes/application_top.php');
 
   $current_version = tep_get_version();
-  $major_version = (int)substr($current_version, 0, 1);
 
   $releases = null;
   $new_versions = array();
@@ -21,34 +20,43 @@
 
   if (function_exists('curl_init')) {
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, 'https://www.oscommerce.com/version/online_merchant/' . $major_version);
+    curl_setopt($ch, CURLOPT_URL, 'https://www.oscommerce.com/index.php?RPC&GetReleases&v=' . str_replace('.', '_', $current_version));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+    if ( file_exists(DIR_FS_CATALOG . 'includes/cacert.pem') ) {
+      curl_setopt($ch, CURLOPT_CAINFO, DIR_FS_CATALOG . 'includes/cacert.pem');
+    }
+
     $response = trim(curl_exec($ch));
     curl_close($ch);
-
-    if (!empty($response)) {
-      $releases = explode("\n", $response);
-    }
   } else {
-    if ($fp = @fsockopen('www.oscommerce.com', 80, $errno, $errstr, 30)) {
-      $header = 'GET /version/online_merchant/' . $major_version . ' HTTP/1.0' . "\r\n" .
+    if ($fp = @fsockopen('ssl://www.oscommerce.com', 443, $errno, $errstr, 30)) {
+      $header = 'GET /index.php?RPC&GetReleases&v=' . str_replace('.', '_', $current_version) . ' HTTP/1.0' . "\r\n" .
                 'Host: www.oscommerce.com' . "\r\n" .
                 'Connection: close' . "\r\n\r\n";
 
       fwrite($fp, $header);
 
-      $response = '';
+      $res = '';
       while (!feof($fp)) {
-        $response .= fgets($fp, 1024);
+        $res .= fgets($fp, 1024);
       }
 
       fclose($fp);
 
-      $response = explode("\r\n\r\n", $response); // split header and content
+      $res = explode("\r\n\r\n", $res); // split header and content
 
-      if (isset($response[1]) && !empty($response[1])) {
-        $releases = explode("\n", trim($response[1]));
+      if (isset($res[1]) && !empty($res[1])) {
+        $response = $res[1];
       }
+    }
+  }
+
+  if (isset($response) && !empty($response)) {
+    $response = @json_decode($response, true);
+
+    if (json_last_error() === JSON_ERROR_NONE) {
+      $releases = $response;
     }
   }
 
@@ -59,17 +67,15 @@
       fclose($f);
     }
 
-    foreach ($releases as $version) {
-      $version_array = explode('|', $version);
-
-      if (version_compare($current_version, $version_array[0], '<')) {
-        $new_versions[] = $version_array;
+    foreach ($releases as $release) {
+      if (version_compare($release['version'], $current_version, '>')) {
+        $new_versions[] = $release;
       }
     }
 
     if (!empty($new_versions)) {
       $check_message = array('class' => 'secWarning',
-                             'message' => sprintf(VERSION_UPGRADES_AVAILABLE, $new_versions[0][0]));
+                             'message' => sprintf(VERSION_UPGRADES_AVAILABLE, tep_output_string_protected($new_versions[0]['version'])));
     } else {
       $check_message = array('class' => 'secSuccess',
                              'message' => VERSION_RUNNING_LATEST);
@@ -122,9 +128,9 @@
     foreach ($new_versions as $version) {
 ?>
               <tr class="dataTableRow" onmouseover="rowOverEffect(this)" onmouseout="rowOutEffect(this)">
-                <td class="dataTableContent"><?php echo '<a href="' . $version[2] . '" target="_blank">osCommerce Online Merchant v' . $version[0] . '</a>'; ?></td>
-                <td class="dataTableContent"><?php echo tep_date_long(substr($version[1], 0, 4) . '-' . substr($version[1], 4, 2) . '-' . substr($version[1], 6, 2)); ?></td>
-                <td class="dataTableContent" align="right"><?php echo '<a href="' . $version[2] . '" target="_blank">' . tep_image('images/icon_info.gif', IMAGE_ICON_INFO) . '</a>'; ?>&nbsp;</td>
+                <td class="dataTableContent"><?php echo '<a href="' . tep_output_string_protected($version['news_link']) . '" target="_blank">osCommerce Online Merchant v' . tep_output_string_protected($version['version']) . '</a>'; ?></td>
+                <td class="dataTableContent"><?php echo tep_output_string_protected(tep_date_long($version['date'])); ?></td>
+                <td class="dataTableContent" align="right"><?php echo '<a href="' . tep_output_string_protected($version['news_link']) . '" target="_blank">' . tep_image('images/icon_info.gif', IMAGE_ICON_INFO) . '</a>'; ?>&nbsp;</td>
               </tr>
 <?php
     }

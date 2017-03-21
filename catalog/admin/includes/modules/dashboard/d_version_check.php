@@ -37,10 +37,8 @@
 
         $releases = unserialize(implode('', file($cache_file)));
 
-        foreach ($releases as $version) {
-          $version_array = explode('|', $version);
-
-          if (version_compare($current_version, $version_array[0], '<')) {
+        foreach ($releases as $release) {
+          if (version_compare($release['version'], $current_version, '>')) {
             $new_version = true;
             break;
           }
