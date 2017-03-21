@@ -50,7 +50,7 @@
   while ($whos_online = tep_db_fetch_array($whos_online_query)) {
     $time_online = (time() - $whos_online['time_entry']);
     if ((!isset($_GET['info']) || (isset($_GET['info']) && ($_GET['info'] == $whos_online['session_id']))) && !isset($info)) {
-      $info = new ObjectInfo($whos_online);
+      $info = new objectInfo($whos_online);
     }
 
     if (isset($info) && ($whos_online['session_id'] == $info->session_id)) {
