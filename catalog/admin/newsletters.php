@@ -132,9 +132,9 @@
       $newsletter_query = tep_db_query("select title, content, module from :table_newsletters where newsletters_id = '" . (int)$nID . "'");
       $newsletter = tep_db_fetch_array($newsletter_query);
 
-      $nInfo->do($newsletter);
+      $nInfo->apply($newsletter);
     } elseif ($_POST) {
-      $nInfo->do($_POST);
+      $nInfo->apply($_POST);
     }
 
     $file_extension = substr($PHP_SELF, strrpos($PHP_SELF, '.'));

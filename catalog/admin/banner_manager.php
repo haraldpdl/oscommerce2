@@ -221,9 +221,9 @@ function popupImageWindow(url) {
       $banner_query = tep_db_query("select banners_title, banners_url, banners_image, banners_group, banners_html_text, status, date_format(date_scheduled, '%Y/%m/%d') as date_scheduled, date_format(expires_date, '%Y/%m/%d') as expires_date, expires_impressions, date_status_change from :table_banners where banners_id = '" . (int)$bID . "'");
       $banner = tep_db_fetch_array($banner_query);
 
-      $bInfo->do($banner);
+      $bInfo->apply($banner);
     } elseif (tep_not_null($_POST)) {
-      $bInfo->do($_POST);
+      $bInfo->apply($_POST);
     }
 
     $groups_array = array();
